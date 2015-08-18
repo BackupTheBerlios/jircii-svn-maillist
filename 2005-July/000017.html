@@ -1,0 +1,609 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Jircii-svn] r37 - in rero: resources/help resources/toplevel resources/toplevel/docs src/rero/client/script src/rero/config
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/jircii-svn/2005-July/index.html" >
+   <LINK REL="made" HREF="mailto:jircii-svn%40lists.berlios.de?Subject=Re%3A%20%5BJircii-svn%5D%20r37%20-%20in%20rero%3A%20resources/help%20resources/toplevel%20resources/toplevel/docs%20src/rero/client/script%20src/rero/config&In-Reply-To=%3C200507181556.j6IFuHj9015555%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000016.html">
+   <LINK REL="Next"  HREF="000018.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Jircii-svn] r37 - in rero: resources/help resources/toplevel resources/toplevel/docs src/rero/client/script src/rero/config</H1>
+    <B>Raphael Mudge at BerliOS</B> 
+    <A HREF="mailto:jircii-svn%40lists.berlios.de?Subject=Re%3A%20%5BJircii-svn%5D%20r37%20-%20in%20rero%3A%20resources/help%20resources/toplevel%20resources/toplevel/docs%20src/rero/client/script%20src/rero/config&In-Reply-To=%3C200507181556.j6IFuHj9015555%40sheep.berlios.de%3E"
+       TITLE="[Jircii-svn] r37 - in rero: resources/help resources/toplevel resources/toplevel/docs src/rero/client/script src/rero/config">rsmudge at berlios.de
+       </A><BR>
+    <I>Mon Jul 18 17:56:17 CEST 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000016.html">[Jircii-svn] r36 - in rero: lib resources/help resources/toplevel resources/toplevel/docs src/rero/client/dcc src/rero/client/functions src/rero/config src/rero/dialogs src/rero/gui/windows src/rero/ircfw src/rero/net src/rero/util src/text src/text/list
+</A></li>
+        <LI>Next message: <A HREF="000018.html">[Jircii-svn] r38 - rero/src/text/wrapped
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#17">[ date ]</a>
+              <a href="thread.html#17">[ thread ]</a>
+              <a href="subject.html#17">[ subject ]</a>
+              <a href="author.html#17">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: rsmudge
+Date: 2005-07-18 17:56:17 +0200 (Mon, 18 Jul 2005)
+New Revision: 37
+
+Modified:
+   rero/resources/help/About
+   rero/resources/help/Contributors
+   rero/resources/toplevel/docs/jircii.faq
+   rero/resources/toplevel/readme.txt
+   rero/resources/toplevel/whatsnew.txt
+   rero/src/rero/client/script/ScriptManager.java
+   rero/src/rero/config/ClientDefaults.java
+Log:
+Final changes, b38 wh00t
+
+
+Modified: rero/resources/help/About
+===================================================================
+--- rero/resources/help/About	2005-07-18 15:34:42 UTC (rev 36)
++++ rero/resources/help/About	2005-07-18 15:56:17 UTC (rev 37)
+@@ -11,7 +11,7 @@
+ &lt;br&gt;
+ &lt;br&gt;&lt;b&gt;Contact Information&lt;/b&gt;&lt;/font&gt;
+ &lt;br&gt;
+-&lt;br&gt;My name is Raffi, I wrote jIRCii (with some help see Contributors section).  If you'd like to get in touch with me feel free to email me.
++&lt;br&gt;My name is Raffi, I wrote jIRCii (with some help, see the Contributors section).  If you'd like to get in touch with me feel free to email me.
+ &lt;br&gt;
+ &lt;br&gt;email: &lt;a href=&quot;mailto:<A HREF="https://lists.berlios.de/mailman/listinfo/jircii-svn">raffi at hick.org</A>&quot;&gt;<A HREF="https://lists.berlios.de/mailman/listinfo/jircii-svn">raffi at hick.org</A>&lt;/a&gt;
+ &lt;br&gt;www: &lt;a href=&quot;<A HREF="http://www.hick.org/~raffi/">http://www.hick.org/~raffi/</A>&quot;&gt;<A HREF="http://www.hick.org/~raffi/&lt;/a">http://www.hick.org/~raffi/&lt;/a</A>&gt;
+
+Modified: rero/resources/help/Contributors
+===================================================================
+--- rero/resources/help/Contributors	2005-07-18 15:34:42 UTC (rev 36)
++++ rero/resources/help/Contributors	2005-07-18 15:56:17 UTC (rev 37)
+@@ -2,10 +2,9 @@
+ &lt;br&gt;
+ &lt;br&gt;jIRCii has been a work in progress for a long time now.  I originally started it as a project to learn java while in high school.  I tinkered with it as a hobby throughout college.  I didn't make that final push to create a release quality product until now though.  Anyways with such a long history as a project there are to many people to thank so I'm going to keep this list short.
+ &lt;br&gt;
+-&lt;br&gt;&lt;p&gt;Development Team&lt;/p&gt;
+-&lt;br&gt;Serge Baranov
+-&lt;br&gt;Raphael Mudge
+-&lt;br&gt;Andreas Ravnestad
++&lt;br&gt;&lt;b&gt;Development Team&lt;/b&gt;
++&lt;br&gt;Serge Baranov (&lt;i&gt;Serge&lt;/i&gt;)
++&lt;br&gt;Andreas Ravnestad (&lt;i&gt;oracel&lt;/i&gt;)
+ &lt;br&gt;
+ &lt;br&gt;&lt;b&gt;Patch Contributors&lt;/b&gt;
+ &lt;br&gt;Mouton - found and fixed a Ctrl+K parsing bug
+
+Modified: rero/resources/toplevel/docs/jircii.faq
+===================================================================
+--- rero/resources/toplevel/docs/jircii.faq	2005-07-18 15:34:42 UTC (rev 36)
++++ rero/resources/toplevel/docs/jircii.faq	2005-07-18 15:56:17 UTC (rev 37)
+@@ -1,4 +1,4 @@
+-jircii faq - distributed with jircii 07.13.05:
++jircii faq - distributed with jircii 07.18.05:
+ 
+                .sS$$Ss.                           .sS$$Ss. .sS$$Ss.
+                $$$$$$$$                           $$$$$$$$ $$$$$$$$
+@@ -9,7 +9,7 @@
+          $$$$$$ $$$$$$ $$$$$$ $$$$$$ $$$$$$ $$$$$$ $$$$$$   $$$$$$
+          $$$$$$ $$$$$$ $$$$$$ $$$$$$ $$$$$$        $$$$$$   $$$$$$
+   &quot;&quot;&quot;&quot;&quot;&quot; $$$$$$ $$$$$$ $$$$$$        $$$$$$ $$$$$$ $$$$$$   $$$$$$
+-  $$$$$$ $$$$$$ $$$$$$ $$$$$$ 071305 $$$$$$ $$$$$$ $$$$$$   $$$$$$
++  $$$$$$ $$$$$$ $$$$$$ $$$$$$ 071805 $$$$$$ $$$$$$ $$$$$$   $$$$$$
+   $$$$$$ $$$$$$ $$$$$$ $$$$$$        `?$$$$s$$$$P' $$$$$$   $$$$$$
+   `?$$$$s$$$$P'                                        
+ 
+@@ -30,50 +30,51 @@
+  9. What do the faded nicknames in the channel listbox mean?
+ 10. What is a jIRCii theme?
+ 11. How do I copy and paste in jIRCii?
+-12. Where does jIRCii store its settings?
+-13. How do I edit the jIRCii color scheme?
+-14. How can I change ________ in the default jIRCii script?
+-15. Is it possible to assign keyboard shortcuts in jIRCii?
+-16. How do I get 24-hour format time stamps?
++12. I can't cut text with Ctrl+X, what's wrong?
++13. Where does jIRCii store its settings?
++14. How do I edit the jIRCii color scheme?
++15. How can I change ________ in the default jIRCii script?
++16. Is it possible to assign keyboard shortcuts in jIRCii?
++17. How do I get 24-hour format time stamps?
+ 
+-17. What is the difference between a .THM and a .IRC file?
+-18. How do I reload jIRCii scripts?
++18. What is the difference between a .THM and a .IRC file?
++19. How do I reload jIRCii scripts?
+ 
+-19. What options need to be filled in to connect to an irc server?
+-20. How do I connect to multiple servers?  What command do I use?
+-21. How do I close the current IRC session?
+-22. How do I connect to an SSL server?
++20. What options need to be filled in to connect to an irc server?
++21. How do I connect to multiple servers?  What command do I use?
++22. How do I close the current IRC session?
++23. How do I connect to an SSL server?
+ 
+-23. How do I create a list of channels to automatically join?
+-24. How do I set jIRCii to automatically connect to a server on startup?
+-25. How can I make the server tabs get my attention when something happens?
++24. How do I create a list of channels to automatically join?
++25. How do I set jIRCii to automatically connect to a server on startup?
++26. How can I make the server tabs get my attention when something happens?
+ 
+-26. How do I specify my own local IP address information for DCCs?
+-27. What is Ident?  Do I have to use it?
++27. How do I specify my own local IP address information for DCCs?
++28. What is Ident?  Do I have to use it?
+ 
+-28. How do I use a different Java look and feel with jIRCii?
+-29. How do I make my statusbar transparent?
+-30. How do I change the statusbar color?
+-31. How can I set a background image in jIRCii?
+-32. Can I make jIRCii windows transparent?
++29. How do I use a different Java look and feel with jIRCii?
++30. How do I make my statusbar transparent?
++31. How do I change the statusbar color?
++32. How can I set a background image in jIRCii?
++33. Can I make jIRCii windows transparent?
+ 
+-33. Why don't you allow plugins written in Java, C, Python, Visual Basic etc.?
++34. Why don't you allow plugins written in Java, C, Python, Visual Basic etc.?
+ 
+-34. Will you ever charge money for jIRCii?
+-35. Can I get the jIRCii source code?
+-36. Can I use portions of jIRCii's source code in my GPL project?
+-37. What do the release designations (stable, beta) mean?
+-38. How do I embed jIRCii into my website?
++35. Will you ever charge money for jIRCii?
++36. Can I get the jIRCii source code?
++37. Can I use portions of jIRCii's source code in my GPL project?
++38. What do the release designations (stable, beta) mean?
++39. How do I embed jIRCii into my website?
+ 
+-39. What development environment do you use?
+-40. Why write another Java IRC Client?
+-41. What clients did you rip^H^H^H receive inspiration from?
+-42. How long has jIRCii been in development?
+-43. Why don't you wait until you have more changes to do a release?
++40. What development environment do you use?
++41. Why write another Java IRC Client?
++42. What clients did you rip^H^H^H receive inspiration from?
++43. How long has jIRCii been in development?
++44. Why don't you wait until you have more changes to do a release?
+ 
+-44. I disabled my jircii menubar, how do I get it back?
+-45. How do I reset the jIRCii settings?
+-46. My jIRCii window flashes or acts crazy occasionally, what's wrong?
++45. I disabled my jircii menubar, how do I get it back?
++46. How do I reset the jIRCii settings?
++47. My jIRCii window flashes or acts crazy occasionally, what's wrong?
+ 
+ If a question you would like answered is not here then post your question to 
+ the jIRCii Message Board at <A HREF="http://jircii.hick.org/jirc/wwwboard.prl">http://jircii.hick.org/jirc/wwwboard.prl</A>
+@@ -224,8 +225,23 @@
+     paste.  Or you can use the cut, copy, paste keyboard shortcuts specific
+     to your operating system.
+ 
+-12. Where does jIRCii store its settings?
++12. I can't cut text with Ctrl+X, what's wrong?
+ 
++    Beleive it or not this actually isn't a bug.  jIRCii binds Ctrl+X by
++    default to switch the current active query in case you are IRC'ing out
++    of your status window (i.e. all auto /window options turned off).  
++
++    This is consistent with the Ctrl+X binding used by BitchX.  If you would
++    like Ctrl+X to provide the normal service of cutting text, paste the
++    following into notepad, save it, and load it into jIRCii:
++
++    bind Ctrl+X
++    {
++       cutSelectedText();
++    }
++
++13. Where does jIRCii store its settings?
++
+     jIRCii creates a folder called &quot;.jIRC&quot; in your home directory.  On UNIX
+     systems your home directory should be kind of obvious.  On Windows your
+     home directory will be something like:
+@@ -233,7 +249,7 @@
+ 
+     All of your settings are saved to this directory.  
+ 
+-13. How do I edit the jIRCii color scheme?
++14. How do I edit the jIRCii color scheme?
+ 
+     First off you don't have to script a single line of code to do this.  
+     Most of jIRCii colors can be edited by holding down shift and clicking 
+@@ -260,7 +276,7 @@
+     using the theme manager so you can share your color settings with 
+     others.
+       
+-14. How can I change ________ in the default jIRCii script?
++15. How can I change ________ in the default jIRCii script?
+ 
+     jIRCii internally has two scripts loaded.  default.irc contains all of
+     the default sets and a few commands.  menus.irc contains the popup and
+@@ -280,7 +296,7 @@
+     For more information on this feature see the file scriptjirc.pdf 
+     located in the docs/ directory of the jIRCii archive.
+     
+-15. Is it possible to assign keyboard shortcuts in jIRCii?
++16. Is it possible to assign keyboard shortcuts in jIRCii?
+ 
+     It is possible to do this.  However you must use jIRCii's scripting
+     interface.  Just about any key combination can be turned into a keyboard
+@@ -298,7 +314,7 @@
+     myscript.irc.  You can then load this file using the jIRCii script
+     manager.
+ 
+-16. How do I get 24-hour format time stamps?
++17. How do I get 24-hour format time stamps?
+ 
+     To change the timestamp format you will have to do a little bit of 
+     scripting.  Open up your favorite text editor and enter in the following:
+@@ -319,7 +335,7 @@
+     Appendix D of the Sleep Language Fundamentals:
+     <A HREF="http://jirc.hick.org/jirc/tutorial.prl?sleeplang#15">http://jirc.hick.org/jirc/tutorial.prl?sleeplang#15</A>
+ 
+-17. What is the difference between a .THM and a .IRC file?
++18. What is the difference between a .THM and a .IRC file?
+ 
+     A .THM file is a jIRCii theme script.  These are created with the jIRCii
+     theme manager under View-&gt;Options-&gt;Theme Manager.  A .thm file is the 
+@@ -330,7 +346,7 @@
+     to jIRCii.  These are created by users.  A jIRCii script is loaded with
+     the /load command or via the Script Manager.
+ 
+-18. How do I reload jIRCii scripts?
++19. How do I reload jIRCii scripts?
+ 
+     To reload a jIRCii script use the /reload command i.e.:
+     /reload myscript.irc
+@@ -339,7 +355,7 @@
+     Once a script is loaded jIRCii knows where the script is located and will
+     manage that detail for you.
+ 
+-19. What options need to be filled in to connect to an irc server?
++20. What options need to be filled in to connect to an irc server?
+ 
+     When you first launch jIRCii the options dialog will be open.  To 
+     connect to an IRC server you merely need to fill in the User 
+@@ -357,23 +373,23 @@
+     With this information filled in you should be ready to connect to an
+     irc server.
+  
+-20. How do I connect to multiple servers?  What command do I use?
++21. How do I connect to multiple servers?  What command do I use?
+ 
+     jIRCii is a multiserver IRC client.  To create a new server connection
+     you can use the /newserver command.
+ 
+-21. How do I close the current IRC session?
++22. How do I close the current IRC session?
+ 
+     To close the current IRC session simply close the &quot;Status&quot; window. 
+ 
+-22. How do I connect to an SSL server?
++23. How do I connect to an SSL server?
+ 
+     To connect to an SSL (Secure Socket Layer) with jIRCii simply
+     use:
+ 
+     /server -ssl server.hostname portnumber
+ 
+-23. How do I create a list of channels to automatically join?
++24. How do I create a list of channels to automatically join?
+ 
+     It is possible to set jIRCii to execute commands upon connecting to
+     a server using the Perform on Connect feature.  You can define
+@@ -396,7 +412,7 @@
+     The perform on connect feature can be used to execute any commands you
+     want when connecting to a server.
+ 
+-24. How do I set jIRCii to automatically connect to a server on startup?
++25. How do I set jIRCii to automatically connect to a server on startup?
+ 
+     a. Go to View -&gt; Options -&gt; jIRCii Setup.
+     b. Select the server you want to automatically connect to on startup.
+@@ -409,7 +425,7 @@
+     server list.  Any servers configured to be connected to on startup
+     will be blue.
+ 
+-25. How can I make the server tabs get my attention when something happens?
++26. How can I make the server tabs get my attention when something happens?
+ 
+    The normal answer I give to a feature request like this is to script
+    it.  Fortunately it has already been scripted.  You can download 
+@@ -417,7 +433,7 @@
+ 
+    <A HREF="http://jircii.hick.org/cgi-bin/jirc.cgi?ACTION=VIEW&amp;PAGE=contrib">http://jircii.hick.org/cgi-bin/jirc.cgi?ACTION=VIEW&amp;PAGE=contrib</A>    
+ 
+-26. How do I specify my own local IP address information for DCCs?
++27. How do I specify my own local IP address information for DCCs?
+ 
+     If you would like to set a specific IP address that others use to 
+     connect to you to receive files via DCC then:
+@@ -440,7 +456,7 @@
+     If you have any doubts on what to use then set jIRCii to use the
+     Server method.
+  
+-27. What is Ident?  Do I have to use it?
++28. What is Ident?  Do I have to use it?
+ 
+     Ident is an outdated protocol that many IRC servers expect your computer
+     to respond to.  Essentially it is an Identification server.
+@@ -471,7 +487,7 @@
+     If your using MacOS X, Linux, or any other *NIX variant then you don't
+     need to enable ident.  In fact don't enable it.
+  
+-28. How do I use a different Java look and feel with jIRCii?
++29. How do I use a different Java look and feel with jIRCii?
+ 
+     For those that don't know look and feels are a skinnining mechanism 
+     for Java.  An update to date selection of look and feels can be found
+@@ -498,7 +514,7 @@
+                      rero.test.WindowTest 
+                      -lnf com.birosoft.liquid.LiquidLookAndFeel
+ 
+-29. How do I make my statusbar transparent?
++30. How do I make my statusbar transparent?
+ 
+     a. Go to View -&gt; Options -&gt; Backgrounds.
+     b. Click on the statusbar in the preview thing in the top half of the 
+@@ -507,7 +523,7 @@
+     d. Select the Setup tab to change the tint color of the transparency
+     e. Select the Tint tab to adjust the level of transparency
+ 
+-30. How do I change the statusbar color?
++31. How do I change the statusbar color?
+ 
+     a. Go to View -&gt; Options -&gt; Backgrounds.
+     b. Click on the statusbar in the preview thing in the top half of the 
+@@ -518,7 +534,7 @@
+     Feel free to experiment with different combinations of background 
+     options.  
+   
+-31. How can I set a background image in jIRCii?
++32. How can I set a background image in jIRCii?
+ 
+     a. Go to View -&gt; Options -&gt; Backgrounds
+     b. Click on the window in the preview thing.  The window is the inner 
+@@ -531,7 +547,7 @@
+     preview thing.  The label in the middle of the dialog will reflect
+     which element of the display your editing background properties for.
+ 
+-32. Can I make jIRCii windows transparent?
++33. Can I make jIRCii windows transparent?
+ 
+     You can't make jIRCii windows themselves transparent.  However you
+     can setup an effect known as pseudotransprency. 
+@@ -565,7 +581,7 @@
+     configurations for your window backgrounds.  This is the only eye candy
+     you'll get so enjoy it.
+ 
+-33. Why don't you allow plugins written in Java, C, Python, Visual Basic etc.?
++34. Why don't you allow plugins written in Java, C, Python, Visual Basic etc.?
+ 
+     Some people have asked me why I use sleep and not some masterpeice of 
+     a language like Python.  Short answer is this:
+@@ -590,12 +606,12 @@
+ 
+     As for plugins and such.  Why not just modify the source code?
+ 
+-34. Will you ever charge money for jIRCii?
++35. Will you ever charge money for jIRCii?
+ 
+     No.  jIRCii is my gift to the IRC community.  Therefor I can't charge
+     money for the client.  However I may charge for shipping and handling.
+ 
+-35. Can I get the jIRCii source code?
++36. Can I get the jIRCii source code?
+ 
+     Yes!  jIRCii is an open source client.  jIRCii source code and 
+     binaries are released under the artistic license.  
+@@ -619,7 +635,7 @@
+     source project so long as I receive some form of credit for the code
+     I wrote.  If you modify it please note that too.
+ 
+-36. Can I use portions of jIRCii's source code in my GPL project?
++37. Can I use portions of jIRCii's source code in my GPL project?
+ 
+     Short answer, yes.  I grant you permission to use any jIRCii code &quot;I
+     wrote&quot; licensed under the artistic license in your GPL project and to
+@@ -629,7 +645,7 @@
+     of the license feels like a bit of a lock-in to me.  However feel 
+     free to do what you need to do.  :)
+ 
+-37. What do the release designations (stable, beta) mean?
++38. What do the release designations (stable, beta) mean?
+ 
+     No one has asked me this yet. However I'm going to answer because I'm 
+     sure someone is curious. 
+@@ -641,7 +657,7 @@
+     recently released beta. As such stable releases are considered stable 
+     since they've been tested by people other than me. 
+ 
+-38. How do I embed jIRCii into my website?
++39. How do I embed jIRCii into my website?
+ 
+     You can do this by using the jIRCii launch service.  jIRCii launch
+     service provides a way of specifying an irc server and a channel when
+@@ -655,7 +671,7 @@
+     More info about jIRCii launch service can be found at:
+     <A HREF="http://jircii.hick.org/jirc/link.prl">http://jircii.hick.org/jirc/link.prl</A>
+ 
+-39. What development environment do you use?
++40. What development environment do you use?
+ 
+     Don't laugh, I use pico as my text editor.  I should be shot.  Or
+     maybe given an award for writing over 40,000 lines of code in pico.
+@@ -679,11 +695,11 @@
+     10.3.4.  jIRCii development in the past has been done on Linux using
+     the same type of environment and on Windows using editplus.  
+ 
+-40. Why write another Java IRC Client?
++41. Why write another Java IRC Client?
+ 
+     I don't own a TV or a playstation and I needed something to do.
+ 
+-41. What clients did you rip^H^H^H receive inspiration from?
++42. What clients did you rip^H^H^H receive inspiration from?
+ 
+     Years ago back when I was an IRC scripter.  I wrote an addon called
+     mIRCii.  mIRCii was essentially a multi-server addon for mIRC.  You
+@@ -713,7 +729,7 @@
+     mIRC gets points for heavy influence by default.  Since mIRC is the 
+     client most people use.
+ 
+-42. How long has jIRCii been in development?
++43. How long has jIRCii been in development?
+ 
+     I started writing jIRCii when I was in high school.  This was mostly
+     an effort to learn Java.  jIRC was my senior project for my high school
+@@ -768,7 +784,7 @@
+     Short answer:  I've been working on this client for a looong freaking
+     time.  
+ 
+-43. Why don't you wait until you have more changes to do a release?
++44. Why don't you wait until you have more changes to do a release?
+ 
+     Good question.  You may notice the main package jIRCii classes are 
+     stored in is named &quot;rero&quot;.  I named the jIRCii package this because
+@@ -792,7 +808,7 @@
+     then I recommend downloading a released labeled stable and just
+     waiting until the next stable release ignoring betas in between.  
+ 
+-44. I disabled my jircii menubar, how do I get it back?
++45. I disabled my jircii menubar, how do I get it back?
+ 
+     Open up the options dialog using Alt+O.  From there navigate to 
+     &quot;GUI Setup&quot; near the bottom.  Make sure the box &quot;Show menubar&quot; is
+@@ -802,7 +818,7 @@
+     This could be due to a rogue script that got loaded.  The best thing 
+     to do in this case is to reset your jIRCii settings.
+ 
+-45. How do I reset the jIRCii settings?
++46. How do I reset the jIRCii settings?
+ 
+     You should only need to do this if your jIRCii settings become really 
+     messed up.  Symptoms of messed up settings include nothing happening
+@@ -824,7 +840,7 @@
+  
+     Do a file search for .jIRC and delete it.   
+ 
+-46. My jIRCii window flashes or acts crazy occasionally, what's wrong?
++47. My jIRCii window flashes or acts crazy occasionally, what's wrong?
+ 
+     Java uses a lot of video card hardware tricks to enhance performance.
+     Unfortunately buggy video card drivers can cause problems with the
+
+Modified: rero/resources/toplevel/readme.txt
+===================================================================
+--- rero/resources/toplevel/readme.txt	2005-07-18 15:34:42 UTC (rev 36)
++++ rero/resources/toplevel/readme.txt	2005-07-18 15:56:17 UTC (rev 37)
+@@ -1,5 +1,5 @@
+  ------- -------------------- ---------   ---------------  ------- ---------
+-jIRCii - Beta (37) 07.13.05 - README
++jIRCii - Beta (38) 07.18.05 - README
+ -  ------------- -------- -   ---------------- --       -    -     -     - - -
+ 
+ The official jIRCii homepage is at: <A HREF="http://jircii.hick.org">http://jircii.hick.org</A>
+
+Modified: rero/resources/toplevel/whatsnew.txt
+===================================================================
+--- rero/resources/toplevel/whatsnew.txt	2005-07-18 15:34:42 UTC (rev 36)
++++ rero/resources/toplevel/whatsnew.txt	2005-07-18 15:56:17 UTC (rev 37)
+@@ -1,16 +1,17 @@
+ Beta 38 
+ ====
+ - jIRCii command history behavior has been completely overhauled to feel
+-  more like mIRC and other clients (- Oracel -)
++  more like mIRC and other clients (oracel)
++- fixed pasted text being omitted from command history (oracel)
+ - a bug has been fixed where jIRCii list dialogs (/list etc.) did not
+-  have the appropriate row height set (- Serge -)
+-- windows can now be closed by shift+clicking the switchbar button (- Serge -)
+-- added better URL matching for clicked links (- Serge -)
++  have the appropriate row height set (Serge)
++- windows can now be closed by shift+clicking the switchbar button (Serge)
++- added better URL matching for clicked links (Serge)
+ - added a check to getModeFor() to prevent a null pointer exception
+ - fixed a potential deadlock issue from the listbox painting code
+ - upgraded scripting library to Sleep 2.0-stable
+ - fixed repainting issues with the channel listbox and statusbar under XP
+-  (Serge/Raffi)
++  (Serge/raffi)
+ - fixed bug with auto resume option, if a file is complete, auto resume
+   will no longer pop up a dialog asking you to rename the saved file.
+   (the idea behind the auto options is to be hands off...); a message is
+@@ -18,6 +19,7 @@
+ - moved the Update IAL on Join and Auto Reconnect options to a new dialog
+   panel called Client Options
+ - added an option to strip out all formatting codes from IRC messages
++- fixed /load ~/file not resolving ~
+ 
+ Beta 37 release 07.13.05
+ ====
+
+Modified: rero/src/rero/client/script/ScriptManager.java
+===================================================================
+--- rero/src/rero/client/script/ScriptManager.java	2005-07-18 15:34:42 UTC (rev 36)
++++ rero/src/rero/client/script/ScriptManager.java	2005-07-18 15:56:17 UTC (rev 37)
+@@ -95,6 +95,8 @@
+ 
+    public void addScript(String filename)
+    {
++      filename = ClientUtils.getFile(filename).getAbsolutePath();
++
+       if ((new File(filename)).exists())
+       {
+          StringList temp = ClientState.getClientState().getStringList(&quot;script.files&quot;);
+
+Modified: rero/src/rero/config/ClientDefaults.java
+===================================================================
+--- rero/src/rero/config/ClientDefaults.java	2005-07-18 15:34:42 UTC (rev 36)
++++ rero/src/rero/config/ClientDefaults.java	2005-07-18 15:56:17 UTC (rev 37)
+@@ -77,7 +77,7 @@
+ 
+    public static final boolean update_ial     = true;
+ 
+-   public static final String  version_string = &quot;07.13.05&quot;;
++   public static final String  version_string = &quot;07.18.05&quot;;
+ 
+    static
+    {
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000016.html">[Jircii-svn] r36 - in rero: lib resources/help resources/toplevel resources/toplevel/docs src/rero/client/dcc src/rero/client/functions src/rero/config src/rero/dialogs src/rero/gui/windows src/rero/ircfw src/rero/net src/rero/util src/text src/text/list
+</A></li>
+	<LI>Next message: <A HREF="000018.html">[Jircii-svn] r38 - rero/src/text/wrapped
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#17">[ date ]</a>
+              <a href="thread.html#17">[ thread ]</a>
+              <a href="subject.html#17">[ subject ]</a>
+              <a href="author.html#17">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/jircii-svn">More information about the Jircii-svn
+mailing list</a><br>
+</body></html>

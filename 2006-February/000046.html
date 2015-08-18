@@ -1,0 +1,701 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Jircii-svn] r64 - in rero: resources/resource resources/toplevel src/rero/config src/rero/gui src/rero/ircfw
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/jircii-svn/2006-February/index.html" >
+   <LINK REL="made" HREF="mailto:jircii-svn%40lists.berlios.de?Subject=Re%3A%20%5BJircii-svn%5D%20r64%20-%20in%20rero%3A%20resources/resource%20resources/toplevel%20src/rero/config%20src/rero/gui%20src/rero/ircfw&In-Reply-To=%3C200602122303.k1CN3MPx027744%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   
+   <LINK REL="Next"  HREF="000047.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Jircii-svn] r64 - in rero: resources/resource resources/toplevel src/rero/config src/rero/gui src/rero/ircfw</H1>
+    <B>crazycoder at BerliOS</B> 
+    <A HREF="mailto:jircii-svn%40lists.berlios.de?Subject=Re%3A%20%5BJircii-svn%5D%20r64%20-%20in%20rero%3A%20resources/resource%20resources/toplevel%20src/rero/config%20src/rero/gui%20src/rero/ircfw&In-Reply-To=%3C200602122303.k1CN3MPx027744%40sheep.berlios.de%3E"
+       TITLE="[Jircii-svn] r64 - in rero: resources/resource resources/toplevel src/rero/config src/rero/gui src/rero/ircfw">crazycoder at berlios.de
+       </A><BR>
+    <I>Mon Feb 13 00:03:22 CET 2006</I>
+    <P><UL>
+        
+        <LI>Next message: <A HREF="000047.html">[Jircii-svn] r65 - in rero: resources/toplevel src/rero/ircfw/data
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#46">[ date ]</a>
+              <a href="thread.html#46">[ thread ]</a>
+              <a href="subject.html#46">[ subject ]</a>
+              <a href="author.html#46">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: crazycoder
+Date: 2006-02-13 00:03:21 +0100 (Mon, 13 Feb 2006)
+New Revision: 64
+
+Modified:
+   rero/resources/resource/default.irc
+   rero/resources/toplevel/whatsnew.txt
+   rero/src/rero/config/ClientDefaults.java
+   rero/src/rero/gui/ClickableURLHandler.java
+   rero/src/rero/ircfw/InternalDataList.java
+Log:
+Bugfixes for BITCH 7013225, 7056241, 9936279
+
+Modified: rero/resources/resource/default.irc
+===================================================================
+--- rero/resources/resource/default.irc	2006-01-14 08:22:27 UTC (rev 63)
++++ rero/resources/resource/default.irc	2006-02-12 23:03:21 UTC (rev 64)
+@@ -94,14 +94,14 @@
+    {
+       return &quot;\C26@\C29 $+ $3&quot;;
+    }
+-   else if ($1 isvoice $2) 
+-   {
+-      return &quot;\C27+\C29 $+ $3&quot;;
+-   }
+    else if ($1 ishalfop $2)
+    {
+       return &quot;\C28%\C29 $+ $3&quot;;
+    }
++   else if ($1 isvoice $2)
++   {
++      return &quot;\C27+\C29 $+ $3&quot;;
++   }
+    else if ($1 hasmode $2)
+    {
+       return &quot;\C26\B&quot; . getModeFor($1, $2) . &quot;\B\C29 $+ $3&quot;;
+@@ -503,14 +503,14 @@
+   {
+      $ime = &quot;\B@\B $+ $me&quot;;
+   }
+-  else if ($me ishalfop $query) 
+-  {
+-     $ime = &quot;\B%\B $+ $me&quot;;
+-  }
+   else if ($me isvoice $query) 
+   {
+      $ime = &quot;\B+\B $+ $me&quot;;
+   }
++  else if ($me ishalfop $query)
++  {
++     $ime = &quot;\B%\B $+ $me&quot;;
++  }
+   else
+   {
+      $ime = &quot;$me&quot;;
+
+Modified: rero/resources/toplevel/whatsnew.txt
+===================================================================
+--- rero/resources/toplevel/whatsnew.txt	2006-01-14 08:22:27 UTC (rev 63)
++++ rero/resources/toplevel/whatsnew.txt	2006-02-12 23:03:21 UTC (rev 64)
+@@ -5,8 +5,10 @@
+   (oracel)
+ - Support for Unreal IRCD extended whois ('connecting from' &amp; 'using modes')
+   (Serge)
++- Fix for <A HREF="http://jirc.hick.org/cgi-bin/bitch.cgi/view.html?7013225">http://jirc.hick.org/cgi-bin/bitch.cgi/view.html?7013225</A> (Serge)
++- Fix for <A HREF="http://jirc.hick.org/cgi-bin/bitch.cgi/view.html?7056241">http://jirc.hick.org/cgi-bin/bitch.cgi/view.html?7056241</A> (Serge)
++- Fix for <A HREF="http://jirc.hick.org/cgi-bin/bitch.cgi/view.html?9936279">http://jirc.hick.org/cgi-bin/bitch.cgi/view.html?9936279</A> (Serge)
+ 
+-
+ Beta    39 release 07.30.05
+ ====
+ - The find feature is now case insensitive (oracel)
+
+Modified: rero/src/rero/config/ClientDefaults.java
+===================================================================
+--- rero/src/rero/config/ClientDefaults.java	2006-01-14 08:22:27 UTC (rev 63)
++++ rero/src/rero/config/ClientDefaults.java	2006-02-12 23:03:21 UTC (rev 64)
+@@ -77,7 +77,7 @@
+ 
+    public static final boolean update_ial     = true;
+ 
+-   public static final String  version_string = &quot;07.30.05&quot;;
++   public static final String  version_string = &quot;02.13.06 (alpha)&quot;;
+ 
+    static
+    {
+
+Modified: rero/src/rero/gui/ClickableURLHandler.java
+===================================================================
+--- rero/src/rero/gui/ClickableURLHandler.java	2006-01-14 08:22:27 UTC (rev 63)
++++ rero/src/rero/gui/ClickableURLHandler.java	2006-02-12 23:03:21 UTC (rev 64)
+@@ -1,56 +1,46 @@
+ package rero.gui;
+ 
+-import rero.client.output.*;
++import rero.client.Feature;
++import rero.util.ClientUtils;
++import text.event.ClickEvent;
++import text.event.ClickListener;
+ 
+-import java.util.*;
++import java.util.regex.Matcher;
++import java.util.regex.Pattern;
+ 
+-import rero.ircfw.interfaces.ChatListener;
+-import rero.client.*;
+-import rero.gui.*;
+-
+-import rero.util.*;
+-
+-import rero.bridges.event.*;
+-
+-import text.event.*;
+-
+ public class ClickableURLHandler extends Feature implements ClickListener
+ {
++    private static final Pattern CHAN_PATTERN = Pattern.compile(&quot;[@+%]*(#.*)&quot;);
++
+     public void wordClicked(ClickEvent ev)
+     {
+         String item = ev.getClickedText().toLowerCase();
+ 
+-        if (item.matches(&quot;^\\(*(http|https|ftp)://.*&quot;))
+-        {
++        if (item.matches(&quot;^\\(*(http|https|ftp)://.*&quot;)) {
+             ClientUtils.openURL(extractURL(ev.getClickedText()));
+             ev.consume();
+             ev.acknowledge();
+-        } else if (item.matches(&quot;^www\\..*&quot;))
+-        {
++        } else if (item.matches(&quot;^www\\..*&quot;)) {
+             String location = extractURL(ev.getClickedText());
+             ClientUtils.openURL(&quot;<A HREF="http://">http://</A>&quot; + location);
+             ev.consume();
+             ev.acknowledge();
+-        } else if (item.length() &gt; 2 &amp;&amp; ClientUtils.isChannel(item) &amp;&amp; getCapabilities().isConnected() &amp;&amp; !ev.getClickedText().endsWith(&quot;.&quot;))
+-        {
+-            getCapabilities().sendln(&quot;JOIN &quot; + ev.getClickedText());
+-            ev.consume();
+-            ev.acknowledge();
+-        } else if (item.length() &gt; 2 &amp;&amp; ClientUtils.isChannel(item.substring(1, item.length())) &amp;&amp; getCapabilities().isConnected())
+-        {
+-            getCapabilities().sendln(&quot;JOIN &quot; + ev.getClickedText().substring(1, item.length() - 1));
+-            ev.consume();
+-            ev.acknowledge();
++        } else {
++            Matcher m = CHAN_PATTERN.matcher(ev.getClickedText());
++            if (m.matches()) {
++                String chan = m.group(1).trim();
++                getCapabilities().sendln(&quot;JOIN &quot; + chan);
++                ev.consume();
++                ev.acknowledge();
++            }
+         }
+     }
+ 
+     private static String extractURL(String url)
+     {
+-        if (url.charAt(0) == '(')
+-        {
++        if (url.charAt(0) == '(') {
+             url = url.substring(1, url.length() - 1);
+         }
+-
+         return url;
+     }
+ 
+
+Modified: rero/src/rero/ircfw/InternalDataList.java
+===================================================================
+--- rero/src/rero/ircfw/InternalDataList.java	2006-01-14 08:22:27 UTC (rev 63)
++++ rero/src/rero/ircfw/InternalDataList.java	2006-02-12 23:03:21 UTC (rev 64)
+@@ -9,52 +9,55 @@
+          the bulk of this chore is handled by User List Info though.
+  */
+ 
+-import java.util.*;
+-
+-import rero.ircfw.data.GenericMode;
+ import rero.ircfw.interfaces.ChannelDataWatch;
+ 
++import java.util.*;
++
+ public class InternalDataList
+ {
+     protected String myNickname = &quot;&lt;Unknown&gt;&quot;;
+     protected HashMap users = new HashMap(); /* key=&lt;string&gt;, value=&lt;User&gt; */
+     protected MyUser myInformation = new MyUser();
+     protected HashMap channels = new HashMap(); /* key=&lt;string&gt; value=&lt;Channel&gt; */
+-    protected HashMap sync     = new HashMap(); /* key=&lt;string&gt; value=&lt;ChannelDataWatch&gt; */
++    protected HashMap sync = new HashMap(); /* key=&lt;string&gt; value=&lt;ChannelDataWatch&gt; */
+ 
+-    protected HashMap wasOn    = new HashMap(); /* key=String value=Set hashmap containing nick-&gt;channel mappings for all users who quit.  Upon its first access though the value is removed. */
++    protected HashMap wasOn =
++        new HashMap(); /* key=String value=Set hashmap containing nick-&gt;channel mappings for all users who quit.  Upon its first access though the value is removed. */
+ 
+-    protected UserMode umode   = new UserMode(&quot;ohv&quot;, &quot;@%+&quot;);
++    protected UserMode umode = new UserMode(&quot;ohv&quot;, &quot;@%+&quot;);
+ 
+     protected HashMap iSupport = new HashMap();
+ 
+     public void reset()
+     {
+-       myNickname    = &quot;&lt;Unknown&gt;&quot;;
+-       users         = new HashMap();
+-       myInformation = new MyUser();
+-       channels      = new HashMap();
+-       umode         = new UserMode(&quot;ohv&quot;, &quot;@%+&quot;);
+-       iSupport      = new HashMap();
++        myNickname = &quot;&lt;Unknown&gt;&quot;;
++        users = new HashMap();
++        myInformation = new MyUser();
++        channels = new HashMap();
++        umode = new UserMode(&quot;ohv&quot;, &quot;@%+&quot;);
++        iSupport = new HashMap();
+     }
+ 
+     public Set getChannelsFromPriorLife(String nick)
+     {
+-       Set temp = (Set)wasOn.get(nick);
+-       wasOn.remove(temp);
+-       return temp;
++        Set temp = (Set) wasOn.get(nick);
++        wasOn.remove(temp);
++        return temp;
+     }
+ 
+     public HashMap getSupportInfo() { return iSupport; }
++
+     public void addSupportInfo(String key, String value) { iSupport.put(key, value); }
+ 
+     public String getMyNick() { return myNickname; }
++
+     public User getMyUser() { return getUser(getMyNick()); }
+-    
++
+     public UserMode getPrefixInfo() { return umode; }
++
+     public void setPrefixInfo(String modes, String chars) { umode = new UserMode(modes, chars); }
+ 
+-    public void setMyNick(String n) { myNickname = n; }     
++    public void setMyNick(String n) { myNickname = n; }
+ 
+     public MyUser getMyUserInformation() { return myInformation; }
+ 
+@@ -65,174 +68,159 @@
+ 
+     public ChannelDataWatch getChannelDataWatch(Channel ch)
+     {
+-        return (ChannelDataWatch)sync.get(ch.getName().toUpperCase());
++        return (ChannelDataWatch) sync.get(ch.getName().toUpperCase());
+     }
+ 
+-    /************************************************************************/
+-  
++    /**
++     * ********************************************************************
++     */
++
+     public LinkedList nickCompleteAll(String pnick, String channel)
+     {
+-       LinkedList rv = new LinkedList();
++        LinkedList rv = new LinkedList();
+ 
+-       if (getChannel(channel) != null)
+-       {
+-          Set users = getChannel(channel).getAllUsers();
++        if (getChannel(channel) != null) {
++            Set users = getChannel(channel).getAllUsers();
+ 
+-          Iterator i = users.iterator();
+-          while (i.hasNext())
+-          {
+-             User temp = (User)i.next();
+-             if (temp.getNick().length() &gt;= pnick.length())
+-             {
+-                if (temp.getNick().toLowerCase().substring(0, pnick.length()).equals(pnick.toLowerCase()))
+-                {
+-                   rv.addFirst(temp.getNick());
++            Iterator i = users.iterator();
++            while (i.hasNext()) {
++                User temp = (User) i.next();
++                if (temp.getNick().length() &gt;= pnick.length()) {
++                    if (temp.getNick().toLowerCase().substring(0, pnick.length()).equals(pnick.toLowerCase())) {
++                        rv.addFirst(temp.getNick());
++                    } else
++                    if (temp.getNick().toLowerCase().indexOf(pnick.toLowerCase()) &gt; -1 &amp;&amp; (!temp.getNick().toLowerCase().equals(getMyNick().toLowerCase())))
++                    {
++                        rv.addLast(temp.getNick());
++                    }
+                 }
+-                else if (temp.getNick().toLowerCase().indexOf(pnick.toLowerCase()) &gt; -1 &amp;&amp; (!temp.getNick().toLowerCase().equals(getMyNick().toLowerCase())))
+-                {
+-                   rv.addLast(temp.getNick());
+-                }
+-             }
+-          }
+-       }
++            }
++        }
+ 
+-       rv.addLast(pnick);
++        rv.addLast(pnick);
+ 
+-       return rv;
++        return rv;
+     }
+ 
+     public String nickComplete(String pnick, String channel)
+     {
+-       if (getChannel(channel) == null)
+-       {
+-          return pnick;
+-       }
++        if (getChannel(channel) == null) {
++            return pnick;
++        }
+ 
+-       Set users = getChannel(channel).getAllUsers();
++        Set users = getChannel(channel).getAllUsers();
+ 
+-       if (isUser(pnick) &amp;&amp; users.contains(getUser(pnick)))
+-       {
+-          return pnick;
+-       }
++        if (isUser(pnick) &amp;&amp; users.contains(getUser(pnick))) {
++            return pnick;
++        }
+ 
+-       String possible = null;
++        String possible = null;
+ 
+-       Iterator i = users.iterator();
+-       while (i.hasNext())
+-       {
+-          User temp = (User)i.next();
+-          if (temp.getNick().length() &gt;= pnick.length())
+-          {
+-             if (temp.getNick().toLowerCase().substring(0, pnick.length()).equals(pnick.toLowerCase()))
+-             {
+-                return temp.getNick();
+-             }
++        Iterator i = users.iterator();
++        while (i.hasNext()) {
++            User temp = (User) i.next();
++            if (temp.getNick().length() &gt;= pnick.length()) {
++                if (temp.getNick().toLowerCase().substring(0, pnick.length()).equals(pnick.toLowerCase())) {
++                    return temp.getNick();
++                }
+ 
+-             if (temp.getNick().toLowerCase().indexOf(pnick.toLowerCase()) &gt; -1 &amp;&amp; (!temp.getNick().toLowerCase().equals(getMyNick().toLowerCase())))
+-             {
+-                possible = temp.getNick();
+-             }
+-          }
+-       }
++                if (temp.getNick().toLowerCase().indexOf(pnick.toLowerCase()) &gt; -1 &amp;&amp; (!temp.getNick().toLowerCase().equals(getMyNick().toLowerCase())))
++                {
++                    possible = temp.getNick();
++                }
++            }
++        }
+ 
+-       if (possible != null)
+-       {
+-          return possible;
+-       }
++        if (possible != null) {
++            return possible;
++        }
+ 
+-       return pnick;
++        return pnick;
+     }
+ 
+     public Collection getAllUsers()
+     {
+-       return users.values();
++        return users.values();
+     }
+ 
+     public String toString()
+     {
+-       return &quot;[IDL for &quot; + myNickname + &quot; - users: &quot; + users.size() + &quot;, channels:  &quot; + channels.size() + &quot;]&quot;;
++        return &quot;[IDL for &quot; + myNickname + &quot; - users: &quot; + users.size() + &quot;, channels:  &quot; + channels.size() + &quot;]&quot;;
+     }
+ 
+     public InternalDataList()
+     {
+-       /* probably don't need to do anything */
++        /* probably don't need to do anything */
+     }
+ 
+     public boolean isUser(String nickname)
+     {
+-       return (users.get(nickname) != null);
++        return (users.get(nickname) != null);
+     }
+ 
+     public User getUser(String nickname)
+     {
+-       if (users.get(nickname) == null)
+-       {
+-           users.put(nickname, new User(nickname));           
+-       }
+-       return (User)users.get(nickname);
++        if (users.get(nickname) == null) {
++            users.put(nickname, new User(nickname));
++        }
++        return (User) users.get(nickname);
+     }
+ 
+     public Set getUsersWithMode(String channel, char mode)
+     {
+-       return umode.getUsersWithMode(getChannel(channel), mode);
++        return umode.getUsersWithMode(getChannel(channel), mode);
+     }
+ 
+     public void QuitNick(String nickname)
+     {
+-       Channel temp;
++        Channel temp;
+ 
+-       Set oldchannels = new HashSet();
++        Set oldchannels = new HashSet();
+ 
+-       Iterator iter = (new LinkedList(getUser(nickname).getChannels())).iterator();
+-       while (iter.hasNext())
+-       {
+-           temp = (Channel)iter.next();
+-           RemoveUser(getUser(nickname), temp);
+-           oldchannels.add(temp.getName());
+-       }
++        Iterator iter = (new LinkedList(getUser(nickname).getChannels())).iterator();
++        while (iter.hasNext()) {
++            temp = (Channel) iter.next();
++            RemoveUser(getUser(nickname), temp);
++            oldchannels.add(temp.getName());
++        }
+ 
+-       wasOn.put(nickname, oldchannels);
++        wasOn.put(nickname, oldchannels);
+ 
+-       users.remove(nickname);
++        users.remove(nickname);
+     }
+ 
+     public void PartNick(String nickname, Channel channel)
+     {
+-       if (getMyNick().equals(nickname))
+-       {
+-          Iterator iter =  channel.getAllUsers().iterator();
+-          while (iter.hasNext())
+-          {
+-              User temp = (User)iter.next();
+-              temp.getChannelData().remove(channel);
++        if (getMyNick().equals(nickname)) {
++            Iterator iter = channel.getAllUsers().iterator();
++            while (iter.hasNext()) {
++                User temp = (User) iter.next();
++                temp.getChannelData().remove(channel);
+ 
+-              if (temp.getChannelData().size() == 0)
+-              {
+-                 users.remove(temp); // remove users who are no longer visible
+-              }
+-          }
++                if (temp.getChannelData().size() == 0) {
++                    users.remove(temp); // remove users who are no longer visible
++                }
++            }
+ 
+-          channel.getAllUsers().clear();
+-          channels.remove(channel.getName().toUpperCase());
+-       }
++            channel.getAllUsers().clear();
++            channels.remove(channel.getName().toUpperCase());
++        }
+ 
+-       RemoveUser(getUser(nickname), channel);
++        RemoveUser(getUser(nickname), channel);
+     }
+ 
+     public void JoinNick(String nickname, String channel)
+     {
+-       if (getMyNick().equals(nickname))
+-       {
+-          createChannel(channel);
+-       }
++        if (getMyNick().equals(nickname)) {
++            createChannel(channel);
++        }
+ 
+-       getUser(nickname).getChannelData().put(getChannel(channel), new Integer(0));      
+-       getChannel(channel).getAllUsers().add(getUser(nickname));
++        getUser(nickname).getChannelData().put(getChannel(channel), new Integer(0));
++        getChannel(channel).getAllUsers().add(getUser(nickname));
+ 
+-       if (getChannelDataWatch(getChannel(channel)) != null)
+-       {
+-          getChannelDataWatch(getChannel(channel)).userAdded(getUser(nickname));
+-       }
++        if (getChannelDataWatch(getChannel(channel)) != null) {
++            getChannelDataWatch(getChannel(channel)).userAdded(getUser(nickname));
++        }
+     }
+ 
+     public void ChangeNick(String oldnick, String newnick)
+@@ -242,36 +230,32 @@
+         // remove the user before the nick is changed in the data structure
+         Channel channel;
+ 
+-        Iterator iter =  temp.getChannels().iterator();
+-        while (iter.hasNext())
+-        {
+-            channel = (Channel)iter.next();
++        Iterator iter = temp.getChannels().iterator();
++        while (iter.hasNext()) {
++            channel = (Channel) iter.next();
+             channel.getAllUsers().remove(temp);
+         }
+-    
++
+         // change the nick in the data structure
+         users.remove(oldnick);
+ 
+-        temp.setNick(newnick);        
++        temp.setNick(newnick);
+ 
+         users.put(newnick, temp);
+ 
+         // re add the user to the channel data structure
+-        iter =  temp.getChannels().iterator();
+-        while (iter.hasNext())
+-        {
+-            channel = (Channel)iter.next();
++        iter = temp.getChannels().iterator();
++        while (iter.hasNext()) {
++            channel = (Channel) iter.next();
+             channel.getAllUsers().add(temp);
+ 
+-            if (getChannelDataWatch(channel) != null)
+-            {
+-               getChannelDataWatch(channel).userChanged();
++            if (getChannelDataWatch(channel) != null) {
++                getChannelDataWatch(channel).userChanged();
+             }
+         }
+-   
++
+         // change my nickname (if applicable)
+-        if (oldnick.equals(getMyNick()))
+-        {
++        if (oldnick.equals(getMyNick())) {
+             setMyNick(newnick);
+         }
+     }
+@@ -284,34 +268,39 @@
+     public void AddUser(String nickname, Channel channel)
+     {
+         int modes = 0;
+- 
+-        while (umode.isPrefixChar(nickname.charAt(0)))
+-        {
+-           modes    = umode.setMode(modes, umode.getModeForDisplay(nickname.charAt(0)));
+-           nickname = nickname.substring(1, nickname.length());
++
++        while (umode.isPrefixChar(nickname.charAt(0))) {
++            modes = umode.setMode(modes, umode.getModeForDisplay(nickname.charAt(0)));
++            nickname = nickname.substring(1, nickname.length());
+         }
+ 
+         User user = getUser(nickname);
+ 
+-        if (! user.getChannelData().containsKey(channel))
+-        {
+-           user.getChannelData().put(channel, new Integer(modes));
+-           channel.getAllUsers().add(user);
++        // @Serge: when user joins empty channel and obtains +o automatically, he's already present on this channel,
++        // (user.getChannelData().containsKey(channel) returns true on some networks), but without +o,
++        // so we need to update user's mode.
++        // Fix for: <A HREF="http://jirc.hick.org/cgi-bin/bitch.cgi/view.html?7013225">http://jirc.hick.org/cgi-bin/bitch.cgi/view.html?7013225</A>
++        if (user.getChannelData().containsKey(channel)) {
++            // only put new mode if it's different
++            if (((Integer) user.getChannelData().get(channel)).intValue() != modes)
++                user.getChannelData().put(channel, new Integer(modes));
++        } else {
++            user.getChannelData().put(channel, new Integer(modes));
++            channel.getAllUsers().add(user);
+         }
+     }
+ 
+     public Channel getChannel(String channel)
+     {
+-        return (Channel)channels.get(channel.toUpperCase());
++        return (Channel) channels.get(channel.toUpperCase());
+     }
+ 
+     public void createChannel(String channel)
+     {
+         channels.put(channel.toUpperCase(), new Channel(channel));
+ 
+-        if (getChannelDataWatch(getChannel(channel)) != null)
+-        {
+-           getChannelDataWatch(getChannel(channel)).createChannel(getChannel(channel));
++        if (getChannelDataWatch(getChannel(channel)) != null) {
++            getChannelDataWatch(getChannel(channel)).createChannel(getChannel(channel));
+         }
+     }
+ 
+@@ -323,9 +312,8 @@
+     public void synchronizeUserPostChange(User user, Channel channel)
+     {
+         channel.getAllUsers().add(user);
+-        if (getChannelDataWatch(channel) != null)
+-        {
+-           getChannelDataWatch(channel).userChanged();
++        if (getChannelDataWatch(channel) != null) {
++            getChannelDataWatch(channel).userChanged();
+         }
+     }
+ 
+@@ -334,14 +322,12 @@
+         channel.getAllUsers().remove(user);
+         user.getChannelData().remove(channel);
+ 
+-        if (user.getChannelData().size() == 0)
+-        {
+-           users.remove(user);  
++        if (user.getChannelData().size() == 0) {
++            users.remove(user);
+         }
+ 
+-        if (getChannelDataWatch(channel) != null)
+-        {
+-           getChannelDataWatch(channel).userRemoved(user);
++        if (getChannelDataWatch(channel) != null) {
++            getChannelDataWatch(channel).userRemoved(user);
+         }
+     }
+ }
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	
+	<LI>Next message: <A HREF="000047.html">[Jircii-svn] r65 - in rero: resources/toplevel src/rero/ircfw/data
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#46">[ date ]</a>
+              <a href="thread.html#46">[ thread ]</a>
+              <a href="subject.html#46">[ subject ]</a>
+              <a href="author.html#46">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/jircii-svn">More information about the Jircii-svn
+mailing list</a><br>
+</body></html>

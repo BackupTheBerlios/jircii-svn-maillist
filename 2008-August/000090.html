@@ -1,0 +1,236 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Jircii-svn] r122 - in rero/resources/toplevel: . docs
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/jircii-svn/2008-August/index.html" >
+   <LINK REL="made" HREF="mailto:jircii-svn%40lists.berlios.de?Subject=Re%3A%20%5BJircii-svn%5D%20r122%20-%20in%20rero/resources/toplevel%3A%20.%20docs&In-Reply-To=%3C200808062016.m76KGHGA005446%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000089.html">
+   <LINK REL="Next"  HREF="000091.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Jircii-svn] r122 - in rero/resources/toplevel: . docs</H1>
+    <B>rsmudge at BerliOS</B> 
+    <A HREF="mailto:jircii-svn%40lists.berlios.de?Subject=Re%3A%20%5BJircii-svn%5D%20r122%20-%20in%20rero/resources/toplevel%3A%20.%20docs&In-Reply-To=%3C200808062016.m76KGHGA005446%40sheep.berlios.de%3E"
+       TITLE="[Jircii-svn] r122 - in rero/resources/toplevel: . docs">rsmudge at mail.berlios.de
+       </A><BR>
+    <I>Wed Aug  6 22:16:17 CEST 2008</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000089.html">[Jircii-svn] r120 - in rero: lib resources/toplevel	src/rero/client/functions src/rero/gui/script
+</A></li>
+        <LI>Next message: <A HREF="000091.html">[Jircii-svn] r123 - in rero: lib resources/toplevel	resources/toplevel/docs src/rero/dck/items
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#90">[ date ]</a>
+              <a href="thread.html#90">[ thread ]</a>
+              <a href="subject.html#90">[ subject ]</a>
+              <a href="author.html#90">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: rsmudge
+Date: 2008-08-06 22:16:17 +0200 (Wed, 06 Aug 2008)
+New Revision: 122
+
+Modified:
+   rero/resources/toplevel/docs/jirciiscript.html
+   rero/resources/toplevel/whatsnew.txt
+Log:
+updated docs.
+
+
+Modified: rero/resources/toplevel/docs/jirciiscript.html
+===================================================================
+--- rero/resources/toplevel/docs/jirciiscript.html	2008-08-06 19:16:46 UTC (rev 121)
++++ rero/resources/toplevel/docs/jirciiscript.html	2008-08-06 20:16:17 UTC (rev 122)
+@@ -13,13 +13,13 @@
+      h1
+      {
+         font-size: 1.25em;
+-        color: darkblue;
++        color: #2222FF;
+      }
+ 
+      h2
+      {
+         font-size: 1.15em;
+-        color: #2222FF;
++        color: darkblue;
+      }
+ 
+      h3
+@@ -1634,77 +1634,81 @@
+     &lt;td&gt;cuts and copies selected text in the current window editbox&lt;/td&gt;
+   &lt;/tr&gt;
+   &lt;tr&gt;
++    &lt;td&gt;$ getButtonColor(target)&lt;/td&gt;
++    &lt;td&gt;returns the color of the switchbar button text&lt;/td&gt;
++  &lt;/tr&gt;
++  &lt;tr&gt;
++    &lt;td&gt;$ getCursorPosition(target)&lt;/td&gt;
++    &lt;td&gt;returns the position of the editbox cursor&lt;/td&gt;
++  &lt;/tr&gt;
++  &lt;tr&gt;
++    &lt;td&gt;$ getInputText(target)&lt;/td&gt;
++    &lt;td&gt;returns the text in the editbox for the target&lt;/td&gt;
++  &lt;/tr&gt;
++  &lt;tr&gt;
+     &lt;td&gt;$ getSelectedText(&quot;target&quot;)&lt;/td&gt;
+     &lt;td&gt;returns the selected text from the editbox in the specified window&lt;/td&gt;
+   &lt;/tr&gt;
+   &lt;tr&gt;
+-    &lt;td&gt;removeSelectedText()&lt;/td&gt;
+-    &lt;td&gt;clears selected text from the editbox in the current window&lt;/td&gt;
++    &lt;td&gt;@ getSelectedUsers(&quot;target&quot;)&lt;/td&gt;
++    &lt;td&gt;returns all of the selected users in the target channel window listbox.&lt;/td&gt;
+   &lt;/tr&gt;
+   &lt;tr&gt;
++    &lt;td&gt;$ getWindowPrompt(target)&lt;/td&gt;
++    &lt;td&gt;returns the text for the targets window prompt&lt;/td&gt;
++  &lt;/tr&gt;
++  &lt;tr&gt;
++    &lt;td&gt;getWindowSize(target)&lt;/td&gt;
++    &lt;td&gt;returns the with of the specified window in pixels&lt;/td&gt;
++  &lt;/tr&gt;
++  &lt;tr&gt;
++    &lt;td&gt;$ getWindowTitle([target])&lt;/td&gt;
++    &lt;td&gt;returns the titlebar text for the specified window. If target is not specified returns the text of the jIRCii titlebar.&lt;/td&gt;
++  &lt;/tr&gt;
++  &lt;tr&gt;
+     &lt;td&gt;pasteText()&lt;/td&gt;
+     &lt;td&gt;pastes text from clipboard&lt;/td&gt;
+   &lt;/tr&gt;
+   &lt;tr&gt;
+-    &lt;td&gt;$ getSelectedUser(&quot;target&quot;)&lt;/td&gt;
+-    &lt;td&gt;returns the selected nickname in the target channel window listbox&lt;/td&gt;
++    &lt;td&gt;refreshWindow(target)&lt;/td&gt;
++    &lt;td&gt;updates the statusbar and repaint the window immediately.&lt;/td&gt;
+   &lt;/tr&gt;
+   &lt;tr&gt;
+-    &lt;td&gt;@ getSelectedUsers(&quot;target&quot;)&lt;/td&gt;
+-    &lt;td&gt;returns all of the selected users in the target channel window listbox.&lt;/td&gt;
++    &lt;td&gt;removeSelectedText()&lt;/td&gt;
++    &lt;td&gt;clears selected text from the editbox in the current window&lt;/td&gt;
+   &lt;/tr&gt;
+   &lt;tr&gt;
+-    &lt;td&gt;$ getButtonColor(target)&lt;/td&gt;
+-    &lt;td&gt;returns the color of the switchbar button text&lt;/td&gt;
++    &lt;td&gt;renameWindow(target, title)&lt;/td&gt;
++    &lt;td&gt;renames target to specified title, right now this works only on query windows&lt;/td&gt;
+   &lt;/tr&gt;
+   &lt;tr&gt;
++    &lt;td&gt;scrollWindow(target, +/-n)&lt;/td&gt;
++    &lt;td&gt;scrolls the text up (-n) or down (+n) some lines&lt;/td&gt;
++  &lt;/tr&gt;
++  &lt;tr&gt;
+     &lt;td&gt;$&nbsp;setButtonColor(target,&nbsp;aarrggbb)&lt;/td&gt;
+     &lt;td&gt;sets the color of the switchbar button text&lt;/td&gt;
+   &lt;/tr&gt;
+   &lt;tr&gt;
+-    &lt;td&gt;$ getCursorPosition(target)&lt;/td&gt;
+-    &lt;td&gt;returns the position of the editbox cursor&lt;/td&gt;
+-  &lt;/tr&gt;
+-  &lt;tr&gt;
+     &lt;td&gt;setCursorPosition(target, n)&lt;/td&gt;
+     &lt;td&gt;sets the position of the editbox cursor&lt;/td&gt;
+   &lt;/tr&gt;
+   &lt;tr&gt;
+-    &lt;td&gt;$ getInputText(target)&lt;/td&gt;
+-    &lt;td&gt;returns the text in the editbox for the target&lt;/td&gt;
+-  &lt;/tr&gt;
+-  &lt;tr&gt;
+     &lt;td&gt;setInputText(target, text)&lt;/td&gt;
+     &lt;td&gt;sets the editbox text for the specified target&lt;/td&gt;
+   &lt;/tr&gt;
+   &lt;tr&gt;
+-    &lt;td&gt;$ getWindowPrompt(target)&lt;/td&gt;
+-    &lt;td&gt;returns the text for the targets window prompt&lt;/td&gt;
++    &lt;td&gt;$ getSelectedUser(&quot;target&quot;)&lt;/td&gt;
++    &lt;td&gt;returns the selected nickname in the target channel window listbox&lt;/td&gt;
+   &lt;/tr&gt;
+   &lt;tr&gt;
+     &lt;td&gt;setWindowPrompt(target, text)&lt;/td&gt;
+     &lt;td&gt;sets the window prompt for the specified window&lt;/td&gt;
+   &lt;/tr&gt;
+   &lt;tr&gt;
+-    &lt;td&gt;$ getWindowTitle([target])&lt;/td&gt;
+-    &lt;td&gt;returns the titlebar text for the specified window. If target is not specified returns the text of the jIRCii titlebar.&lt;/td&gt;
+-  &lt;/tr&gt;
+-  &lt;tr&gt;
+     &lt;td&gt;setWindowTitle([target], text)&lt;/td&gt;
+     &lt;td&gt;sets the titlebar text for the specified window. Defaults to setting text for the jIRCii titlebar.&lt;/td&gt;
+   &lt;/tr&gt;
+-  &lt;tr&gt;
+-    &lt;td&gt;renameWindow(target, title)&lt;/td&gt;
+-    &lt;td&gt;renames target to specified title, right now this works only on query windows&lt;/td&gt;
+-  &lt;/tr&gt;
+-  &lt;tr&gt;
+-    &lt;td&gt;refreshWindow(target)&lt;/td&gt;
+-    &lt;td&gt;updates the statusbar and repaint the window immediately.&lt;/td&gt;
+-  &lt;/tr&gt;
+-  &lt;tr&gt;
+-    &lt;td&gt;scrollWindow(target, +/-n)&lt;/td&gt;
+-    &lt;td&gt;scrolls the text up (-n) or down (+n) some lines&lt;/td&gt;
+-  &lt;/tr&gt;
+ &lt;/table&gt;
+ 
+ &lt;h3&gt;Window Management&lt;/h3&gt;
+@@ -2189,6 +2193,10 @@
+     &lt;td&gt;$ strip(text)&lt;/td&gt;
+     &lt;td&gt;returns a copy of text with all of the formatting codes stripped out.&lt;/td&gt;
+   &lt;/tr&gt;
++  &lt;tr&gt;
++    &lt;td&gt;$ strwidth(text)&lt;/td&gt;
++    &lt;td&gt;returns the width of text in pixels.&lt;/td&gt;
++  &lt;/tr&gt;
+ &lt;/table&gt;
+ 
+ &lt;h2&gt;String Functions (Tokenizing)&lt;/h2&gt;
+
+Modified: rero/resources/toplevel/whatsnew.txt
+===================================================================
+--- rero/resources/toplevel/whatsnew.txt	2008-08-06 19:16:46 UTC (rev 121)
++++ rero/resources/toplevel/whatsnew.txt	2008-08-06 20:16:17 UTC (rev 122)
+@@ -10,8 +10,8 @@
+   -- &amp;subarray was renamed to &sublist; &amp;subarray still works just
+      be aware that the docs will refer to &amp;sublist
+ 
+-- replaced jIRCii scripting PDF with HTML version, thanks to Dan Fare
+-  (aka phos) for making that happen.
++- replaced jIRCii Scripting PDF with a clean HTML version.  Thanks to
++  Dan Fare for getting this started
+ - fixed a Sleep bug that was causing &amp;parseSet to freak out in certain
+   cases (this was causing the version reply not halting issue found in
+   Slurge)
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000089.html">[Jircii-svn] r120 - in rero: lib resources/toplevel	src/rero/client/functions src/rero/gui/script
+</A></li>
+	<LI>Next message: <A HREF="000091.html">[Jircii-svn] r123 - in rero: lib resources/toplevel	resources/toplevel/docs src/rero/dck/items
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#90">[ date ]</a>
+              <a href="thread.html#90">[ thread ]</a>
+              <a href="subject.html#90">[ subject ]</a>
+              <a href="author.html#90">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/jircii-svn">More information about the Jircii-svn
+mailing list</a><br>
+</body></html>

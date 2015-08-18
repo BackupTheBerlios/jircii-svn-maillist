@@ -1,0 +1,377 @@
+From oracel at berlios.de  Tue Aug  9 19:57:01 2005
+From: oracel at berlios.de (Andreas Ravnestad at BerliOS)
+Date: Tue, 9 Aug 2005 19:57:01 +0200
+Subject: [Jircii-svn] r59 - in rero: resources/toplevel src/text
+Message-ID: <200508091757.j79Hv1Qa024205@sheep.berlios.de>
+
+Author: oracel
+Date: 2005-08-09 19:56:59 +0200 (Tue, 09 Aug 2005)
+New Revision: 59
+
+Modified:
+   rero/resources/toplevel/whatsnew.txt
+   rero/src/text/FindDialog.java
+Log:
+Improved find dialog slightly, if there's any previous search text in the textfield, that text is now selected when the find dialog is opened.
+See http://jircii.hick.org/cgi-bin/bitch.cgi/view.html?2746851
+
+Modified: rero/resources/toplevel/whatsnew.txt
+===================================================================
+--- rero/resources/toplevel/whatsnew.txt	2005-07-30 22:46:49 UTC (rev 58)
++++ rero/resources/toplevel/whatsnew.txt	2005-08-09 17:56:59 UTC (rev 59)
+@@ -1,3 +1,8 @@
++Beta    40 release <unknown>
++====
++- Improved find dialog slightly, if there's any previous search text in
++  the textfield, that text is now selected when the find dialog is opened.
++
+ Beta    39 release 07.30.05
+ ====
+ - The find feature is now case insensitive (oracel)
+
+Modified: rero/src/text/FindDialog.java
+===================================================================
+--- rero/src/text/FindDialog.java	2005-07-30 22:46:49 UTC (rev 58)
++++ rero/src/text/FindDialog.java	2005-08-09 17:56:59 UTC (rev 59)
+@@ -9,12 +9,12 @@
+ import java.util.*;
+ 
+ public class FindDialog extends JDialog implements ActionListener, KeyListener
+-{ 
++{
+    protected JButton next, prev;
+    protected WrappedDisplay display;
+    protected JTextField     search;
+    protected ListIterator   results = null;
+- 
++
+    public void showDialog()
+    {
+       rero.gui.KeyBindings.is_dialog_active = true;
+@@ -24,6 +24,7 @@
+       pack();
+       setLocationRelativeTo(display);
+       setVisible(true);
++      this.search.selectAll();
+       search.requestFocus();
+    }
+ 
+@@ -40,7 +41,7 @@
+        search.addActionListener(this);
+ 
+        JPanel panel = new JPanel();
+-       panel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));       
++       panel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+        panel.setLayout(new FlowLayout());
+        panel.add(new JLabel("Find: "));
+        panel.add(search);
+@@ -49,7 +50,7 @@
+ 
+        JPanel buttons = new JPanel();
+        buttons.setLayout(new FlowLayout(FlowLayout.RIGHT));
+-  
++
+        next = new JButton("Next");
+        next.setMnemonic('N');
+        next.setEnabled(false);
+@@ -60,7 +61,7 @@
+        prev.setEnabled(text.length() > 0);
+        prev.addActionListener(this);
+ 
+-  
++
+        buttons.add(prev);
+        buttons.add(next);
+ 
+@@ -82,13 +83,13 @@
+        temp.showDialog();
+    }
+ 
+-   public void keyTyped(KeyEvent ev) 
+-   { 
++   public void keyTyped(KeyEvent ev)
++   {
+    }
+ 
+    public void keyPressed(KeyEvent ev) { }
+-   public void keyReleased(KeyEvent ev) 
+-   { 
++   public void keyReleased(KeyEvent ev)
++   {
+        if (ev.getKeyCode() == KeyEvent.VK_ESCAPE)
+        {
+           rero.gui.KeyBindings.is_dialog_active = false;
+@@ -109,7 +110,7 @@
+    {
+        if (results == null)
+        {
+-          results = display.find(search.getText());        
++          results = display.find(search.getText());
+           lastSource = null;
+        }
+ 
+
+
+
+From oracel at berlios.de  Sat Aug 13 00:03:01 2005
+From: oracel at berlios.de (Andreas Ravnestad at BerliOS)
+Date: Sat, 13 Aug 2005 00:03:01 +0200
+Subject: [Jircii-svn] r60 - in rero: resources/toplevel src/rero/config
+Message-ID: <200508122203.j7CM31cl009041@sheep.berlios.de>
+
+Author: oracel
+Date: 2005-08-13 00:02:59 +0200 (Sat, 13 Aug 2005)
+New Revision: 60
+
+Modified:
+   rero/resources/toplevel/whatsnew.txt
+   rero/src/rero/config/ClientState.java
+Log:
+Empty properties are no longer saved. This should be tested thoroughly to make sure that it doesn't bork up jIRCii at some point. See http://jirc.hick.org/cgi-bin/bitch.cgi/view.html?488097
+
+Modified: rero/resources/toplevel/whatsnew.txt
+===================================================================
+--- rero/resources/toplevel/whatsnew.txt	2005-08-09 17:56:59 UTC (rev 59)
++++ rero/resources/toplevel/whatsnew.txt	2005-08-12 22:02:59 UTC (rev 60)
+@@ -1,8 +1,11 @@
+ Beta    40 release <unknown>
+ ====
+ - Improved find dialog slightly, if there's any previous search text in
+-  the textfield, that text is now selected when the find dialog is opened.
++  the textfield, that text is now selected when the find dialog is opened
++  (oracel)
++- Empty properties are no longer saved (oracel)
+ 
++
+ Beta    39 release 07.30.05
+ ====
+ - The find feature is now case insensitive (oracel)
+
+Modified: rero/src/rero/config/ClientState.java
+===================================================================
+--- rero/src/rero/config/ClientState.java	2005-08-09 17:56:59 UTC (rev 59)
++++ rero/src/rero/config/ClientState.java	2005-08-12 22:02:59 UTC (rev 60)
+@@ -182,6 +182,24 @@
+    {
+       try
+       {
++        
++         // Patch to remove empty key/value pairs
++         Iterator i = state.keySet().iterator();
++         Object tmp;
++         while (i.hasNext()) {
++            tmp = state.get(i.next());
++            
++            // This is not likely, but I added it to avoid weird crashes
++            if (tmp == null) {
++                i.remove();
++            }
++            
++            // Most common case
++            else if (tmp.equals("")) {
++                i.remove();
++            }
++         }
++        
+          FileOutputStream ostream = new FileOutputStream(new File(getBaseDirectory(), "jirc.prop"));
+          state.save(ostream, "Java IRC Configuration");
+          ostream.close();
+
+
+
+From oracel at berlios.de  Mon Aug 15 10:35:20 2005
+From: oracel at berlios.de (Andreas Ravnestad at BerliOS)
+Date: Mon, 15 Aug 2005 10:35:20 +0200
+Subject: [Jircii-svn] r61 - in rero: resources/toplevel src/rero/config
+Message-ID: <200508150835.j7F8ZKQp020360@sheep.berlios.de>
+
+Author: oracel
+Date: 2005-08-15 10:35:17 +0200 (Mon, 15 Aug 2005)
+New Revision: 61
+
+Modified:
+   rero/resources/toplevel/whatsnew.txt
+   rero/src/rero/config/ClientState.java
+Log:
+Undid previous commit, see http://jirc.hick.org/cgi-bin/bitch.cgi/view.html?488097
+
+Modified: rero/resources/toplevel/whatsnew.txt
+===================================================================
+--- rero/resources/toplevel/whatsnew.txt	2005-08-12 22:02:59 UTC (rev 60)
++++ rero/resources/toplevel/whatsnew.txt	2005-08-15 08:35:17 UTC (rev 61)
+@@ -3,7 +3,6 @@
+ - Improved find dialog slightly, if there's any previous search text in
+   the textfield, that text is now selected when the find dialog is opened
+   (oracel)
+-- Empty properties are no longer saved (oracel)
+ 
+ 
+ Beta    39 release 07.30.05
+
+Modified: rero/src/rero/config/ClientState.java
+===================================================================
+--- rero/src/rero/config/ClientState.java	2005-08-12 22:02:59 UTC (rev 60)
++++ rero/src/rero/config/ClientState.java	2005-08-15 08:35:17 UTC (rev 61)
+@@ -13,8 +13,8 @@
+ 
+ public class ClientState
+ {
+-   protected static HashMap listeners = new HashMap(); 
+-   // ^-- container for the listeners for property changes.  This way 
++   protected static HashMap listeners = new HashMap();
++   // ^-- container for the listeners for property changes.  This way
+    // components won't be checking themselves all the time, they
+    // can be notified when something happens.
+    // listeners{"property.name"} = LinkedList ( WeakReference(listener1),
+@@ -22,7 +22,7 @@
+    //                                           WeakReference(listener2))
+    // The weak references are for a server connection that gets closed,
+    // this way those can be garbage collected.  Trying to make jIRC more
+-   // memory friendly.   
++   // memory friendly.
+ 
+    // related to backup and restore procedures
+    protected Set        changes; // keeps track of changes made to this version of the "state"
+@@ -37,7 +37,7 @@
+    {
+       baseDirectory = new File(directory);
+    }
+-  
++
+    public void fireChange(String property)
+    {
+       fireChange(property, null);
+@@ -77,7 +77,7 @@
+          }
+       }
+    }
+- 
++
+    public static InputStreamReader getProperInputStream(InputStream stream)
+    {
+       if (ClientState.getClientState().getString("client.encoding", rero.dck.items.CharsetInput.DEFAULT_CHARSET).equals(rero.dck.items.CharsetInput.DEFAULT_CHARSET))
+@@ -86,7 +86,7 @@
+       }
+       else
+       {
+-         try 
++         try
+          {
+             return new InputStreamReader(stream, ClientState.getClientState().getString("client.encoding", rero.dck.items.CharsetInput.DEFAULT_CHARSET));
+          }
+@@ -106,7 +106,7 @@
+       }
+       else
+       {
+-         try 
++         try
+          {
+             return new PrintStream(stream, true, ClientState.getClientState().getString("client.encoding", rero.dck.items.CharsetInput.DEFAULT_CHARSET));
+          }
+@@ -131,7 +131,7 @@
+ 
+    protected static ClientState clientState = null;
+ 
+-   public static ClientState getClientState()  
++   public static ClientState getClientState()
+    {
+       if (clientState == null)
+       {
+@@ -174,7 +174,7 @@
+       {
+          String temp = (String)i.next();
+          fireChange(temp);
+-      } 
++      }
+    }
+ 
+    /** sync the file system config file with the current client state */
+@@ -182,24 +182,7 @@
+    {
+       try
+       {
+-        
+-         // Patch to remove empty key/value pairs
+-         Iterator i = state.keySet().iterator();
+-         Object tmp;
+-         while (i.hasNext()) {
+-            tmp = state.get(i.next());
+-            
+-            // This is not likely, but I added it to avoid weird crashes
+-            if (tmp == null) {
+-                i.remove();
+-            }
+-            
+-            // Most common case
+-            else if (tmp.equals("")) {
+-                i.remove();
+-            }
+-         }
+-        
++
+          FileOutputStream ostream = new FileOutputStream(new File(getBaseDirectory(), "jirc.prop"));
+          state.save(ostream, "Java IRC Configuration");
+          ostream.close();
+@@ -214,9 +197,9 @@
+ 
+    public void setString(String key, String value)
+    {
+-      state.setProperty(key, value);      
++      state.setProperty(key, value);
+       fireChange(key);
+-   }   
++   }
+ 
+    public String getString(String key, String defaultValue)
+    {
+@@ -244,7 +227,7 @@
+             x = 0;
+             y = 0;
+          }
+- 
++
+          return new Rectangle(x, y, (int)mySize.getWidth(), (int)mySize.getHeight());
+       }
+ 
+@@ -313,7 +296,7 @@
+       if (temp.equals("true"))
+       {
+          return true;
+-      }   
++      }
+ 
+       return false;
+    }
+@@ -380,10 +363,10 @@
+          {
+             temp.append(text);
+             temp.append("\n");
+-         } 
++         }
+ 
+          return temp.toString();
+-      } 
++      }
+       catch (Exception ex)
+       {
+          ex.printStackTrace();
+@@ -442,14 +425,14 @@
+          return temp.openStream();
+       }
+       catch (Exception ex) { ex.printStackTrace(); }
+-   
++
+       return null;
+    }
+ 
+    public Font getFont(String key, Font defaultValue)
+    {
+       String fname = getString(key, null);
+-      
++
+       if (fname == null)
+       {
+          return defaultValue;
+
+
+

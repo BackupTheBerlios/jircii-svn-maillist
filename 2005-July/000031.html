@@ -1,0 +1,263 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Jircii-svn] r51 - in rero: resources/toplevel src/rero/client/functions src/rero/gui src/rero/ircfw
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/jircii-svn/2005-July/index.html" >
+   <LINK REL="made" HREF="mailto:jircii-svn%40lists.berlios.de?Subject=Re%3A%20%5BJircii-svn%5D%20r51%20-%20in%20rero%3A%20resources/toplevel%20src/rero/client/functions%20src/rero/gui%20src/rero/ircfw&In-Reply-To=%3C200507301619.j6UGJ2Z8022232%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000030.html">
+   <LINK REL="Next"  HREF="000032.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Jircii-svn] r51 - in rero: resources/toplevel src/rero/client/functions src/rero/gui src/rero/ircfw</H1>
+    <B>Raphael Mudge at BerliOS</B> 
+    <A HREF="mailto:jircii-svn%40lists.berlios.de?Subject=Re%3A%20%5BJircii-svn%5D%20r51%20-%20in%20rero%3A%20resources/toplevel%20src/rero/client/functions%20src/rero/gui%20src/rero/ircfw&In-Reply-To=%3C200507301619.j6UGJ2Z8022232%40sheep.berlios.de%3E"
+       TITLE="[Jircii-svn] r51 - in rero: resources/toplevel src/rero/client/functions src/rero/gui src/rero/ircfw">rsmudge at berlios.de
+       </A><BR>
+    <I>Sat Jul 30 18:19:02 CEST 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000030.html">[Jircii-svn] r50 - rero/resources/help
+</A></li>
+        <LI>Next message: <A HREF="000032.html">[Jircii-svn] r52 - rero/src/rero/client/functions
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#31">[ date ]</a>
+              <a href="thread.html#31">[ thread ]</a>
+              <a href="subject.html#31">[ subject ]</a>
+              <a href="author.html#31">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: rsmudge
+Date: 2005-07-30 18:19:01 +0200 (Sat, 30 Jul 2005)
+New Revision: 51
+
+Modified:
+   rero/resources/toplevel/whatsnew.txt
+   rero/src/rero/client/functions/UtilOperators.java
+   rero/src/rero/gui/UICapabilities.java
+   rero/src/rero/ircfw/InternalDataList.java
+   rero/src/rero/ircfw/Parsed1459.java
+Log:
+Several fixes / changes
+
+
+Modified: rero/resources/toplevel/whatsnew.txt
+===================================================================
+--- rero/resources/toplevel/whatsnew.txt	2005-07-29 22:00:23 UTC (rev 50)
++++ rero/resources/toplevel/whatsnew.txt	2005-07-30 16:19:01 UTC (rev 51)
+@@ -11,6 +11,12 @@
+ - Both /topic and /ut now uses the currently active channel name if no
+   channel name is excplicitly given as a parameter to the respective
+   commands (oracel)
++- Fixed bug with quit message showing twice in the status (turned out to
++  be a problem with the printAll function which has been fixed).
++- Fixd bug with IRC parser not creating $PARMS$ correctly when only a
++  : is present.
++- &amp;use (in jIRCii) now cache's the shared script instance causing any
++  loaded modules to be instantiated only once for all jIRCii sessions
+ 
+ Beta 38 
+ ====
+
+Modified: rero/src/rero/client/functions/UtilOperators.java
+===================================================================
+--- rero/src/rero/client/functions/UtilOperators.java	2005-07-29 22:00:23 UTC (rev 50)
++++ rero/src/rero/client/functions/UtilOperators.java	2005-07-30 16:19:01 UTC (rev 51)
+@@ -17,7 +17,8 @@
+ 
+ import text.TextSource; // for colormap manipulation stuff
+ 
+-import java.io.File;
++import java.io.*;
++import java.net.*;
+ 
+ import javax.swing.*;
+ 
+@@ -62,6 +63,7 @@
+       script.getScriptEnvironment().getEnvironment().put(&quot;&amp;versionString&quot;,       new versionString());
+ 
+       script.getScriptEnvironment().getEnvironment().put(&quot;&amp;exit&quot;, new exit());
++      script.getScriptEnvironment().getEnvironment().put(&quot;&amp;use&quot;, new f_use());
+ 
+       script.getScriptEnvironment().getEnvironment().put(&quot;-ischannel&quot;, new isChannel());
+ 
+@@ -73,6 +75,64 @@
+       return true;
+    }
+ 
++    private static class f_use implements Function
++    {
++       private static HashMap bridges = new HashMap();
++
++       public Scalar evaluate(String n, ScriptInstance si, Stack l)
++       {
++          File   parent;
++          String className;
++
++          if (l.size() == 2)
++          {
++             parent    = BridgeUtilities.getFile(l);
++             className = BridgeUtilities.getString(l, &quot;&quot;);
++          }
++          else
++          {
++             File a    = BridgeUtilities.getFile(l);
++             parent    = a.getParentFile();
++             className = a.getName();
++          }
++
++          Class bridge;
++
++          try
++          {
++             if (parent != null)
++             {
++                URLClassLoader loader = new URLClassLoader(new URL[] { parent.toURL() });
++                bridge = Class.forName(className, true, loader);
++             }
++             else
++             {
++                bridge = Class.forName(className);
++             }
++
++             Loadable temp;
++
++             if (bridges.get(bridge) == null)
++             {
++                temp = (Loadable)bridge.newInstance();
++                bridges.put(bridge, temp);
++             }
++             else
++             {
++                temp = (Loadable)bridges.get(bridge);
++             }
++
++             temp.scriptLoaded(si);
++          }
++          catch (Exception ex)  
++          {   
++             si.getScriptEnvironment().flagError(ex.toString());
++          }
++              
++          return SleepUtils.getEmptyScalar();
++       }
++    }
++
+    public boolean scriptUnloaded(ScriptInstance script)
+    {
+       return true;
+
+Modified: rero/src/rero/gui/UICapabilities.java
+===================================================================
+--- rero/src/rero/gui/UICapabilities.java	2005-07-29 22:00:23 UTC (rev 50)
++++ rero/src/rero/gui/UICapabilities.java	2005-07-30 16:19:01 UTC (rev 51)
+@@ -80,7 +80,7 @@
+          }
+       }
+ 
+-      printStatus(text);
++//      printStatus(text);
+    }
+ 
+    /** prints text directly to the status window. */
+
+Modified: rero/src/rero/ircfw/InternalDataList.java
+===================================================================
+--- rero/src/rero/ircfw/InternalDataList.java	2005-07-29 22:00:23 UTC (rev 50)
++++ rero/src/rero/ircfw/InternalDataList.java	2005-07-30 16:19:01 UTC (rev 51)
+@@ -288,13 +288,16 @@
+         while (umode.isPrefixChar(nickname.charAt(0)))
+         {
+            modes    = umode.setMode(modes, umode.getModeForDisplay(nickname.charAt(0)));
+-           nickname = nickname.substring(1, nickname.length());           
++           nickname = nickname.substring(1, nickname.length());
+         }
+ 
+         User user = getUser(nickname);
+-        user.getChannelData().put(channel, new Integer(modes));
+ 
+-        channel.getAllUsers().add(user);
++        if (! user.getChannelData().containsKey(channel))
++        {
++           user.getChannelData().put(channel, new Integer(modes));
++           channel.getAllUsers().add(user);
++        }
+     }
+ 
+     public Channel getChannel(String channel)
+
+Modified: rero/src/rero/ircfw/Parsed1459.java
+===================================================================
+--- rero/src/rero/ircfw/Parsed1459.java	2005-07-29 22:00:23 UTC (rev 50)
++++ rero/src/rero/ircfw/Parsed1459.java	2005-07-30 16:19:01 UTC (rev 51)
+@@ -73,6 +73,17 @@
+ 
+    protected HashMap eventInformation;
+ 
++   public static void main(String args[])
++   {
++      HashMap temp = new Parsed1459().parseString(&quot;:nick!<A HREF="https://lists.berlios.de/mailman/listinfo/jircii-svn">user at host</A> TOPIC #jircii :&quot;);
++      java.util.Iterator i = temp.keySet().iterator();
++      while (i.hasNext())
++      {
++         Object n = i.next();
++         System.out.println(n + &quot; = &quot; + temp.get(n));
++      } 
++   }
++
+    public HashMap parseString (String data)
+    {
+       eventInformation = new HashMap();
+@@ -187,7 +198,7 @@
+        {
+            parmsString.append(parser.getParsedString(0));
+        }
+-       else
++       else if (!data.equals(&quot;:&quot;))
+        {
+            parmsString.append(data);
+        }
+@@ -197,6 +208,10 @@
+        if (targetLength &lt; parmsString.toString().length())
+        {
+           eventInformation.put($PARMS$, parmsString.toString().substring(targetLength, parmsString.toString().length()  ));
++       }
++       else
++       {
++          eventInformation.put($PARMS$, &quot;&quot;);
+        }  
+ 
+        return eventInformation;
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000030.html">[Jircii-svn] r50 - rero/resources/help
+</A></li>
+	<LI>Next message: <A HREF="000032.html">[Jircii-svn] r52 - rero/src/rero/client/functions
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#31">[ date ]</a>
+              <a href="thread.html#31">[ thread ]</a>
+              <a href="subject.html#31">[ subject ]</a>
+              <a href="author.html#31">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/jircii-svn">More information about the Jircii-svn
+mailing list</a><br>
+</body></html>

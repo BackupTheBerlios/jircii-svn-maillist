@@ -1,0 +1,31 @@
+From crazycoder at berlios.de  Sat Jan 14 09:22:28 2006
+From: crazycoder at berlios.de (crazycoder at BerliOS)
+Date: Sat, 14 Jan 2006 09:22:28 +0100
+Subject: [Jircii-svn] r63 - rero/src/rero/gui/windows
+Message-ID: <200601140822.k0E8MSXF011116@sheep.berlios.de>
+
+Author: crazycoder
+Date: 2006-01-14 09:22:27 +0100 (Sat, 14 Jan 2006)
+New Revision: 63
+
+Modified:
+   rero/src/rero/gui/windows/GeneralListDialog.java
+Log:
+Add an extra gap to list rows height, now should work smoothly with most fonts
+
+Modified: rero/src/rero/gui/windows/GeneralListDialog.java
+===================================================================
+--- rero/src/rero/gui/windows/GeneralListDialog.java	2005-10-03 23:06:35 UTC (rev 62)
++++ rero/src/rero/gui/windows/GeneralListDialog.java	2006-01-14 08:22:27 UTC (rev 63)
+@@ -47,7 +47,7 @@
+       table.setDefaultRenderer((new Object()).getClass(), new MyRenderer());
+       table.setShowGrid(false);
+       table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+-      table.setRowHeight(TextSource.fontMetrics.getHeight());
++      table.setRowHeight(TextSource.fontMetrics.getHeight() + 2);
+ 
+       JScrollPane scroller = new JScrollPane(table, JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+       scroller.setOpaque(false);
+
+
+

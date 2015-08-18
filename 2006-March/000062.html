@@ -1,0 +1,1113 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Jircii-svn] r80 - in rero: resources/resource resources/toplevel src/rero/client/server src/rero/config src/rero/ircfw src/rero/ircfw/data
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/jircii-svn/2006-March/index.html" >
+   <LINK REL="made" HREF="mailto:jircii-svn%40lists.berlios.de?Subject=Re%3A%20%5BJircii-svn%5D%20r80%20-%20in%20rero%3A%20resources/resource%20resources/toplevel%20src/rero/client/server%20src/rero/config%20src/rero/ircfw%20src/rero/ircfw/data&In-Reply-To=%3C200603182201.k2IM14Z7023705%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000061.html">
+   
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Jircii-svn] r80 - in rero: resources/resource resources/toplevel src/rero/client/server src/rero/config src/rero/ircfw src/rero/ircfw/data</H1>
+    <B>crazycoder at BerliOS</B> 
+    <A HREF="mailto:jircii-svn%40lists.berlios.de?Subject=Re%3A%20%5BJircii-svn%5D%20r80%20-%20in%20rero%3A%20resources/resource%20resources/toplevel%20src/rero/client/server%20src/rero/config%20src/rero/ircfw%20src/rero/ircfw/data&In-Reply-To=%3C200603182201.k2IM14Z7023705%40sheep.berlios.de%3E"
+       TITLE="[Jircii-svn] r80 - in rero: resources/resource resources/toplevel src/rero/client/server src/rero/config src/rero/ircfw src/rero/ircfw/data">crazycoder at berlios.de
+       </A><BR>
+    <I>Sat Mar 18 23:01:04 CET 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000061.html">[Jircii-svn] r79 - rero/src/rero/config
+</A></li>
+        
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#62">[ date ]</a>
+              <a href="thread.html#62">[ thread ]</a>
+              <a href="subject.html#62">[ subject ]</a>
+              <a href="author.html#62">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: crazycoder
+Date: 2006-03-18 23:01:02 +0100 (Sat, 18 Mar 2006)
+New Revision: 80
+
+Modified:
+   rero/resources/resource/default.irc
+   rero/resources/toplevel/whatsnew.txt
+   rero/src/rero/client/server/ProcessEvents.java
+   rero/src/rero/config/ClientDefaults.java
+   rero/src/rero/ircfw/InternalDataList.java
+   rero/src/rero/ircfw/data/ModeTracker.java
+   rero/src/rero/ircfw/data/MyInformationTracker.java
+Log:
+- Fixed modes parsing for modes not currently handled by jIRCii internal
+  data structures (this caused problems like incorrect modes for users
+  in the nicklist)
+- Whois codes support (671 - Unreal secure connection, 310 - Unreal
+  available for help, 703 - ircd-RU translation scheme)
+
+Modified: rero/resources/resource/default.irc
+===================================================================
+--- rero/resources/resource/default.irc	2006-03-01 16:50:25 UTC (rev 79)
++++ rero/resources/resource/default.irc	2006-03-18 22:01:02 UTC (rev 80)
+@@ -393,9 +393,12 @@
+    return formatWhois(&quot;Channels&quot;, &quot;\c36 $+ $chtemp&quot;); 
+ }
+ set REPL_320! { return formatWhois(&quot;Secure&quot;, &quot;\c35\b $+ $1 $+ \b\c33 $2-&quot;); }
++set REPL_671! { return formatWhois(&quot;Secure&quot;, &quot;\c35\b $+ $1 $+ \b\c33 $2-&quot;); }
+ set REPL_338! { return formatWhois(&quot;Host&quot;, &quot;$2&quot;); }
+ set REPL_379! { return formatWhois(&quot;Modes&quot;, &quot;$5-&quot;); }
+ set REPL_378! { return formatWhois(&quot;Mask/IP&quot;, &quot;$5-&quot;); }
++set REPL_310! { return formatWhois(&quot;Help&quot;, &quot;\c35\b $+ $1 \b\c33 $+ $2-&quot;); }
++set REPL_703! { return formatWhois(&quot;Codepage&quot;, &quot;\c35\b $+ $2 \b\c33 $+ $3-&quot;); }
+ 
+ sub formatWhois
+ {
+
+Modified: rero/resources/toplevel/whatsnew.txt
+===================================================================
+--- rero/resources/toplevel/whatsnew.txt	2006-03-01 16:50:25 UTC (rev 79)
++++ rero/resources/toplevel/whatsnew.txt	2006-03-18 22:01:02 UTC (rev 80)
+@@ -37,7 +37,13 @@
+   as a single character (Serge)
+ - Added @ &amp;getModeChars function, returns channel mode chars supported
+   by the server (@,%,+,&amp;,~,.) (Serge)
++- Fixed modes parsing for modes not currently handled by jIRCii internal
++  data structures (this caused problems like incorrect modes for users
++  in the nicklist) (Serge)
++- Whois codes support (671 - Unreal secure connection, 310 - Unreal
++  available for help, 703 - ircd-RU translation scheme) (Serge)
+ 
++
+ Beta    39 release 07.30.05
+ ====
+ - The find feature is now case insensitive (oracel)
+
+Modified: rero/src/rero/client/server/ProcessEvents.java
+===================================================================
+--- rero/src/rero/client/server/ProcessEvents.java	2006-03-01 16:50:25 UTC (rev 79)
++++ rero/src/rero/client/server/ProcessEvents.java	2006-03-18 22:01:02 UTC (rev 80)
+@@ -456,7 +456,7 @@
+ 
+    private static boolean isWhoisNumeric(int x)
+    {
+-      return ((x &gt;= 311 &amp;&amp; x &lt; 321) || x == 338 || x == 369 || x == 301 || x == 302 || x == 307 || x == 308 || x == 330 || x == 401 || x == 406 || x == 378 || x == 379);
++      return ((x &gt;= 311 &amp;&amp; x &lt; 321) || x == 338 || x == 369 || x == 301 || x == 302 || x == 307 || x == 308 || x == 330 || x == 401 || x == 406 || x == 378 || x == 379 || x == 310 || x== 671 || x == 703);
+    }
+ 
+    private static class AllowAwayReply implements ChatListener
+
+Modified: rero/src/rero/config/ClientDefaults.java
+===================================================================
+--- rero/src/rero/config/ClientDefaults.java	2006-03-01 16:50:25 UTC (rev 79)
++++ rero/src/rero/config/ClientDefaults.java	2006-03-18 22:01:02 UTC (rev 80)
+@@ -78,7 +78,7 @@
+ 
+    public static final boolean update_ial     = true;
+ 
+-   public static final String  version_string = &quot;03.01.06 (alpha)&quot;;
++   public static final String  version_string = &quot;03.19.06 (alpha)&quot;;
+ 
+    static
+    {
+
+Modified: rero/src/rero/ircfw/InternalDataList.java
+===================================================================
+--- rero/src/rero/ircfw/InternalDataList.java	2006-03-01 16:50:25 UTC (rev 79)
++++ rero/src/rero/ircfw/InternalDataList.java	2006-03-18 22:01:02 UTC (rev 80)
+@@ -13,321 +13,329 @@
+ 
+ import java.util.*;
+ 
+-public class InternalDataList
+-{
+-    protected String myNickname = &quot;&lt;Unknown&gt;&quot;;
+-    protected HashMap users = new HashMap(); /* key=&lt;string&gt;, value=&lt;User&gt; */
+-    protected MyUser myInformation = new MyUser();
+-    protected HashMap channels = new HashMap(); /* key=&lt;string&gt; value=&lt;Channel&gt; */
+-    protected HashMap sync = new HashMap(); /* key=&lt;string&gt; value=&lt;ChannelDataWatch&gt; */
++public class InternalDataList {
++  protected String myNickname = &quot;&lt;Unknown&gt;&quot;;
++  protected HashMap users = new HashMap(); /* key=&lt;string&gt;, value=&lt;User&gt; */
++  protected MyUser myInformation = new MyUser();
++  protected HashMap channels = new HashMap(); /* key=&lt;string&gt; value=&lt;Channel&gt; */
++  protected HashMap sync = new HashMap(); /* key=&lt;string&gt; value=&lt;ChannelDataWatch&gt; */
+ 
+-    protected HashMap wasOn =
+-        new HashMap(); /* key=String value=Set hashmap containing nick-&gt;channel mappings for all users who quit.  Upon its first access though the value is removed. */
++  protected HashMap wasOn =
++    new HashMap(); /* key=String value=Set hashmap containing nick-&gt;channel mappings for all users who quit.  Upon its first access though the value is removed. */
+ 
+-    protected UserMode umode = new UserMode(&quot;ohv&quot;, &quot;@%+&quot;);
++  protected UserMode umode = new UserMode(&quot;ohv&quot;, &quot;@%+&quot;);
+ 
+-    protected HashMap iSupport = new HashMap();
++  protected HashMap iSupport = new HashMap();
++  protected HashMap chanModes = new HashMap(); // key=&lt;string-group name (A,B,C,D)&gt; value = &lt;string with modes&gt;
+ 
+-    public void reset()
+-    {
+-        myNickname = &quot;&lt;Unknown&gt;&quot;;
+-        users = new HashMap();
+-        myInformation = new MyUser();
+-        channels = new HashMap();
+-        umode = new UserMode(&quot;ohv&quot;, &quot;@%+&quot;);
+-        iSupport = new HashMap();
+-    }
++  public void reset() {
++    myNickname = &quot;&lt;Unknown&gt;&quot;;
++    users = new HashMap();
++    myInformation = new MyUser();
++    channels = new HashMap();
++    umode = new UserMode(&quot;ohv&quot;, &quot;@%+&quot;);
++    iSupport = new HashMap();
++    chanModes = new HashMap();
++  }
+ 
+-    public Set getChannelsFromPriorLife(String nick)
+-    {
+-        Set temp = (Set) wasOn.get(nick);
+-        wasOn.remove(temp);
+-        return temp;
+-    }
++  // checks if the mode belongs to one of the CHANMODES group (A, B, C or D)
++  // A - modes that always have a param and operate user lists
++  // B - modes that always have a param and change setting
++  // C - modes that have a param only when set and change setting
++  // D - modes that never have a param and change setting
++  public boolean isChanGroupMode(String group, char mode) {
++    if (!chanModes.containsKey(group)) return false;
++    String modes = ((String) chanModes.get(group));
++    return modes.indexOf(mode) &gt; -1;
++  }
+ 
+-    public HashMap getSupportInfo() { return iSupport; }
++  public void setChanGroupMode(String group, String modes) {
++    chanModes.put(group, modes);
++  }
+ 
+-    public void addSupportInfo(String key, String value) { iSupport.put(key, value); }
++  public Set getChannelsFromPriorLife(String nick) {
++    Set temp = (Set) wasOn.get(nick);
++    wasOn.remove(temp);
++    return temp;
++  }
+ 
+-    public String getMyNick() { return myNickname; }
++  public HashMap getSupportInfo() {
++    return iSupport;
++  }
+ 
+-    public User getMyUser() { return getUser(getMyNick()); }
++  public void addSupportInfo(String key, String value) {
++    iSupport.put(key, value);
++  }
+ 
+-    public UserMode getPrefixInfo() { return umode; }
++  public String getMyNick() {
++    return myNickname;
++  }
+ 
+-    public void setPrefixInfo(String modes, String chars) { umode = new UserMode(modes, chars); }
++  public User getMyUser() {
++    return getUser(getMyNick());
++  }
+ 
+-    public void setMyNick(String n) { myNickname = n; }
++  public UserMode getPrefixInfo() {
++    return umode;
++  }
+ 
+-    public MyUser getMyUserInformation() { return myInformation; }
++  public void setPrefixInfo(String modes, String chars) {
++    umode = new UserMode(modes, chars);
++  }
+ 
+-    public void installChannelWatch(String channel, ChannelDataWatch ch)
+-    {
+-        sync.put(channel.toUpperCase(), ch);
+-    }
++  public void setMyNick(String n) {
++    myNickname = n;
++  }
+ 
+-    public ChannelDataWatch getChannelDataWatch(Channel ch)
+-    {
+-        return (ChannelDataWatch) sync.get(ch.getName().toUpperCase());
+-    }
++  public MyUser getMyUserInformation() {
++    return myInformation;
++  }
+ 
+-    /**
+-     * ********************************************************************
+-     */
++  public void installChannelWatch(String channel, ChannelDataWatch ch) {
++    sync.put(channel.toUpperCase(), ch);
++  }
+ 
+-    public LinkedList nickCompleteAll(String pnick, String channel)
+-    {
+-        LinkedList rv = new LinkedList();
++  public ChannelDataWatch getChannelDataWatch(Channel ch) {
++    return (ChannelDataWatch) sync.get(ch.getName().toUpperCase());
++  }
+ 
+-        if (getChannel(channel) != null) {
+-            Set users = getChannel(channel).getAllUsers();
++  /**
++   * ********************************************************************
++   */
+ 
+-            Iterator i = users.iterator();
+-            while (i.hasNext()) {
+-                User temp = (User) i.next();
+-                if (temp.getNick().length() &gt;= pnick.length()) {
+-                    if (temp.getNick().toLowerCase().substring(0, pnick.length()).equals(pnick.toLowerCase())) {
+-                        rv.addFirst(temp.getNick());
+-                    } else
+-                    if (temp.getNick().toLowerCase().indexOf(pnick.toLowerCase()) &gt; -1 &amp;&amp; (!temp.getNick().toLowerCase().equals(getMyNick().toLowerCase())))
+-                    {
+-                        rv.addLast(temp.getNick());
+-                    }
+-                }
+-            }
+-        }
++  public LinkedList nickCompleteAll(String pnick, String channel) {
++    LinkedList rv = new LinkedList();
+ 
+-        rv.addLast(pnick);
++    if (getChannel(channel) != null) {
++      Set users = getChannel(channel).getAllUsers();
+ 
+-        return rv;
++      Iterator i = users.iterator();
++      while (i.hasNext()) {
++        User temp = (User) i.next();
++        if (temp.getNick().length() &gt;= pnick.length()) {
++          if (temp.getNick().toLowerCase().substring(0, pnick.length()).equals(pnick.toLowerCase())) {
++            rv.addFirst(temp.getNick());
++          } else if (temp.getNick().toLowerCase().indexOf(pnick.toLowerCase()) &gt; -1 &amp;&amp;
++            (!temp.getNick().toLowerCase().equals(getMyNick().toLowerCase()))) {
++            rv.addLast(temp.getNick());
++          }
++        }
++      }
+     }
+ 
+-    public String nickComplete(String pnick, String channel)
+-    {
+-        if (getChannel(channel) == null) {
+-            return pnick;
+-        }
++    rv.addLast(pnick);
+ 
+-        Set users = getChannel(channel).getAllUsers();
++    return rv;
++  }
+ 
+-        if (isUser(pnick) &amp;&amp; users.contains(getUser(pnick))) {
+-            return pnick;
+-        }
++  public String nickComplete(String pnick, String channel) {
++    if (getChannel(channel) == null) {
++      return pnick;
++    }
+ 
+-        String possible = null;
++    Set users = getChannel(channel).getAllUsers();
+ 
+-        Iterator i = users.iterator();
+-        while (i.hasNext()) {
+-            User temp = (User) i.next();
+-            if (temp.getNick().length() &gt;= pnick.length()) {
+-                if (temp.getNick().toLowerCase().substring(0, pnick.length()).equals(pnick.toLowerCase())) {
+-                    return temp.getNick();
+-                }
++    if (isUser(pnick) &amp;&amp; users.contains(getUser(pnick))) {
++      return pnick;
++    }
+ 
+-                if (temp.getNick().toLowerCase().indexOf(pnick.toLowerCase()) &gt; -1 &amp;&amp; (!temp.getNick().toLowerCase().equals(getMyNick().toLowerCase())))
+-                {
+-                    possible = temp.getNick();
+-                }
+-            }
++    String possible = null;
++
++    Iterator i = users.iterator();
++    while (i.hasNext()) {
++      User temp = (User) i.next();
++      if (temp.getNick().length() &gt;= pnick.length()) {
++        if (temp.getNick().toLowerCase().substring(0, pnick.length()).equals(pnick.toLowerCase())) {
++          return temp.getNick();
+         }
+ 
+-        if (possible != null) {
+-            return possible;
++        if (temp.getNick().toLowerCase().indexOf(pnick.toLowerCase()) &gt; -1 &amp;&amp;
++          (!temp.getNick().toLowerCase().equals(getMyNick().toLowerCase()))) {
++          possible = temp.getNick();
+         }
+-
+-        return pnick;
++      }
+     }
+ 
+-    public Collection getAllUsers()
+-    {
+-        return users.values();
++    if (possible != null) {
++      return possible;
+     }
+ 
+-    public String toString()
+-    {
+-        return &quot;[IDL for &quot; + myNickname + &quot; - users: &quot; + users.size() + &quot;, channels:  &quot; + channels.size() + &quot;]&quot;;
+-    }
++    return pnick;
++  }
+ 
+-    public InternalDataList()
+-    {
+-        /* probably don't need to do anything */
+-    }
++  public Collection getAllUsers() {
++    return users.values();
++  }
+ 
+-    public boolean isUser(String nickname)
+-    {
+-        return (users.get(nickname) != null);
+-    }
++  public String toString() {
++    return &quot;[IDL for &quot; + myNickname + &quot; - users: &quot; + users.size() + &quot;, channels:  &quot; + channels.size() + &quot;]&quot;;
++  }
+ 
+-    public User getUser(String nickname)
+-    {
+-        if (users.get(nickname) == null) {
+-            users.put(nickname, new User(nickname));
+-        }
+-        return (User) users.get(nickname);
+-    }
++  public InternalDataList() {
++    /* probably don't need to do anything */
++  }
+ 
+-    public Set getUsersWithMode(String channel, char mode)
+-    {
+-        return umode.getUsersWithMode(getChannel(channel), mode);
++  public boolean isUser(String nickname) {
++    return (users.get(nickname) != null);
++  }
++
++  public User getUser(String nickname) {
++    if (users.get(nickname) == null) {
++      users.put(nickname, new User(nickname));
+     }
++    return (User) users.get(nickname);
++  }
+ 
+-    public void QuitNick(String nickname)
+-    {
+-        Channel temp;
++  public Set getUsersWithMode(String channel, char mode) {
++    return umode.getUsersWithMode(getChannel(channel), mode);
++  }
+ 
+-        Set oldchannels = new HashSet();
++  public void QuitNick(String nickname) {
++    Channel temp;
+ 
+-        Iterator iter = (new LinkedList(getUser(nickname).getChannels())).iterator();
+-        while (iter.hasNext()) {
+-            temp = (Channel) iter.next();
+-            RemoveUser(getUser(nickname), temp);
+-            oldchannels.add(temp.getName());
+-        }
++    Set oldchannels = new HashSet();
+ 
+-        wasOn.put(nickname, oldchannels);
+-
+-        users.remove(nickname);
++    Iterator iter = (new LinkedList(getUser(nickname).getChannels())).iterator();
++    while (iter.hasNext()) {
++      temp = (Channel) iter.next();
++      RemoveUser(getUser(nickname), temp);
++      oldchannels.add(temp.getName());
+     }
+ 
+-    public void PartNick(String nickname, Channel channel)
+-    {
+-        if (getMyNick().equals(nickname)) {
+-            Iterator iter = channel.getAllUsers().iterator();
+-            while (iter.hasNext()) {
+-                User temp = (User) iter.next();
+-                temp.getChannelData().remove(channel);
++    wasOn.put(nickname, oldchannels);
+ 
+-                if (temp.getChannelData().size() == 0) {
+-                    users.remove(temp); // remove users who are no longer visible
+-                }
+-            }
++    users.remove(nickname);
++  }
+ 
+-            channel.getAllUsers().clear();
+-            channels.remove(channel.getName().toUpperCase());
++  public void PartNick(String nickname, Channel channel) {
++    if (getMyNick().equals(nickname)) {
++      Iterator iter = channel.getAllUsers().iterator();
++      while (iter.hasNext()) {
++        User temp = (User) iter.next();
++        temp.getChannelData().remove(channel);
++
++        if (temp.getChannelData().size() == 0) {
++          users.remove(temp); // remove users who are no longer visible
+         }
++      }
+ 
+-        RemoveUser(getUser(nickname), channel);
++      channel.getAllUsers().clear();
++      channels.remove(channel.getName().toUpperCase());
+     }
+ 
+-    public void JoinNick(String nickname, String channel)
+-    {
+-        if (getMyNick().equals(nickname)) {
+-            createChannel(channel);
+-        }
++    RemoveUser(getUser(nickname), channel);
++  }
+ 
+-        getUser(nickname).getChannelData().put(getChannel(channel), new Integer(0));
+-        getChannel(channel).getAllUsers().add(getUser(nickname));
++  public void JoinNick(String nickname, String channel) {
++    if (getMyNick().equals(nickname)) {
++      createChannel(channel);
++    }
+ 
+-        if (getChannelDataWatch(getChannel(channel)) != null) {
+-            getChannelDataWatch(getChannel(channel)).userAdded(getUser(nickname));
+-        }
++    getUser(nickname).getChannelData().put(getChannel(channel), new Integer(0));
++    getChannel(channel).getAllUsers().add(getUser(nickname));
++
++    if (getChannelDataWatch(getChannel(channel)) != null) {
++      getChannelDataWatch(getChannel(channel)).userAdded(getUser(nickname));
+     }
++  }
+ 
+-    public void ChangeNick(String oldnick, String newnick)
+-    {
+-        User temp = getUser(oldnick);
++  public void ChangeNick(String oldnick, String newnick) {
++    User temp = getUser(oldnick);
+ 
+-        // remove the user before the nick is changed in the data structure
+-        Channel channel;
++    // remove the user before the nick is changed in the data structure
++    Channel channel;
+ 
+-        Iterator iter = temp.getChannels().iterator();
+-        while (iter.hasNext()) {
+-            channel = (Channel) iter.next();
+-            channel.getAllUsers().remove(temp);
+-        }
++    Iterator iter = temp.getChannels().iterator();
++    while (iter.hasNext()) {
++      channel = (Channel) iter.next();
++      channel.getAllUsers().remove(temp);
++    }
+ 
+-        // change the nick in the data structure
+-        users.remove(oldnick);
++    // change the nick in the data structure
++    users.remove(oldnick);
+ 
+-        temp.setNick(newnick);
++    temp.setNick(newnick);
+ 
+-        users.put(newnick, temp);
++    users.put(newnick, temp);
+ 
+-        // re add the user to the channel data structure
+-        iter = temp.getChannels().iterator();
+-        while (iter.hasNext()) {
+-            channel = (Channel) iter.next();
+-            channel.getAllUsers().add(temp);
++    // re add the user to the channel data structure
++    iter = temp.getChannels().iterator();
++    while (iter.hasNext()) {
++      channel = (Channel) iter.next();
++      channel.getAllUsers().add(temp);
+ 
+-            if (getChannelDataWatch(channel) != null) {
+-                getChannelDataWatch(channel).userChanged();
+-            }
+-        }
+-
+-        // change my nickname (if applicable)
+-        if (oldnick.equals(getMyNick())) {
+-            setMyNick(newnick);
+-        }
++      if (getChannelDataWatch(channel) != null) {
++        getChannelDataWatch(channel).userChanged();
++      }
+     }
+ 
+-    public boolean isOn(User user, Channel channel)
+-    {
+-        return user != null &amp;&amp; user.getChannels().contains(channel);
++    // change my nickname (if applicable)
++    if (oldnick.equals(getMyNick())) {
++      setMyNick(newnick);
+     }
++  }
+ 
+-    public void AddUser(String nickname, Channel channel)
+-    {
+-        int modes = 0;
++  public boolean isOn(User user, Channel channel) {
++    return user != null &amp;&amp; user.getChannels().contains(channel);
++  }
+ 
+-        while (umode.isPrefixChar(nickname.charAt(0))) {
+-            modes = umode.setMode(modes, umode.getModeForDisplay(nickname.charAt(0)));
+-            nickname = nickname.substring(1, nickname.length());
+-        }
++  public void AddUser(String nickname, Channel channel) {
++    int modes = 0;
+ 
+-        User user = getUser(nickname);
+-
+-        // @Serge: when user joins empty channel and obtains +o automatically, he's already present on this channel,
+-        // (user.getChannelData().containsKey(channel) returns true on some networks), but without +o,
+-        // so we need to update user's mode.
+-        // Fix for: <A HREF="http://jirc.hick.org/cgi-bin/bitch.cgi/view.html?7013225">http://jirc.hick.org/cgi-bin/bitch.cgi/view.html?7013225</A>
+-        if (user.getChannelData().containsKey(channel)) {
+-            // only put new mode if it's different
+-            if (((Integer) user.getChannelData().get(channel)).intValue() != modes)
+-                user.getChannelData().put(channel, new Integer(modes));
+-        } else {
+-            user.getChannelData().put(channel, new Integer(modes));
+-            channel.getAllUsers().add(user);
+-        }
++    while (umode.isPrefixChar(nickname.charAt(0))) {
++      modes = umode.setMode(modes, umode.getModeForDisplay(nickname.charAt(0)));
++      nickname = nickname.substring(1, nickname.length());
+     }
+ 
+-    public Channel getChannel(String channel)
+-    {
+-        return (Channel) channels.get(channel.toUpperCase());
++    User user = getUser(nickname);
++
++    // @Serge: when user joins empty channel and obtains +o automatically, he's already present on this channel,
++    // (user.getChannelData().containsKey(channel) returns true on some networks), but without +o,
++    // so we need to update user's mode.
++    // Fix for: <A HREF="http://jirc.hick.org/cgi-bin/bitch.cgi/view.html?7013225">http://jirc.hick.org/cgi-bin/bitch.cgi/view.html?7013225</A>
++    if (user.getChannelData().containsKey(channel)) {
++      // only put new mode if it's different
++      if (((Integer) user.getChannelData().get(channel)).intValue() != modes)
++        user.getChannelData().put(channel, new Integer(modes));
++    } else {
++      user.getChannelData().put(channel, new Integer(modes));
++      channel.getAllUsers().add(user);
+     }
++  }
+ 
+-    public void createChannel(String channel)
+-    {
+-        channels.put(channel.toUpperCase(), new Channel(channel));
++  public Channel getChannel(String channel) {
++    return (Channel) channels.get(channel.toUpperCase());
++  }
+ 
+-        if (getChannelDataWatch(getChannel(channel)) != null) {
+-            getChannelDataWatch(getChannel(channel)).createChannel(getChannel(channel));
+-        }
+-    }
++  public void createChannel(String channel) {
++    channels.put(channel.toUpperCase(), new Channel(channel));
+ 
+-    public void synchronizeUserPreChange(User user, Channel channel)
+-    {
+-        channel.getAllUsers().remove(user);
++    if (getChannelDataWatch(getChannel(channel)) != null) {
++      getChannelDataWatch(getChannel(channel)).createChannel(getChannel(channel));
+     }
++  }
+ 
+-    public void synchronizeUserPostChange(User user, Channel channel)
+-    {
+-        channel.getAllUsers().add(user);
+-        if (getChannelDataWatch(channel) != null) {
+-            getChannelDataWatch(channel).userChanged();
+-        }
++  public void synchronizeUserPreChange(User user, Channel channel) {
++    channel.getAllUsers().remove(user);
++  }
++
++  public void synchronizeUserPostChange(User user, Channel channel) {
++    channel.getAllUsers().add(user);
++    if (getChannelDataWatch(channel) != null) {
++      getChannelDataWatch(channel).userChanged();
+     }
++  }
+ 
+-    public void RemoveUser(User user, Channel channel)
+-    {
+-        channel.getAllUsers().remove(user);
+-        user.getChannelData().remove(channel);
++  public void RemoveUser(User user, Channel channel) {
++    channel.getAllUsers().remove(user);
++    user.getChannelData().remove(channel);
+ 
+-        if (user.getChannelData().size() == 0) {
+-            users.remove(user);
+-        }
++    if (user.getChannelData().size() == 0) {
++      users.remove(user);
++    }
+ 
+-        if (getChannelDataWatch(channel) != null) {
+-            getChannelDataWatch(channel).userRemoved(user);
+-        }
++    if (getChannelDataWatch(channel) != null) {
++      getChannelDataWatch(channel).userRemoved(user);
+     }
++  }
+ }
+
+Modified: rero/src/rero/ircfw/data/ModeTracker.java
+===================================================================
+--- rero/src/rero/ircfw/data/ModeTracker.java	2006-03-01 16:50:25 UTC (rev 79)
++++ rero/src/rero/ircfw/data/ModeTracker.java	2006-03-18 22:01:02 UTC (rev 80)
+@@ -2,143 +2,129 @@
+ 
+ /* the mode parser... code like this always makes my day (not!) */
+ 
+-import rero.ircfw.*;
++import rero.ircfw.Channel;
+ import rero.ircfw.interfaces.FrameworkConstants;
+ 
+-import java.util.*;
++import java.util.HashMap;
+ 
+-public class ModeTracker extends DataEventAction implements FrameworkConstants
+-{
+-    public boolean isEvent(HashMap data)
+-    {
+-        return ( &quot;MODE&quot;.equals(data.get($EVENT$)) || &quot;324&quot;.equals(data.get($EVENT$)) || &quot;221&quot;.equals(data.get($EVENT$)) );
++public class ModeTracker extends DataEventAction implements FrameworkConstants {
++  public boolean isEvent(HashMap data) {
++    return (&quot;MODE&quot;.equals(data.get($EVENT$)) || &quot;324&quot;.equals(data.get($EVENT$)) || &quot;221&quot;.equals(data.get($EVENT$)));
++  }
++
++  public void process(HashMap data) {
++    String event = (String) data.get($EVENT$);
++    String target = &quot;&quot;, modes = &quot;&quot;;
++
++    if (event.equals(&quot;MODE&quot;) || event.equals(&quot;221&quot;)) {
++      target = (String) data.get($TARGET$);
++      modes = (String) data.get($PARMS$);
++      data.put($PARMS$, modes.trim()); // should fix extra characters being appended to the modes :)
++    } else if (event.equals(&quot;324&quot;)) {
++      String[] blah = data.get($PARMS$).toString().split(&quot;\\s&quot;, 2);
++
++      target = blah[0];
++      modes = blah[1];
+     }
+ 
+-    public void process(HashMap data)
+-    {
+-        String event = (String)data.get($EVENT$);
+-        String target = &quot;&quot;, modes = &quot;&quot;;
++    boolean isChannel = (target.charAt(0) == '#' || target.charAt(0) == '&amp;');
++    boolean doSet = false;
+ 
+-        if (event.equals(&quot;MODE&quot;) || event.equals(&quot;221&quot;))
+-        {
+-           target = (String)data.get($TARGET$);
+-           modes   = (String)data.get($PARMS$);
+-           data.put($PARMS$, modes.trim()); // should fix extra characters being appended to the modes :)
+-        }
+-        else if (event.equals(&quot;324&quot;))
+-        {
+-           String[] blah = data.get($PARMS$).toString().split(&quot;\\s&quot;, 2);
++    String parse[] = modes.split(&quot;\\s&quot;, 0);
+ 
+-           target = blah[0];
+-           modes  = blah[1];
+-        }
++    modes = parse[0];
+ 
+-        boolean isChannel = (target.charAt(0) == '#' || target.charAt(0) == '&amp;');
+-        boolean doSet = false;
++    int target_index = 1; /* index of current target in parse[] array */
+ 
+-        String parse[] = modes.split(&quot;\\s&quot;, 0); 
+-        
+-        modes = parse[0];
++    for (int x = 0; x &lt; modes.length(); x++) {
++      if (modes.charAt(x) == '+') {
++        doSet = true;
++      } else if (modes.charAt(x) == '-') {
++        doSet = false;
++      } else if (isChannel) {
++        Channel ch = dataList.getChannel(target);
+ 
+-        int target_index = 1; /* index of current target in parse[] array */
++        if (dataList.getPrefixInfo().isPrefixMode(modes.charAt(x))) {
++          dataList.synchronizeUserPreChange(dataList.getUser(parse[target_index]), ch);
+ 
+-        for (int x = 0; x &lt; modes.length(); x++)
+-        {
+-            if (modes.charAt(x) == '+')
+-            {
+-                doSet = true;
+-            }
+-            else if (modes.charAt(x) == '-')
+-            {
+-                doSet = false;
+-            }
+-            else if (isChannel)
+-            {
+-                Channel ch = dataList.getChannel(target);
++          int temp = dataList.getUser(parse[target_index]).getModeFor(ch);
+ 
+-                if (dataList.getPrefixInfo().isPrefixMode(modes.charAt(x)))
+-                {
+-                   dataList.synchronizeUserPreChange(dataList.getUser(parse[target_index]), ch);
++          if (doSet) {
++            dataList.getUser(parse[target_index])
++              .setModeFor(ch, dataList.getPrefixInfo().setMode(temp, modes.charAt(x)));
++          } else {
++            dataList.getUser(parse[target_index])
++              .setModeFor(ch, dataList.getPrefixInfo().unsetMode(temp, modes.charAt(x)));
++          }
+ 
+-                   int temp = dataList.getUser(parse[target_index]).getModeFor(ch);
++          dataList.synchronizeUserPostChange(dataList.getUser(parse[target_index]), ch);
++          target_index++;
++        } else {
++          switch (modes.charAt(x)) {
++            case 'l':
++              if (doSet) {
++                ch.getMode().SetMode('l');
++                ch.setLimit(Integer.parseInt(parse[target_index]));
++                target_index++;
++              } else {
++                ch.getMode().UnsetMode('l');
++                ch.setLimit(-1);
++              }
++              break;
+ 
+-                   if (doSet)
+-                   {
+-                      dataList.getUser(parse[target_index]).setModeFor(ch, dataList.getPrefixInfo().setMode(temp, modes.charAt(x)));
+-                   }
+-                   else
+-                   {
+-                      dataList.getUser(parse[target_index]).setModeFor(ch, dataList.getPrefixInfo().unsetMode(temp, modes.charAt(x)));
+-                   }
++            case 'k':
++              if (doSet) {
++                ch.getMode().SetMode('k');
++                ch.setKey(parse[target_index]);
++                target_index++;
++              } else {
++                ch.getMode().UnsetMode('k');
++                target_index++;
++              }
++              break;
+ 
+-                   dataList.synchronizeUserPostChange(dataList.getUser(parse[target_index]), ch);
+-                   target_index++;
+-                }
+-                else
+-                {
+-                   switch (modes.charAt(x))
+-                   {
+-                       case 'b':
+-                          target_index++;
+-                          break;
++            default:
++              // modes from group A (such as b) operate user lists, always have
++              // params and are not handled here
++              if (dataList.isChanGroupMode(&quot;A&quot;, modes.charAt(x))) {
++                target_index++;
++                break;
++              }
+ 
+-                       case 'l':
+-                          if (doSet)
+-                          {
+-                              ch.getMode().SetMode('l');
+-                              ch.setLimit(Integer.parseInt(parse[target_index]));
+-                              target_index++;
+-                          }
+-                          else
+-                          { 
+-                              ch.getMode().UnsetMode('l');
+-                              ch.setLimit(-1);
+-                          }
+-                          break;
++              // modes from group B (such as k) always have a param,
++              // only k is handled above at the moment, for all the rest just
++              // skip the target and set mode for channel
++              if (dataList.isChanGroupMode(&quot;B&quot;, modes.charAt(x))) {
++                target_index++;
++              }
+ 
+-                       case 'k':
+-                          if (doSet)
+-                          {
+-                              ch.getMode().SetMode('k');
+-                              ch.setKey(parse[target_index]);
+-                              target_index++;
+-                          }
+-                          else
+-                          {
+-                              ch.getMode().UnsetMode('k');
+-                              target_index++;
+-                          }
++              // modes from group C (such as l) only have params when set,
++              // so we need to adjust the index when mode is set
++              if (dataList.isChanGroupMode(&quot;C&quot;, modes.charAt(x)) &amp;&amp; doSet) {
++                target_index++;
++              }
+ 
+-                          break;
++              // modes from group D have no params and we don't need to adjust
++              // the target index
+ 
+-                       default:
+-                          if (doSet)
+-                          {
+-                              ch.getMode().SetMode(modes.charAt(x));
+-                          }
+-                          else
+-                          {
+-                              ch.getMode().UnsetMode(modes.charAt(x));
+-                          }
+-                    }
+-                }
+-            }
+-            else
+-            {
+-                if (!target.equals(dataList.getMyNick()))
+-                {
+-                    return;
+-                }
++              if (doSet) {
++                ch.getMode().SetMode(modes.charAt(x));
++              } else {
++                ch.getMode().UnsetMode(modes.charAt(x));
++              }
++          }
++        }
++      } else {
++        if (!target.equals(dataList.getMyNick())) {
++          return;
++        }
+ 
+-                if (doSet)
+-                {
+-                    dataList.getMyUserInformation().getMode().SetMode(modes.charAt(x));
+-                }
+-                else
+-                {
+-                    dataList.getMyUserInformation().getMode().UnsetMode(modes.charAt(x));
+-                }
+-            }
++        if (doSet) {
++          dataList.getMyUserInformation().getMode().SetMode(modes.charAt(x));
++        } else {
++          dataList.getMyUserInformation().getMode().UnsetMode(modes.charAt(x));
+         }
++      }
+     }
++  }
+ }
+
+Modified: rero/src/rero/ircfw/data/MyInformationTracker.java
+===================================================================
+--- rero/src/rero/ircfw/data/MyInformationTracker.java	2006-03-01 16:50:25 UTC (rev 79)
++++ rero/src/rero/ircfw/data/MyInformationTracker.java	2006-03-18 22:01:02 UTC (rev 80)
+@@ -3,81 +3,84 @@
+ /* keep &quot;my&quot; information in IDL up to date
+    my information includes things such as my nickname and all that jazz...  */
+ 
+-import rero.ircfw.*;
+ import rero.ircfw.interfaces.FrameworkConstants;
++import rero.util.StringParser;
+ 
+-import rero.util.*;
++import java.util.HashMap;
++import java.util.regex.Pattern;
+ 
+-import java.util.*;
+-import java.util.regex.*;
++public class MyInformationTracker extends DataEventAction implements FrameworkConstants {
++  private static String supportPattern = &quot;:.*? 005 .*? (.*?) :.*&quot;;
++  private static Pattern isSupport = Pattern.compile(supportPattern);
+ 
+-public class MyInformationTracker extends DataEventAction implements FrameworkConstants
+-{
+-    private static String  supportPattern = &quot;:.*? 005 .*? (.*?) :.*&quot;;
+-    private static Pattern isSupport      = Pattern.compile(supportPattern);
++  public boolean isEvent(HashMap data) {
++    String temp = (String) data.get($EVENT$);
+ 
+-    public boolean isEvent(HashMap data)
+-    {
+-        String temp = (String)data.get($EVENT$);
++    if (&quot;001&quot;.equals(temp)) {
++      return true;
++    }
++    if (&quot;305&quot;.equals(temp)) {
++      return true;
++    } /* back from being away */
++    if (&quot;306&quot;.equals(temp)) {
++      return true;
++    } /* set as away */
++    if (&quot;005&quot;.equals(temp)) {
++      return true;
++    }
+ 
+-        if (&quot;001&quot;.equals(temp)) { return true; }
+-        if (&quot;305&quot;.equals(temp)) { return true; } /* back from being away */
+-        if (&quot;306&quot;.equals(temp)) { return true; } /* set as away */
+-        if (&quot;005&quot;.equals(temp)) { return true; }
++    return false;
++  }
+ 
+-        return false;
++  public void process(HashMap data) {
++    if (&quot;001&quot;.equals(data.get($EVENT$))) {
++      dataList.setMyNick((String) data.get($TARGET$));
+     }
+ 
+-    public void process(HashMap data)
+-    {
+-        if ( &quot;001&quot;.equals(data.get($EVENT$)) )
+-        {
+-            dataList.setMyNick((String)data.get($TARGET$));
+-        }
++    if (&quot;305&quot;.equals(data.get($EVENT$))) {
++      dataList.getMyUserInformation().setBack();
++    }
+ 
+-        if (&quot;305&quot;.equals(data.get($EVENT$)))
+-        {
+-            dataList.getMyUserInformation().setBack();
+-        }
++    if (&quot;306&quot;.equals(data.get($EVENT$))) {
++      dataList.getMyUserInformation().setAway();
++    }
+ 
+-        if (&quot;306&quot;.equals(data.get($EVENT$)))
+-        {
+-            dataList.getMyUserInformation().setAway();
+-        }
++    if (&quot;005&quot;.equals(data.get($EVENT$))) {
++      StringParser parser = new StringParser(data.get($RAW$).toString(), isSupport);
++      if (parser.matches()) {
++        String[] temp = parser.getParsedString(0).split(&quot; &quot;);
++        for (int x = 0; x &lt; temp.length; x++) {
++          String key, value;
+ 
+-        if (&quot;005&quot;.equals(data.get($EVENT$)))
+-        {
+-            StringParser parser = new StringParser(data.get($RAW$).toString(), isSupport);
+-            if (parser.matches())
+-            {
+-               String[] temp = parser.getParsedString(0).split(&quot; &quot;);
+-               for (int x = 0; x &lt; temp.length; x++)
+-               {
+-                  String key, value;
++          if (temp[x].indexOf('=') &gt; -1) {
++            key = temp[x].substring(0, temp[x].indexOf('='));
++            value = temp[x].substring(key.length() + 1, temp[x].length());
+ 
+-                  if (temp[x].indexOf('=') &gt; -1)
+-                  {
+-                     key    = temp[x].substring(0, temp[x].indexOf('='));
+-                     value  = temp[x].substring(key.length() + 1, temp[x].length());
++            dataList.addSupportInfo(key, value);
+ 
+-                     dataList.addSupportInfo(key, value);
++            if (key.equals(&quot;PREFIX&quot;)) {
++              String chars = value.substring(1, value.indexOf(')'));
++              String modes = value.substring(chars.length() + 2, value.length());
+ 
+-                     if (key.equals(&quot;PREFIX&quot;))
+-                     {
+-                        String chars = value.substring(1, value.indexOf(')'));
+-                        String modes = value.substring(chars.length() + 2, value.length());
+-
+-                        dataList.setPrefixInfo(chars, modes);
+-                     }
+-                  }
+-                  else
+-                  {
+-                     dataList.addSupportInfo(temp[x], &quot;true&quot;);
+-                  }
+-               }
++              dataList.setPrefixInfo(chars, modes);
++              // split chanmodes to groups
++            } else if (key.equals(&quot;CHANMODES&quot;)) {
++              String[] groups = value.split(&quot;,&quot;);
++              // we should have 4 groups
++              if (groups.length == 4) {
++                dataList.setChanGroupMode(&quot;A&quot;, groups[0]);
++                dataList.setChanGroupMode(&quot;B&quot;, groups[1]);
++                dataList.setChanGroupMode(&quot;C&quot;, groups[2]);
++                dataList.setChanGroupMode(&quot;D&quot;, groups[3]);
++              }
+             }
++          } else {
++            dataList.addSupportInfo(temp[x], &quot;true&quot;);
++          }
+         }
++      }
++    }
+ 
+-    }
++  }
+ }
+ 
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000061.html">[Jircii-svn] r79 - rero/src/rero/config
+</A></li>
+	
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#62">[ date ]</a>
+              <a href="thread.html#62">[ thread ]</a>
+              <a href="subject.html#62">[ subject ]</a>
+              <a href="author.html#62">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/jircii-svn">More information about the Jircii-svn
+mailing list</a><br>
+</body></html>

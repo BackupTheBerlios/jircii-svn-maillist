@@ -1,0 +1,4547 @@
+From rsmudge at berlios.de  Wed Jul 13 02:09:19 2005
+From: rsmudge at berlios.de (Raphael Mudge at BerliOS)
+Date: Wed, 13 Jul 2005 02:09:19 +0200
+Subject: [Jircii-svn] r24 - in rero: . resources/resource src/rero/client/data src/rero/client/dcc src/rero/client/script src/rero/client/server src/rero/config src/rero/dcc src/rero/dialogs src/rero/gui src/rero/gui/sdi src/rero/gui/toolkit src/rero/test src/rero/util
+Message-ID: <200507130009.j6D09Jv4014708@sheep.berlios.de>
+
+Author: rsmudge
+Date: 2005-07-13 02:09:08 +0200 (Wed, 13 Jul 2005)
+New Revision: 24
+
+Modified:
+   rero/build.xml
+   rero/resources/resource/menus.irc
+   rero/src/rero/client/data/DataStructureBridge.java
+   rero/src/rero/client/dcc/FeatureDCC.java
+   rero/src/rero/client/script/ScriptManager.java
+   rero/src/rero/client/server/ServerHandler.java
+   rero/src/rero/config/ClientDefaults.java
+   rero/src/rero/dcc/Receive.java
+   rero/src/rero/dialogs/AboutWindow.java
+   rero/src/rero/dialogs/IRCOptions.java
+   rero/src/rero/dialogs/SwitchBarDialog.java
+   rero/src/rero/gui/IRCSession.java
+   rero/src/rero/gui/SessionManager.java
+   rero/src/rero/gui/sdi/ClientPanel.java
+   rero/src/rero/gui/toolkit/OrientedToolBar.java
+   rero/src/rero/test/QuickConnect.java
+   rero/src/rero/util/ClientUtils.java
+Log:
+Beta 37 changes uNF
+
+
+Modified: rero/build.xml
+===================================================================
+--- rero/build.xml	2005-07-12 21:25:07 UTC (rev 23)
++++ rero/build.xml	2005-07-13 00:09:08 UTC (rev 24)
+@@ -17,7 +17,7 @@
+            destdir="${project.build}"
+            nowarn="yes"
+            depend="yes"
+-           debug="no"
++           debug="yes"
+            optimize="yes"
+     >
+        <classpath path="./lib/sleep.jar" />
+
+Modified: rero/resources/resource/menus.irc
+===================================================================
+--- rero/resources/resource/menus.irc	2005-07-12 21:25:07 UTC (rev 23)
++++ rero/resources/resource/menus.irc	2005-07-13 00:09:08 UTC (rev 24)
+@@ -491,9 +491,9 @@
+ {
+    local('@windows');
+    @windows = getWindows();
+-   if (size(@windows) > 0)
++   if (size(@windows) > 1)
+    {
+-      activateWindow(@windows[0]);
++      activateWindow(@windows[1]);
+       halt;
+    }
+ }
+@@ -502,9 +502,9 @@
+ {
+    local('@windows');
+    @windows = getWindows();
+-   if (size(@windows) > 1)
++   if (size(@windows) > 2)
+    {
+-      activateWindow(@windows[1]);
++      activateWindow(@windows[2]);
+       halt;
+    }
+ }
+@@ -513,9 +513,9 @@
+ {
+    local('@windows');
+    @windows = getWindows();
+-   if (size(@windows) > 2)
++   if (size(@windows) > 3)
+    {
+-      activateWindow(@windows[2]);
++      activateWindow(@windows[3]);
+       halt;
+    }
+ }
+@@ -524,9 +524,9 @@
+ {
+    local('@windows');
+    @windows = getWindows();
+-   if (size(@windows) > 3)
++   if (size(@windows) > 4)
+    {
+-      activateWindow(@windows[3]);
++      activateWindow(@windows[4]);
+       halt;
+    }
+ }
+@@ -535,9 +535,9 @@
+ {
+    local('@windows');
+    @windows = getWindows();
+-   if (size(@windows) > 4)
++   if (size(@windows) > 5)
+    {
+-      activateWindow(@windows[4]);
++      activateWindow(@windows[5]);
+       halt;
+    }
+ }
+@@ -547,9 +547,9 @@
+ {
+    local('@windows');
+    @windows = getWindows();
+-   if (size(@windows) > 5)
++   if (size(@windows) > 6)
+    {
+-      activateWindow(@windows[5]);
++      activateWindow(@windows[6]);
+       halt;
+    }
+ }
+@@ -559,9 +559,9 @@
+ {
+    local('@windows');
+    @windows = getWindows();
+-   if (size(@windows) > 6)
++   if (size(@windows) > 7)
+    {
+-      activateWindow(@windows[6]);
++      activateWindow(@windows[7]);
+       halt;
+    }
+ }
+@@ -571,9 +571,9 @@
+ {
+    local('@windows');
+    @windows = getWindows();
+-   if (size(@windows) > 7)
++   if (size(@windows) > 8)
+    {
+-      activateWindow(@windows[7]);
++      activateWindow(@windows[8]);
+       halt;
+    }
+ }
+
+Modified: rero/src/rero/client/data/DataStructureBridge.java
+===================================================================
+--- rero/src/rero/client/data/DataStructureBridge.java	2005-07-12 21:25:07 UTC (rev 23)
++++ rero/src/rero/client/data/DataStructureBridge.java	2005-07-13 00:09:08 UTC (rev 24)
+@@ -44,12 +44,12 @@
+    {
+       if ("$me".equals(key)) { return SleepUtils.getScalar(data.getMyNick()); }
+       if ("$time".equals(key)) { return SleepUtils.getScalar(ClientUtils.TimeStamp()); }
+-      if ("$lag".equals(key)) { return SleepUtils.getScalar(((Lag)getCapabilities().getDataStructure("lag")).getLag()); }
++      if ("$lag".equals(key) && getCapabilities().getDataStructure("lag") != null) { return SleepUtils.getScalar(((Lag)getCapabilities().getDataStructure("lag")).getLag()); }
+       if ("$active".equals(key)) { return SleepUtils.getScalar(getCapabilities().getUserInterface().getQuery()); }
+ //      if ("$myserver".equals(key)) { return SleepUtils.getScalar(getCapabilities().getSocketConnection().getSocketInformation().hostname); }
+ //      if ("$myserverport".equals(key)) { return SleepUtils.getScalar(getCapabilities().getSocketConnection().getSocketInformation().port); }
+       if ("$mymode".equals(key)) { return SleepUtils.getScalar(data.getMyUserInformation().getMode().toString()); }
+-      return null;
++      return SleepUtils.getEmptyScalar();
+    }
+ 
+    public void init()
+
+Modified: rero/src/rero/client/dcc/FeatureDCC.java
+===================================================================
+--- rero/src/rero/client/dcc/FeatureDCC.java	2005-07-12 21:25:07 UTC (rev 23)
++++ rero/src/rero/client/dcc/FeatureDCC.java	2005-07-13 00:09:08 UTC (rev 24)
+@@ -173,7 +173,7 @@
+          }
+          else
+          {
+-            sendme = new File(temps.getToken(2));;
++            sendme = ClientUtils.getFile(temps.getToken(2));
+          }
+ 
+          if (sendme != null && sendme.exists())
+
+Modified: rero/src/rero/client/script/ScriptManager.java
+===================================================================
+--- rero/src/rero/client/script/ScriptManager.java	2005-07-12 21:25:07 UTC (rev 23)
++++ rero/src/rero/client/script/ScriptManager.java	2005-07-13 00:09:08 UTC (rev 24)
+@@ -4,6 +4,8 @@
+ import rero.config.*;
+ import rero.script.*;
+ 
++import rero.util.*;
++
+ import sleep.error.*;
+ import sleep.runtime.*;
+ 
+@@ -78,6 +80,8 @@
+ 
+    public void loadTheme(String filename)
+    {
++      filename = ClientUtils.getFile(filename).getAbsolutePath();
++
+       if ((new File(filename)).exists())
+       {
+          internalScriptLoad(filename);
+@@ -94,7 +98,7 @@
+       if ((new File(filename)).exists())
+       {
+          StringList temp = ClientState.getClientState().getStringList("script.files");
+-         String     fn   = (new File(filename)).getAbsolutePath();
++         String     fn   = ClientUtils.getFile(filename).getAbsolutePath();
+ 
+          if (!temp.getList().contains(fn))
+          {
+
+Modified: rero/src/rero/client/server/ServerHandler.java
+===================================================================
+--- rero/src/rero/client/server/ServerHandler.java	2005-07-12 21:25:07 UTC (rev 23)
++++ rero/src/rero/client/server/ServerHandler.java	2005-07-13 00:09:08 UTC (rev 24)
+@@ -160,11 +160,23 @@
+        }
+        else
+        {
++           boolean isDone = false;
++
+            if (data.getMyUser().getChannels().size() > 0)
+            {
+-               restoreInformation = data.getMyUser();
+-               restoreServer      = ev.data.hostname;
+                getCapabilities().getOutputCapabilities().fireSetAll(ClientUtils.getEventHashMap(ev.data.hostname, ev.message), "IRC_DISCONNECT");
++
++               if (ClientState.getClientState().isOption("option.reconnect", ClientDefaults.option_reconnect))
++               {
++                  restoreInformation = data.getMyUser();
++                  restoreServer      = ev.data.hostname;
++ 
++                  getCapabilities().getOutputCapabilities().fireSetAll(ClientUtils.getEventHashMap(ev.data.hostname, ev.message), "IRC_RECONNECT");
++                  getCapabilities().getGlobalCapabilities().setTabTitle(getCapabilities(), "reconnecting");
++                  socket.connect(ev.data.hostname, ev.data.port, ClientState.getClientState().getInteger("reconnect.time", ClientDefaults.reconnect_time) * 1000, ev.data.password, ev.data.isSecure);
++
++                  isDone = true;
++               }
+            }
+            else
+            {
+@@ -174,7 +186,7 @@
+            data.reset();
+            notify.reset();
+ 
+-           if (restoreInformation != null)
++           if (restoreInformation != null && !isDone)
+            {
+                getCapabilities().getOutputCapabilities().fireSetStatus(ClientUtils.getEventHashMap(ev.data.hostname, ev.message), "IRC_RECONNECT");
+                getCapabilities().getGlobalCapabilities().setTabTitle(getCapabilities(), "reconnecting");
+@@ -204,6 +216,13 @@
+ 
+           if (event.equals("433"))
+           {
++              if (rero.test.QuickConnect.IsQuickConnect() && rero.test.QuickConnect.GetInformation().getURL().getUserInfo() != null)
++              {
++                  // set a new alternate alt nick iff a user is quick connecting and a default nickname has been specified...
++                  // otherwise lamer will do just fine...
++
++                  altNick = ClientState.getClientState().getString("user.nick",  rero.test.QuickConnect.GetInformation().getNickname()) + System.currentTimeMillis();
++              }
+               getCapabilities().sendln("NICK " + altNick);
+           }
+ 
+
+Modified: rero/src/rero/config/ClientDefaults.java
+===================================================================
+--- rero/src/rero/config/ClientDefaults.java	2005-07-12 21:25:07 UTC (rev 23)
++++ rero/src/rero/config/ClientDefaults.java	2005-07-13 00:09:08 UTC (rev 24)
+@@ -29,6 +29,7 @@
+    public static final boolean active_option = true; /** echo to active option */
+ 
+    public static final boolean option_showmotd  = true;
++   public static final boolean option_reconnect = true;
+    public static final boolean option_timestamp = false;
+ 
+    public static       boolean ui_sdi        = true;
+
+Modified: rero/src/rero/dcc/Receive.java
+===================================================================
+--- rero/src/rero/dcc/Receive.java	2005-07-12 21:25:07 UTC (rev 23)
++++ rero/src/rero/dcc/Receive.java	2005-07-13 00:09:08 UTC (rev 24)
+@@ -142,6 +142,8 @@
+        byte[] data      = new byte[PACKET_SIZE]; // read packets in 4k chunks
+        byte[] ackPacket = new byte[4];
+ 
++       Exception transferError = null;
++
+        try
+        {
+           boolean appendToFile = startSize != 0;
+@@ -193,8 +195,7 @@
+           if (receivedSize != finalSize)
+           {
+               ex.printStackTrace();
+-              fireError(ex.getMessage());
+-              return;
++              transferError = ex;
+           }
+        }
+ 
+@@ -214,6 +215,10 @@
+           //
+           fireEvent("RECEIVE_COMPLETE", null);
+        }
++       else if (transferError != null)
++       {
++          fireError(transferError.getMessage());
++       }
+        else
+        {
+           fireError("incomplete");
+
+Modified: rero/src/rero/dialogs/AboutWindow.java
+===================================================================
+--- rero/src/rero/dialogs/AboutWindow.java	2005-07-12 21:25:07 UTC (rev 23)
++++ rero/src/rero/dialogs/AboutWindow.java	2005-07-13 00:09:08 UTC (rev 24)
+@@ -122,7 +122,8 @@
+             editor.setEditable(false);
+             editor.setOpaque(false);
+ 
+-            if (!randomText.equals(textTables[5]) && !randomText.equals(textTables[9]))
++            // 5 should be monospaced...
++            if (!randomText.equals(textTables[1]) && !randomText.equals(textTables[9]) && !randomText.equals(textTables[8]))
+             {
+                editor.setFont(new Font("Monospaced", Font.PLAIN, 12));
+             }
+@@ -212,7 +213,9 @@
+ 
+             if (buffer.toString().toLowerCase().equals(superEliteEncryption("zvep jneevbe")))
+             {
+-               randomText = textTables[Math.abs((int)System.currentTimeMillis() % textTables.length)];
++               int rand = Math.abs((int)System.currentTimeMillis() % textTables.length);
++
++               randomText = textTables[rand];
+                activateEgg();
+             }
+             else if (buffer.toString().toLowerCase().equals(superEliteEncryption("jroon")))
+
+Modified: rero/src/rero/dialogs/IRCOptions.java
+===================================================================
+--- rero/src/rero/dialogs/IRCOptions.java	2005-07-12 21:25:07 UTC (rev 23)
++++ rero/src/rero/dialogs/IRCOptions.java	2005-07-13 00:09:08 UTC (rev 24)
+@@ -42,7 +42,8 @@
+       addBlankSpace();
+ 
+       addCheckboxInput("update.ial" , ClientDefaults.option_showmotd,  "Update IAL on channel join", 'I');
+-      addCheckboxInput("option.showmotd" , ClientDefaults.option_showmotd,  "Show MOTD", 'l');
++      addCheckboxInput("option.showmotd" , ClientDefaults.option_showmotd,  "Show MOTD", 'M');
++      addCheckboxInput("option.reconnect" , ClientDefaults.option_reconnect,  "Auto-reconnect when disconnected", 'r');
+       addCheckboxInput("option.timestamp", ClientDefaults.option_timestamp, "Timestamp Events.", 'a');
+    }
+ }
+
+Modified: rero/src/rero/dialogs/SwitchBarDialog.java
+===================================================================
+--- rero/src/rero/dialogs/SwitchBarDialog.java	2005-07-12 21:25:07 UTC (rev 23)
++++ rero/src/rero/dialogs/SwitchBarDialog.java	2005-07-13 00:09:08 UTC (rev 24)
+@@ -33,8 +33,8 @@
+       {
+           public void setupDialog()
+           {
+-//              addSelectInput("switchbar.position", 0, new String[] { "Top", "Bottom", "Left", "Right" }, "Position:  ", 'P', 25);
+-              addSelectInput("switchbar.position", 0, new String[] { "Top", "Bottom" }, "Position:  ", 'P', 25);
++              addSelectInput("switchbar.position", 0, new String[] { "Top", "Bottom", "Left", "Right" }, "Position:  ", 'P', 25);
++//              addSelectInput("switchbar.position", 0, new String[] { "Top", "Bottom" }, "Position:  ", 'P', 25);
+               addColorInput("switchbar.color", ClientDefaults.switchbar_color, "Activity Color", 'A');
+               addCheckboxInput("switchbar.fixed", ClientDefaults.switchbar_fixed,  "Fixed width switchbar buttons", 'F', FlowLayout.LEFT);
+               addCheckboxInput("switchbar.sort", ClientDefaults.switchbar_sort,  "Sort buttons alphabetically", 'F', FlowLayout.LEFT);
+
+Modified: rero/src/rero/gui/IRCSession.java
+===================================================================
+--- rero/src/rero/gui/IRCSession.java	2005-07-12 21:25:07 UTC (rev 23)
++++ rero/src/rero/gui/IRCSession.java	2005-07-13 00:09:08 UTC (rev 24)
+@@ -155,9 +155,10 @@
+ 
+    public void renameWindow(String name, String newname)
+    {
+-      StatusWindow temp = (StatusWindow)windows.get(name.toUpperCase());
++      StatusWindow temp  = (StatusWindow)windows.get(name.toUpperCase());
++      StatusWindow temp2 = (StatusWindow)windows.get(newname.toUpperCase());
+ 
+-      if (temp != null)
++      if (temp != null && temp2 == null)
+       {
+          windows.remove(name.toUpperCase());
+          windows.put(newname.toUpperCase(), temp);
+
+Modified: rero/src/rero/gui/SessionManager.java
+===================================================================
+--- rero/src/rero/gui/SessionManager.java	2005-07-12 21:25:07 UTC (rev 23)
++++ rero/src/rero/gui/SessionManager.java	2005-07-13 00:09:08 UTC (rev 24)
+@@ -59,6 +59,7 @@
+             }
+ 
+             bridge.installMenubar(menu);
++            menu.repaint();
+             frame.validate();
+          }
+       });
+
+Modified: rero/src/rero/gui/sdi/ClientPanel.java
+===================================================================
+--- rero/src/rero/gui/sdi/ClientPanel.java	2005-07-12 21:25:07 UTC (rev 23)
++++ rero/src/rero/gui/sdi/ClientPanel.java	2005-07-13 00:09:08 UTC (rev 24)
+@@ -24,17 +24,39 @@
+ {
+     protected StatusWindow active = null;
+ 
+-    protected JPanel     desktop;
++    protected JPanel     desktop, top;
+     protected JLabel     button;
+ 
++    public void propertyChanged(String key, String value)
++    {
++       if (key.equals("switchbar.position"))
++       {
++          int orientation = ClientState.getClientState().getInteger("switchbar.position", ClientDefaults.switchbar_position);
++
++          top.remove(button);
++          if (orientation == 2 || orientation == 3)
++          {
++             top.add(button, BorderLayout.SOUTH);
++          }
++          else
++          {
++             top.add(button, BorderLayout.EAST);
++          }
++       }
++       else
++       {
++          super.propertyChanged(key, value);
++       }
++    }
++
+     public void init()
+     {
+        switchbar = new OrientedToolBar();  
+ 
+-       JPanel top = new JPanel();
++       top = new JPanel();
+        top.setLayout(new BorderLayout(5, 0));
+        
+-       button = new JLabel("<html><b>X</b></html>");
++       button = new JLabel("<html><b>X</b></html>", SwingConstants.CENTER);
+        button.setToolTipText("Close active window");  
+ 
+        button.addMouseListener(new MouseAdapter()
+@@ -70,8 +92,10 @@
+        });
+ 
+        top.add(switchbar, BorderLayout.CENTER);
+-       top.add(button, BorderLayout.EAST);
+ 
++       propertyChanged("switchbar.position", null);
++//       top.add(button, BorderLayout.SOUTH); // was EAST
++
+        setLayout(new BorderLayout());
+ 
+        switchOptions = new SwitchBarOptions(this, top);
+@@ -87,6 +111,8 @@
+        add(desktop, BorderLayout.CENTER);
+ 
+        new MantainActiveFocus(this);
++
++       ClientState.getClientState().addClientStateListener("switchbar.position", this);
+     }
+ 
+     public void addWindow(StatusWindow window, boolean selected)
+
+Modified: rero/src/rero/gui/toolkit/OrientedToolBar.java
+===================================================================
+--- rero/src/rero/gui/toolkit/OrientedToolBar.java	2005-07-12 21:25:07 UTC (rev 23)
++++ rero/src/rero/gui/toolkit/OrientedToolBar.java	2005-07-13 00:09:08 UTC (rev 24)
+@@ -26,13 +26,15 @@
+ 
+    public void propertyChanged(String var, String var2)
+    {
+-/*      int orientation = ClientState.getClientState().getInteger("switchbar.position", 0);
++      int orientation = ClientState.getClientState().getInteger("switchbar.position", 0);
+  
+       if (orientation == 2 || orientation == 3)
+       {
+-         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
++//         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
++         setLayout(new GridLayout3());
++         validate();
+       }
+-      else */ if (ClientState.getClientState().isOption("switchbar.fixed", ClientDefaults.switchbar_fixed))
++      else if (ClientState.getClientState().isOption("switchbar.fixed", ClientDefaults.switchbar_fixed))
+       {
+          if (fixed == null || fill == null)
+          {
+@@ -41,10 +43,12 @@
+          }
+ 
+          setLayout(fixed); // not perfect but whatever...
++         validate();
+       }
+       else
+       {
+          setLayout(new GridLayout());
++         validate();
+       } 
+    }
+ 
+@@ -64,7 +68,8 @@
+ 
+       public void layoutContainer(Container c)
+       {
+-         if ((c.getComponentCount() * BUTTON_FIXED_WIDTH) < c.getWidth())
++      
++         if ((c.getComponentCount() * (BUTTON_FIXED_WIDTH + 2)) < c.getWidth())
+          {
+             super.layoutContainer(c);
+          }
+@@ -80,7 +85,7 @@
+    {
+        public void layoutContainer(Container c)
+        {
+-         if ((c.getComponentCount() * BUTTON_FIXED_WIDTH) < c.getWidth())
++         if ((c.getComponentCount() * (BUTTON_FIXED_WIDTH + 2)) < c.getWidth())
+          {
+             c.setLayout(fixed);
+             c.validate();
+@@ -91,5 +96,32 @@
+          }
+       }
+    }
++
++
++   private class GridLayout3 extends GridLayout
++   {
++      public int getColumns() { return 1; }
++
++      public void layoutContainer(Container c)
++      {
++         if (c.getComponentCount() > 0)
++         {
++            int buttonheight = getComponent(0).getPreferredSize().height + getVgap();
++
++            if ((buttonheight * c.getComponentCount()) > c.getHeight())
++            {
++               setRows(c.getComponentCount());
++               setColumns(1);
++            }
++            else
++            {
++               setRows(c.getHeight() / buttonheight);
++               setColumns(1);
++            }
++         }
++
++         super.layoutContainer(c);
++      }
++   }
+ }
+ 
+
+Modified: rero/src/rero/test/QuickConnect.java
+===================================================================
+--- rero/src/rero/test/QuickConnect.java	2005-07-12 21:25:07 UTC (rev 23)
++++ rero/src/rero/test/QuickConnect.java	2005-07-13 00:09:08 UTC (rev 24)
+@@ -23,6 +23,11 @@
+       return qc;
+    }
+ 
++   public URI getURL()
++   {
++      return info;
++   }
++
+    public String getNickname()
+    {
+       if (info.getUserInfo() != null)
+
+Modified: rero/src/rero/util/ClientUtils.java
+===================================================================
+--- rero/src/rero/util/ClientUtils.java	2005-07-12 21:25:07 UTC (rev 23)
++++ rero/src/rero/util/ClientUtils.java	2005-07-13 00:09:08 UTC (rev 24)
+@@ -538,6 +538,16 @@
+         return temp.toString();
+     }
+ 
++    public static File getFile(String file)
++    {
++        if (file.charAt(0) == '~' && System.getProperty("user.home") != null)
++        {
++            return new File(System.getProperty("user.home").toString(), file.substring(1));
++        }
++
++        return new File(file);
++    }
++
+     public static LinkedList fileCompleteAll(String pfile)
+     {
+         LinkedList rv = new LinkedList();
+@@ -545,7 +555,7 @@
+         File   cwd;
+         String cwf = null;
+         
+-        File temp = new File(pfile);
++        File temp = getFile(pfile);
+         if (temp.isDirectory())
+         {
+            cwd = temp;
+
+
+
+From rsmudge at berlios.de  Wed Jul 13 02:34:48 2005
+From: rsmudge at berlios.de (Raphael Mudge at BerliOS)
+Date: Wed, 13 Jul 2005 02:34:48 +0200
+Subject: [Jircii-svn] r25 - in rero: . resources/help resources/toplevel resources/toplevel/docs src/rero/config
+Message-ID: <200507130034.j6D0YmqG028572@sheep.berlios.de>
+
+Author: rsmudge
+Date: 2005-07-13 02:34:32 +0200 (Wed, 13 Jul 2005)
+New Revision: 25
+
+Modified:
+   rero/build.xml
+   rero/resources/help/KB_Shortcuts
+   rero/resources/toplevel/docs/jircii.faq
+   rero/resources/toplevel/docs/scriptjirc.pdf
+   rero/resources/toplevel/docs/sleeplang.pdf
+   rero/resources/toplevel/readme.txt
+   rero/resources/toplevel/whatsnew.txt
+   rero/src/rero/config/ClientDefaults.java
+Log:
+b37 checkin :)
+
+
+Modified: rero/build.xml
+===================================================================
+--- rero/build.xml	2005-07-13 00:09:08 UTC (rev 24)
++++ rero/build.xml	2005-07-13 00:34:32 UTC (rev 25)
+@@ -17,7 +17,7 @@
+            destdir="${project.build}"
+            nowarn="yes"
+            depend="yes"
+-           debug="yes"
++           debug="no"
+            optimize="yes"
+     >
+        <classpath path="./lib/sleep.jar" />
+
+Modified: rero/resources/help/KB_Shortcuts
+===================================================================
+--- rero/resources/help/KB_Shortcuts	2005-07-13 00:09:08 UTC (rev 24)
++++ rero/resources/help/KB_Shortcuts	2005-07-13 00:34:32 UTC (rev 25)
+@@ -19,6 +19,10 @@
+ <br>
+ <br>Another popular style of nick completion supported by jIRC is Tab key nick completion.  This is where you type part of a nick and then hit the Tab key.  The last word in the editbox will then be completed to a full nickname.  If the editbox is empty hitting tab will bring up /msg &lt;last person to msg you&gt; in the editbox.  
+ <br>
++<br><b>Tab File Completion</b></font>
++<br>
++<br>If you are using /dcc send, /send, /load, etc. it is possible to tab complete the filename as well.  Just type the first few characters of the path, hit tab, and jIRCii will expand it for you.  Keep hitting tab to cycle through your options.
++<br>
+ <br><b>Quickly Edit a Topic</b></font>
+ <br>
+ <br>To quickly edit a channel topic simply type /topic in the editbox and then hit the Tab key.  This will bring the channel topic up in the editbox ready for quick editing.
+
+Modified: rero/resources/toplevel/docs/jircii.faq
+===================================================================
+--- rero/resources/toplevel/docs/jircii.faq	2005-07-13 00:09:08 UTC (rev 24)
++++ rero/resources/toplevel/docs/jircii.faq	2005-07-13 00:34:32 UTC (rev 25)
+@@ -1,4 +1,4 @@
+-jircii faq - distributed with jircii 06.11.05:
++jircii faq - distributed with jircii 07.13.05:
+ 
+                .sS$$Ss.                           .sS$$Ss. .sS$$Ss.
+                $$$$$$$$                           $$$$$$$$ $$$$$$$$
+@@ -9,7 +9,7 @@
+          $$$$$$ $$$$$$ $$$$$$ $$$$$$ $$$$$$ $$$$$$ $$$$$$   $$$$$$
+          $$$$$$ $$$$$$ $$$$$$ $$$$$$ $$$$$$        $$$$$$   $$$$$$
+   """""" $$$$$$ $$$$$$ $$$$$$        $$$$$$ $$$$$$ $$$$$$   $$$$$$
+-  $$$$$$ $$$$$$ $$$$$$ $$$$$$ 061105 $$$$$$ $$$$$$ $$$$$$   $$$$$$
++  $$$$$$ $$$$$$ $$$$$$ $$$$$$ 071305 $$$$$$ $$$$$$ $$$$$$   $$$$$$
+   $$$$$$ $$$$$$ $$$$$$ $$$$$$        `?$$$$s$$$$P' $$$$$$   $$$$$$
+   `?$$$$s$$$$P'                                        
+ 
+
+Modified: rero/resources/toplevel/docs/scriptjirc.pdf
+===================================================================
+(Binary files differ)
+
+Modified: rero/resources/toplevel/docs/sleeplang.pdf
+===================================================================
+(Binary files differ)
+
+Modified: rero/resources/toplevel/readme.txt
+===================================================================
+--- rero/resources/toplevel/readme.txt	2005-07-13 00:09:08 UTC (rev 24)
++++ rero/resources/toplevel/readme.txt	2005-07-13 00:34:32 UTC (rev 25)
+@@ -1,5 +1,5 @@
+  ------- -------------------- ---------   ---------------  ------- ---------
+-jIRCii - Beta (36) 06.18.05 - README
++jIRCii - Beta (37) 07.13.05 - README
+ -  ------------- -------- -   ---------------- --       -    -     -     - - -
+ 
+ The official jIRCii homepage is at: http://jircii.hick.org
+
+Modified: rero/resources/toplevel/whatsnew.txt
+===================================================================
+--- rero/resources/toplevel/whatsnew.txt	2005-07-13 00:09:08 UTC (rev 24)
++++ rero/resources/toplevel/whatsnew.txt	2005-07-13 00:34:32 UTC (rev 25)
+@@ -1,3 +1,31 @@
++Beta 37 release 07.13.05
++====
++- fixed resource loading to ensure files in .jIRC have priority over 
++  internal resources
++- updated to Sleep 2.0-b11 (from b9)
++  be aware! the behavior of single quoted strings has changed slightly.
++  '\\' is now \; this breaks fserve.irc and I recommend if you are using 
++  it that you upgrade immediately
++- rename window now does nothing if the new window name already exists...  
++  thanks to serge for the bug report (now about that text selection...)
++- unbroke Alt+1 .. Alt+n for channel switching 
++- made a jIRCii launch service change, altnick is now based on the 
++  specified primary nick iff no altnick exists and a primary nick is 
++  speciifed.  If no primary nick is specified jircii will use the 
++  lamer_nnnn nickname.  
++- made auto reconnect on disconnect an option (under IRC Options dialog)
++- on disconnect initial IRC_RECONNECT message goes to all windows, 
++  subsequent ones only go to the status window
++- fixed a bug where dcc receive was not closing file handle when an error 
++  occured.
++- added ~ expansion for tab based file completion, /dcc send, /send, 
++  /theme, and /load ~ expands to your home directory if it is the first 
++  character...  :)
++- fixed occasional switchbar button disappearing bug as reported by simple
++- added the ability to position the switchbar on the left or right side 
++  of the jIRCii window
++- fixed a startup visual artifact on OS X with the metal L&F
++
+ Beta   36 release 06.18.05
+ ====
+ - added localip() function for retrieving local ip address used for dccs
+
+Modified: rero/src/rero/config/ClientDefaults.java
+===================================================================
+--- rero/src/rero/config/ClientDefaults.java	2005-07-13 00:09:08 UTC (rev 24)
++++ rero/src/rero/config/ClientDefaults.java	2005-07-13 00:34:32 UTC (rev 25)
+@@ -75,7 +75,7 @@
+ 
+    public static final boolean update_ial     = true;
+ 
+-   public static final String  version_string = "06.18.05";
++   public static final String  version_string = "07.13.05";
+ 
+    static
+    {
+
+
+
+From oracel at berlios.de  Sat Jul 16 13:08:55 2005
+From: oracel at berlios.de (Andreas Ravnestad at BerliOS)
+Date: Sat, 16 Jul 2005 13:08:55 +0200
+Subject: [Jircii-svn] r26 - rero/src/rero/gui/input
+Message-ID: <200507161108.j6GB8tEi016728@sheep.berlios.de>
+
+Author: oracel
+Date: 2005-07-16 13:08:53 +0200 (Sat, 16 Jul 2005)
+New Revision: 26
+
+Modified:
+   rero/src/rero/gui/input/InputField.java
+Log:
+Updated command history behavior. It now feels more like mIRC and other mainstream clients. -AR
+
+Modified: rero/src/rero/gui/input/InputField.java
+===================================================================
+--- rero/src/rero/gui/input/InputField.java	2005-07-13 00:34:32 UTC (rev 25)
++++ rero/src/rero/gui/input/InputField.java	2005-07-16 11:08:53 UTC (rev 26)
+@@ -16,11 +16,28 @@
+ 
+ public class InputField extends JTextField implements KeyListener, ActionListener, MouseListener, ClientStateListener
+ {
+-    protected InputList  list = null;
++    //protected InputList  list = null;
+     protected Border     defaultBorder;
+-    protected LinkedList listeners;   
++    protected LinkedList listeners;
+     protected UserInputEvent event;
+ 
++    // This is the command history for this InputField
++    // WARNING: Do not, under any circumstance, modify this structure.
++    //          This will lead to a ConcurrentModificationException!
++    private ArrayList<String> commandHistory;
++
++    // An iterator for the command history. This is what is actually
++    // used for manipulating the command history.
++    private ListIterator<String> commandIterator;
++
++    // This is the maximum number of commands in the command history.
++    // This should be configurable.
++    private int maxCommands = 30;
++
++    // True if the key pressed in the previous keyevent was the upkey
++    // This flag is modified in a variety of places in the code.
++    private boolean previousKeyUpArrow = true;
++
+     protected InputBorder indent;
+ 
+     public void mouseClicked(MouseEvent ev)
+@@ -63,8 +80,8 @@
+        defaultBorder = BorderFactory.createEmptyBorder(1, TextSource.UNIVERSAL_TWEAK, 1, 1); // a 1 pixel empty border all around;
+        setBorder(defaultBorder);
+ /*
+-       setBackground(null); // suggested by Sun as a fix to a background being painted problem 
+-                            // in the GTK+ look and feel, unfortunately it doesn't work... maybe it will when 1.5 comes out      
++       setBackground(null); // suggested by Sun as a fix to a background being painted problem
++                            // in the GTK+ look and feel, unfortunately it doesn't work... maybe it will when 1.5 comes out
+ */
+ 
+        addActionListener(this);
+@@ -83,6 +100,11 @@
+ 
+        ClientState.getClientState().addClientStateListener("ui.editcolor", this);
+        ClientState.getClientState().addClientStateListener("ui.font", this);
++
++       // Instantiate the command history -oracel
++       this.commandHistory = new ArrayList<String>(maxCommands + 1);
++       this.commandIterator = commandHistory.listIterator();
++
+     }
+ 
+     public void propertyChanged(String name, String parms)
+@@ -95,7 +117,7 @@
+        Color temp = ClientState.getClientState().getColor("ui.editcolor", ClientDefaults.ui_editcolor);
+ 
+        setForeground(temp);
+-       setCaretColor(temp.brighter()); 
++       setCaretColor(temp.brighter());
+ 
+        setFont(ClientState.getClientState().getFont("ui.font", ClientDefaults.ui_font));
+ 
+@@ -106,8 +128,10 @@
+     {
+        event.text = ev.getActionCommand();
+ 
++       /*
+        InputList temp = new InputList();
+        temp.text = event.text;
++       */
+ 
+        if (event.text.length() <= 0)
+        {
+@@ -115,24 +139,25 @@
+           return;
+        }
+ 
+-       if (list != null)
++       // Add the text to the command history and remove redundant items
++       this.commandExistsInHistory(event.text, true); // Remove if it already exists
++       this.resetIterator(false);   // Reset to end
++       this.commandIterator.add(event.text); // Append to end of list
++
++       // Check if the max size of the history has been reached
++       if (this.commandHistory.size() == (maxCommands + 1)
++                                                    && (maxCommands > 0)) 
+        {
+-          temp.prev = list;
+-          temp.next = list.next;
+ 
+-          if (list.next != null)
+-          {
+-             list.next.prev = temp;
+-          }
+-
+-          list.next = temp;
++           this.resetIterator(); // Reset to beginning
++           this.commandIterator.remove(); // Remove first item in list
++           this.resetIterator(false);   // Reset to end
+        }
+ 
+-       list = temp;
+ 
+        fireInputEvent();
+     }
+- 
++
+     public void addInputListener(InputListener l)
+     {
+        // we use addFirst for the following reasons...  generally input fields will have two listeners
+@@ -163,7 +188,7 @@
+     {
+        if (indent != null)
+        {
+-          return indent.getText(); 
++          return indent.getText();
+        }
+ 
+        return "";
+@@ -236,51 +261,180 @@
+ 
+        if (e.getKeyCode() == KeyEvent.VK_ENTER && e.getModifiers() != 0)
+        {
++          this.resetIterator();
+           event.text = getText();
+           fireInputEvent();
+           e.consume();
+           return;
+        }
+ 
++
+        //
+        // deal with arrow up
+        //
+        if (e.getKeyCode() == KeyEvent.VK_UP)
+        {
+-          if (list != null)
+-          {
+-             setText(list.text);
++        
++            // See if there is an available command in list
++            if (commandIterator.hasPrevious()) {
++            
++                // Store it
++                String previous = commandIterator.previous();
++                
++                // See if we should skip one forward
++                if (!previousKeyUpArrow && commandIterator.hasPrevious()) {
++                    setText(commandIterator.previous());
++                }
++                
++                // Set text from history
++                else {
++                    setText(previous);
++                }
++            
++            }
++            else {
++                e.consume();
++            }
++            
++            // Set flag       
++            this.previousKeyUpArrow = true;
++       }
++                       
+ 
+-             if (list.prev != null)
+-             {
+-                list = list.prev;
+-             }
+-          }          
+-          e.consume();
+-       }
+-   
+        // deal with arrow down
+        if (e.getKeyCode() == KeyEvent.VK_DOWN)
+        {
+-          if (list != null && list.next != null)
+-          {
+-             list = list.next;
+-             setText(list.text);
+-          }          
+-          else
+-          {
+-             setText("");
+-          }
+-          e.consume();
++            
++            // This will hold the next item in the list
++            String next;
++
++            // Check
++            if (commandIterator.hasNext())
++            {
++
++                 // Special case check, user pressed up and down from empty
++                 // command line
++                 if (commandIterator.hasNext() && 
++                        commandIterator.nextIndex() + 1 == commandHistory.size() &&
++                            this.previousKeyUpArrow) 
++                 {
++                    // Clear the command textfield and reset iterator
++                    resetIterator(false);
++                    this.previousKeyUpArrow = true;                    
++                    setText("");
++                 }
++                 
++                 // Not a special case
++                 else 
++                 {
++                     // Fetch next item in command history (downwards)
++                     next = commandIterator.next();
++                    
++                     // Semi-special case, user pressed up then down so
++                     // we need to skip an item
++                     if (previousKeyUpArrow && commandIterator.hasNext()) 
++                     {
++                         setText(commandIterator.next());
++                     }
++                     
++                     // Just set the text
++                     else 
++                     {
++                         setText(next);
++                     }
++                     
++                     // Set flag (user pressed arrow down)
++                     this.previousKeyUpArrow = false;
++                 }
++            }
++            
++            // No more items in history, clear the textfield and set flag
++            else 
++            {
++                 setText("");
++                 next = null;
++                 this.previousKeyUpArrow = true;
++            
++            }
++            
++            // I'm not really sure what this is
++            e.consume();
+        }
+ 
++
+        // deal with ^K and other built in shortcuts
+     }
+ 
+-    public void keyReleased(KeyEvent e) 
+-    { 
++    // Resets to the beginning of the command iterator
++    private void resetIterator() 
++    {
++        this.resetIterator(true);
+     }
+ 
++    // Reset the iterator to beginning (true) or end (false)
++    private void resetIterator(boolean resetToBeginning) 
++    {
++        if (resetToBeginning)
++        {
++            
++            // Reset to beginning
++            while (this.commandIterator.hasPrevious()) 
++            {
++               this.commandIterator.previous();
++            }
++
++        }
++        
++        else {
++            
++            // Reset to end
++            while (this.commandIterator.hasNext()) 
++            {
++               this.commandIterator.next();
++            }
++
++        }
++        
++        return;
++    }
++
++
++    // Returns true if the command is found in the history. If the
++    // parameter <i>delete</i> is true, the command is deleted if found.
++    // This method offers O(n) performance.
++    private boolean commandExistsInHistory(String cmd, boolean delete) 
++    {
++
++        // Reset iterator to beginning
++        this.resetIterator();
++
++        // Iterate through the history from beginning to end
++        while(this.commandIterator.hasNext()) 
++        {
++            if (this.commandIterator.next().equals(cmd)) 
++            {
++
++                // Command was found
++                if (delete) 
++                {
++
++                    // Remove it
++                    this.commandIterator.remove();
++                }
++
++                // Return
++                return true;
++            }
++        }
++
++        // Not found
++        return false;
++    }
++
++    public void keyReleased(KeyEvent e)
++    {
++    }
++
+     public void paint(Graphics g)
+     {
+        TextSource.initGraphics(g);
+
+
+
+From oracel at berlios.de  Sat Jul 16 13:25:16 2005
+From: oracel at berlios.de (Andreas Ravnestad at BerliOS)
+Date: Sat, 16 Jul 2005 13:25:16 +0200
+Subject: [Jircii-svn] r27 - rero/src/rero/gui/input
+Message-ID: <200507161125.j6GBPGtx027231@sheep.berlios.de>
+
+Author: oracel
+Date: 2005-07-16 13:25:15 +0200 (Sat, 16 Jul 2005)
+New Revision: 27
+
+Modified:
+   rero/src/rero/gui/input/InputField.java
+Log:
+Converted code into *not* using generics.
+
+Modified: rero/src/rero/gui/input/InputField.java
+===================================================================
+--- rero/src/rero/gui/input/InputField.java	2005-07-16 11:08:53 UTC (rev 26)
++++ rero/src/rero/gui/input/InputField.java	2005-07-16 11:25:15 UTC (rev 27)
+@@ -24,11 +24,11 @@
+     // This is the command history for this InputField
+     // WARNING: Do not, under any circumstance, modify this structure.
+     //          This will lead to a ConcurrentModificationException!
+-    private ArrayList<String> commandHistory;
++    private ArrayList commandHistory;
+ 
+     // An iterator for the command history. This is what is actually
+     // used for manipulating the command history.
+-    private ListIterator<String> commandIterator;
++    private ListIterator commandIterator;
+ 
+     // This is the maximum number of commands in the command history.
+     // This should be configurable.
+@@ -102,7 +102,7 @@
+        ClientState.getClientState().addClientStateListener("ui.font", this);
+ 
+        // Instantiate the command history -oracel
+-       this.commandHistory = new ArrayList<String>(maxCommands + 1);
++       this.commandHistory = new ArrayList(maxCommands + 1);
+        this.commandIterator = commandHistory.listIterator();
+ 
+     }
+@@ -279,11 +279,11 @@
+             if (commandIterator.hasPrevious()) {
+             
+                 // Store it
+-                String previous = commandIterator.previous();
++                String previous = String.valueOf(commandIterator.previous());
+                 
+                 // See if we should skip one forward
+                 if (!previousKeyUpArrow && commandIterator.hasPrevious()) {
+-                    setText(commandIterator.previous());
++                    setText(String.valueOf(commandIterator.previous()));
+                 }
+                 
+                 // Set text from history
+@@ -328,13 +328,13 @@
+                  else 
+                  {
+                      // Fetch next item in command history (downwards)
+-                     next = commandIterator.next();
++                     next = String.valueOf(commandIterator.next());
+                     
+                      // Semi-special case, user pressed up then down so
+                      // we need to skip an item
+                      if (previousKeyUpArrow && commandIterator.hasNext()) 
+                      {
+-                         setText(commandIterator.next());
++                         setText(String.valueOf(commandIterator.next()));
+                      }
+                      
+                      // Just set the text
+
+
+
+From crazycoder at berlios.de  Sat Jul 16 15:30:22 2005
+From: crazycoder at berlios.de (Serge Baranov at BerliOS)
+Date: Sat, 16 Jul 2005 15:30:22 +0200
+Subject: [Jircii-svn] r28 - rero/src/rero/gui/windows
+Message-ID: <200507161330.j6GDUM6T007468@sheep.berlios.de>
+
+Author: crazycoder
+Date: 2005-07-16 15:30:22 +0200 (Sat, 16 Jul 2005)
+New Revision: 28
+
+Modified:
+   rero/src/rero/gui/windows/GeneralListDialog.java
+Log:
+Set row height so that text can fit into it, fixes uglu channels list display
+
+Modified: rero/src/rero/gui/windows/GeneralListDialog.java
+===================================================================
+--- rero/src/rero/gui/windows/GeneralListDialog.java	2005-07-16 11:25:15 UTC (rev 27)
++++ rero/src/rero/gui/windows/GeneralListDialog.java	2005-07-16 13:30:22 UTC (rev 28)
+@@ -47,6 +47,7 @@
+       table.setDefaultRenderer((new Object()).getClass(), new MyRenderer());
+       table.setShowGrid(false);
+       table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
++      table.setRowHeight(TextSource.fontMetrics.getHeight());
+ 
+       JScrollPane scroller = new JScrollPane(table, JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+       scroller.setOpaque(false);
+@@ -154,7 +155,7 @@
+       private JLabel          select = new JLabel();
+       private AttributedLabel labeln = new AttributedLabel();
+       private AttributedLabel labels = new AttributedLabel();
+-       
++
+       public MyRenderer()
+       {
+          select.setOpaque(true);
+
+
+
+From crazycoder at berlios.de  Sat Jul 16 17:07:30 2005
+From: crazycoder at berlios.de (Serge Baranov at BerliOS)
+Date: Sat, 16 Jul 2005 17:07:30 +0200
+Subject: [Jircii-svn] r29 - rero/src/rero/gui/windows
+Message-ID: <200507161507.j6GF7U6s013109@sheep.berlios.de>
+
+Author: crazycoder
+Date: 2005-07-16 17:07:30 +0200 (Sat, 16 Jul 2005)
+New Revision: 29
+
+Modified:
+   rero/src/rero/gui/windows/StatusWindow.java
+Log:
+Close switchbar windows with Shift+Click
+
+Modified: rero/src/rero/gui/windows/StatusWindow.java
+===================================================================
+--- rero/src/rero/gui/windows/StatusWindow.java	2005-07-16 13:30:22 UTC (rev 28)
++++ rero/src/rero/gui/windows/StatusWindow.java	2005-07-16 15:07:30 UTC (rev 29)
+@@ -259,7 +259,15 @@
+          {
+              public void mousePressed(MouseEvent ev)
+              {
+-                maybeShowPopup(ev, "switchbar");
++                 // Shift+Click closes windows
++                 int onmask = KeyEvent.SHIFT_DOWN_MASK | KeyEvent.BUTTON1_DOWN_MASK;
++                 if ((ev.getModifiersEx() & onmask) == onmask)
++                 {
++                     JToggleButton jb = (JToggleButton) ev.getSource();
++                     capabilities.getUserInterface().closeWindow(jb.getText());
++                 } else {
++                    maybeShowPopup(ev, "switchbar");
++                 }
+              }
+ 
+              public void mouseReleased(MouseEvent ev)
+
+
+
+From crazycoder at berlios.de  Sat Jul 16 19:24:56 2005
+From: crazycoder at berlios.de (Serge Baranov at BerliOS)
+Date: Sat, 16 Jul 2005 19:24:56 +0200
+Subject: [Jircii-svn] r30 - rero/src/rero/gui/windows
+Message-ID: <200507161724.j6GHOufi010761@sheep.berlios.de>
+
+Author: crazycoder
+Date: 2005-07-16 19:24:55 +0200 (Sat, 16 Jul 2005)
+New Revision: 30
+
+Modified:
+   rero/src/rero/gui/windows/StatusWindow.java
+Log:
+Status window can also be closed with Shift+Click
+
+Modified: rero/src/rero/gui/windows/StatusWindow.java
+===================================================================
+--- rero/src/rero/gui/windows/StatusWindow.java	2005-07-16 15:07:30 UTC (rev 29)
++++ rero/src/rero/gui/windows/StatusWindow.java	2005-07-16 17:24:55 UTC (rev 30)
+@@ -30,20 +30,20 @@
+    protected JToggleButton   button;    // for the switchbar homez.
+    protected ImageIcon       icon;      // jEAH bABY
+ 
+-   protected ClientWindow    frame; 
++   protected ClientWindow    frame;
+    protected String          query = "";
+ 
+    protected Capabilities    capabilities;
+-  
++
+    protected Color           defaultForegroundColor;
+-  
++
+    protected MenuBridge      menuManager;
+ 
+    public void cleanup()
+    {
+       if (display != null)
+         display.clear();
+-   } 
++   }
+ 
+    public void touch()
+    {
+@@ -56,7 +56,7 @@
+       if (ev.isPopupTrigger())
+       {
+          JPopupMenu menu = getPopupMenu(desc, ClientUtils.getEventHashMap(getName(), getName()));
+-  
++
+          if (menu != null)
+          {
+             menu.show((JComponent)ev.getComponent(), ev.getX(), ev.getY());
+@@ -71,7 +71,7 @@
+       statusbar.installCapabilities(c);
+ 
+       menuManager = (MenuBridge)c.getDataStructure("menuBridge");
+- 
++
+       input.addMouseListener(new MouseAdapter()
+       {
+           public void mousePressed(MouseEvent ev)
+@@ -88,7 +88,7 @@
+           {
+              maybeShowPopup(ev, "input");
+           }
+-      });      
++      });
+ 
+       MouseAdapter normal = new MouseAdapter()
+       {
+@@ -106,7 +106,7 @@
+           {
+              maybeShowPopup(ev, getWindowType());
+           }
+-      };      
++      };
+ 
+       display.addMouseListener(normal);
+    }
+@@ -161,7 +161,7 @@
+       statusbar = new WindowStatusBar(this);
+ 
+       add(display, BorderLayout.CENTER);
+-      
++
+       JPanel space = new JPanel();
+       space.setLayout(new BorderLayout());
+ 
+@@ -170,7 +170,7 @@
+ 
+       space.setOpaque(false);
+ 
+-      add(space, BorderLayout.SOUTH);      
++      add(space, BorderLayout.SOUTH);
+ 
+       frame.setContentPane(this);
+ 
+@@ -199,7 +199,7 @@
+       frame.setTitle(title);
+    }
+ 
+-   public ClientWindow getWindow() 
++   public ClientWindow getWindow()
+    {
+       return frame;
+    }
+@@ -263,17 +263,18 @@
+                  int onmask = KeyEvent.SHIFT_DOWN_MASK | KeyEvent.BUTTON1_DOWN_MASK;
+                  if ((ev.getModifiersEx() & onmask) == onmask)
+                  {
+-                     JToggleButton jb = (JToggleButton) ev.getSource();
+-                     capabilities.getUserInterface().closeWindow(jb.getText());
++                     String text = ((JToggleButton) ev.getSource()).getText();
++                     IRCSession session = capabilities.getGlobalCapabilities().getSessionManager().getActiveSession();
++                     session.getWindow(text).getWindow().closeWindow();
+                  } else {
+-                    maybeShowPopup(ev, "switchbar");
++                     maybeShowPopup(ev, "switchbar");
+                  }
+              }
+ 
+              public void mouseReleased(MouseEvent ev)
+              {
+                 maybeShowPopup(ev, "switchbar");
+-             } 
++             }
+ 
+              public void mouseClicked(MouseEvent ev)
+              {
+@@ -282,20 +283,20 @@
+          });
+       }
+ 
+-      return button;      
++      return button;
+    }
+ 
+    protected class ClientWindowStuff implements ClientWindowListener
+    {
+-      public void onActive(ClientWindowEvent ev) 
+-      { 
++      public void onActive(ClientWindowEvent ev)
++      {
+          unflag();
+       }
+       public void onOpen(ClientWindowEvent ev) { }
+       public void onInactive(ClientWindowEvent ev) { }
+       public void onMinimize(ClientWindowEvent ev) { }
+-      public void onClose(ClientWindowEvent ev) 
+-      { 
++      public void onClose(ClientWindowEvent ev)
++      {
+          cleanup();
+       }
+    }
+@@ -313,7 +314,7 @@
+       {
+          return this.getName().toUpperCase().compareTo(((StatusWindow)o).getName().toUpperCase());
+       }
+-      
++
+       return compareWindowType() - temp.compareWindowType();
+    }
+ 
+
+
+
+From crazycoder at berlios.de  Sat Jul 16 19:45:01 2005
+From: crazycoder at berlios.de (Serge Baranov at BerliOS)
+Date: Sat, 16 Jul 2005 19:45:01 +0200
+Subject: [Jircii-svn] r31 - rero/src/rero/gui
+Message-ID: <200507161745.j6GHj1uC008944@sheep.berlios.de>
+
+Author: crazycoder
+Date: 2005-07-16 19:45:00 +0200 (Sat, 16 Jul 2005)
+New Revision: 31
+
+Modified:
+   rero/src/rero/gui/ClickableURLHandler.java
+Log:
+More proper URL matching: ftp:// links are handled now and http:// is added before www. style links
+
+Modified: rero/src/rero/gui/ClickableURLHandler.java
+===================================================================
+--- rero/src/rero/gui/ClickableURLHandler.java	2005-07-16 17:24:55 UTC (rev 30)
++++ rero/src/rero/gui/ClickableURLHandler.java	2005-07-16 17:45:00 UTC (rev 31)
+@@ -1,6 +1,7 @@
+ package rero.gui;
+ 
+ import rero.client.output.*;
++
+ import java.util.*;
+ 
+ import rero.ircfw.interfaces.ChatListener;
+@@ -15,65 +16,45 @@
+ 
+ public class ClickableURLHandler extends Feature implements ClickListener
+ {
+-   public void wordClicked(ClickEvent ev)
+-   {
+-      String item = ev.getClickedText().toLowerCase();
++    public void wordClicked(ClickEvent ev)
++    {
++        String item = ev.getClickedText().toLowerCase();
+ 
+-      if (item.length() > 7 && item.substring(0, 7).equals("http://"))
+-      {
+-          ClientUtils.openURL(extractURL(ev.getClickedText()));
+-          ev.consume();
+-          ev.acknowledge();
+-      }
+-      else if (item.length() > 10 && item.substring(0, 8).equals("(http://") && item.charAt(item.length() -1) == ')')
+-      {
+-          ClientUtils.openURL(extractURL(ev.getClickedText()));
+-          ev.consume();
+-          ev.acknowledge();
+-      }
+-      else if (item.length() > 11 && item.substring(0, 9).equals("(https://") && item.charAt(item.length() -1) == ')')
+-      {
+-          ClientUtils.openURL(extractURL(ev.getClickedText()));
+-          ev.consume();
+-          ev.acknowledge();
+-      }
+-      else if (item.length() > 8 && item.substring(0, 8).equals("https://"))
+-      {
+-          ClientUtils.openURL(extractURL(ev.getClickedText()));
+-          ev.consume();
+-          ev.acknowledge();
+-      }
+-      else if (item.length() > 4 && item.substring(0, 4).equals("www."))
+-      {
+-          ClientUtils.openURL("http://" + extractURL(ev.getClickedText()));
+-          ev.consume();
+-          ev.acknowledge();
+-      }
+-      else if (item.length() > 2 && ClientUtils.isChannel(item) && getCapabilities().isConnected() && !ev.getClickedText().endsWith("."))
+-      {
+-          getCapabilities().sendln("JOIN " + ev.getClickedText());
+-          ev.consume();
+-          ev.acknowledge();
+-      }
+-      else if (item.length() > 2 && ClientUtils.isChannel(item.substring(1, item.length())) && getCapabilities().isConnected())
+-      {
+-          getCapabilities().sendln("JOIN " + ev.getClickedText().substring(1, item.length() - 1));
+-          ev.consume();
+-          ev.acknowledge();
+-      }
+-   }
++        if (item.matches("^\\(*(http|https|ftp)://.*"))
++        {
++            ClientUtils.openURL(extractURL(ev.getClickedText()));
++            ev.consume();
++            ev.acknowledge();
++        } else if (item.matches("^www\\..*"))
++        {
++            String location = extractURL(ev.getClickedText());
++            ClientUtils.openURL("http://" + location);
++            ev.consume();
++            ev.acknowledge();
++        } else if (item.length() > 2 && ClientUtils.isChannel(item) && getCapabilities().isConnected() && !ev.getClickedText().endsWith("."))
++        {
++            getCapabilities().sendln("JOIN " + ev.getClickedText());
++            ev.consume();
++            ev.acknowledge();
++        } else if (item.length() > 2 && ClientUtils.isChannel(item.substring(1, item.length())) && getCapabilities().isConnected())
++        {
++            getCapabilities().sendln("JOIN " + ev.getClickedText().substring(1, item.length() - 1));
++            ev.consume();
++            ev.acknowledge();
++        }
++    }
+ 
+-   private static String extractURL(String url)
+-   {
+-      if (url.charAt(0) == '(')
+-      {
+-         url = url.substring(1, url.length() - 1);
+-      }
++    private static String extractURL(String url)
++    {
++        if (url.charAt(0) == '(')
++        {
++            url = url.substring(1, url.length() - 1);
++        }
+ 
+-      return url;
+-   }
++        return url;
++    }
+ 
+-   public void init()
+-   {
+-   }
++    public void init()
++    {
++    }
+ }
+
+
+
+From oracel at berlios.de  Sun Jul 17 01:23:30 2005
+From: oracel at berlios.de (Andreas Ravnestad at BerliOS)
+Date: Sun, 17 Jul 2005 01:23:30 +0200
+Subject: [Jircii-svn] r32 - rero/src/rero/gui/input
+Message-ID: <200507162323.j6GNNU5r002538@sheep.berlios.de>
+
+Author: oracel
+Date: 2005-07-17 01:23:28 +0200 (Sun, 17 Jul 2005)
+New Revision: 32
+
+Modified:
+   rero/src/rero/gui/input/InputField.java
+Log:
+Pasted text is now added to the command history.
+
+Modified: rero/src/rero/gui/input/InputField.java
+===================================================================
+--- rero/src/rero/gui/input/InputField.java	2005-07-16 17:45:00 UTC (rev 31)
++++ rero/src/rero/gui/input/InputField.java	2005-07-16 23:23:28 UTC (rev 32)
+@@ -7,9 +7,13 @@
+ 
+ import java.awt.*;
+ import java.awt.event.*;
++import java.awt.datatransfer.* ;
+ 
+ import java.util.*;
+ 
++import java.io.IOException;
++
++
+ import text.*;
+ 
+ import rero.config.*;
+@@ -31,7 +35,7 @@
+     private ListIterator commandIterator;
+ 
+     // This is the maximum number of commands in the command history.
+-    // This should be configurable.
++    // TODO: This should be configurable.
+     private int maxCommands = 30;
+ 
+     // True if the key pressed in the previous keyevent was the upkey
+@@ -123,38 +127,73 @@
+ 
+        revalidate();
+     }
++    
++    
++    // Override JTextfield.paste() to be able to capture pasted input
++    // for the command history
++    public void paste() {
+ 
++        // Get the clipboard
++        Clipboard cb = getToolkit().getSystemClipboard() ;
++
++        // Probably won't happen
++        if (cb == null)
++        {
++            return;
++        }
++        
++        // Get the contents
++        Transferable t =  cb.getContents(null);
++        if (t != null) 
++        {
++            try 
++            {
++                
++                // Get the data and check that it's a String
++                Object obj = t.getTransferData(DataFlavor.stringFlavor);
++                if (obj != null && obj instanceof String) 
++                {
++                    // Split the string into lines
++                    String lines[] = String.valueOf(obj).split("\\n");
++                    
++                    // Loop through the lines in the pasted text
++                    for (int i = 0; i < lines.length; i++) {
++                        
++                        // Add each line to the history
++                        this.addToHistory(lines[i].trim());
++                    }
++                }
++            } 
++            
++            catch (IOException ioe) 
++            {
++                return;
++            } 
++            
++            catch (UnsupportedFlavorException ufe)
++            {
++                return ;
++            }
++        }
++        
++        // Make sure the garble is pasted
++        super.paste();   
++    }
++
++
+     public void actionPerformed(ActionEvent ev)
+     {
+        event.text = ev.getActionCommand();
+ 
+-       /*
+-       InputList temp = new InputList();
+-       temp.text = event.text;
+-       */
+-
+        if (event.text.length() <= 0)
+        {
+           fireInputEvent(); // fire an empty input event, it helps sometimes
+           return;
+        }
+ 
+-       // Add the text to the command history and remove redundant items
+-       this.commandExistsInHistory(event.text, true); // Remove if it already exists
+-       this.resetIterator(false);   // Reset to end
+-       this.commandIterator.add(event.text); // Append to end of list
++       // Add text to history
++       this.addToHistory(event.text);
+ 
+-       // Check if the max size of the history has been reached
+-       if (this.commandHistory.size() == (maxCommands + 1)
+-                                                    && (maxCommands > 0)) 
+-       {
+-
+-           this.resetIterator(); // Reset to beginning
+-           this.commandIterator.remove(); // Remove first item in list
+-           this.resetIterator(false);   // Reset to end
+-       }
+-
+-
+        fireInputEvent();
+     }
+ 
+@@ -399,6 +438,25 @@
+     }
+ 
+ 
++    private void addToHistory(String text) {
++       
++       // Add the text to the command history and remove redundant items
++       this.commandExistsInHistory(text, true); // Remove if it already exists
++       this.resetIterator(false);   // Reset to end
++       this.commandIterator.add(text); // Append to end of list
++
++       // Check if the max size of the history has been reached
++       if (this.commandHistory.size() == (maxCommands + 1)
++                                                    && (maxCommands > 0)) 
++       {
++
++           this.resetIterator(); // Reset to beginning
++           this.commandIterator.remove(); // Remove first item in list
++           this.resetIterator(false);   // Reset to end
++       }        
++    }
++
++
+     // Returns true if the command is found in the history. If the
+     // parameter <i>delete</i> is true, the command is deleted if found.
+     // This method offers O(n) performance.
+
+
+
+From rsmudge at berlios.de  Sun Jul 17 04:46:42 2005
+From: rsmudge at berlios.de (Raphael Mudge at BerliOS)
+Date: Sun, 17 Jul 2005 04:46:42 +0200
+Subject: [Jircii-svn] r33 - in rero/src/rero: client gui/windows ircfw
+Message-ID: <200507170246.j6H2kgE3009912@sheep.berlios.de>
+
+Author: rsmudge
+Date: 2005-07-17 04:46:37 +0200 (Sun, 17 Jul 2005)
+New Revision: 33
+
+Modified:
+   rero/src/rero/client/DataStructures.java
+   rero/src/rero/gui/windows/ChannelListData.java
+   rero/src/rero/ircfw/Channel.java
+Log:
+Fixed a deadlock condition with channel listbox painting (a long time plague of jIRCii), we now synchronize on the jIRCii script 
+variables whenever possible, rather than some other arbitrary object....
+
+
+Modified: rero/src/rero/client/DataStructures.java
+===================================================================
+--- rero/src/rero/client/DataStructures.java	2005-07-16 23:23:28 UTC (rev 32)
++++ rero/src/rero/client/DataStructures.java	2005-07-17 02:46:37 UTC (rev 33)
+@@ -10,4 +10,5 @@
+    public static final String NotifyData       = "notify";            // rero.client.notify.NotifyData
+    public static final String UserHandler      = "commands";          // rero.client.user.UserHandler
+    public static final String DataDCC          = "dcc";               // rero.dcc.DataDCC 
++   public static final String ScriptVariables  = "scriptVariables";   // global variable container used by all scripts...
+ }
+
+Modified: rero/src/rero/gui/windows/ChannelListData.java
+===================================================================
+--- rero/src/rero/gui/windows/ChannelListData.java	2005-07-16 23:23:28 UTC (rev 32)
++++ rero/src/rero/gui/windows/ChannelListData.java	2005-07-17 02:46:37 UTC (rev 33)
+@@ -92,7 +92,18 @@
+ 
+    public Object getSynchronizationKey()
+    {
+-      return getChannel().getAllUsers();
++      if (capabilities != null)
++      {
++         // lock this tree by the script variables so no other thread can touch it...
++         return capabilities.getDataStructure(DataStructures.ScriptVariables);
++      }
++      else
++      {
++         // we'll use this given no choice, however permanently locking based on this
++         // value is the road to deadlock since so much is synchronized on the script
++         // variables already...
++         return getChannel().getAllUsers();
++      }
+    }
+ 
+    protected ListElement getElementForUser(User u)
+
+Modified: rero/src/rero/ircfw/Channel.java
+===================================================================
+--- rero/src/rero/ircfw/Channel.java	2005-07-16 23:23:28 UTC (rev 32)
++++ rero/src/rero/ircfw/Channel.java	2005-07-17 02:46:37 UTC (rev 33)
+@@ -8,7 +8,7 @@
+ public class Channel implements FrameworkConstants, Comparator
+ {
+     protected String topic = ""; /* channel topic */
+-    
++
+     public void setTopic(String t) { topic = t; }
+     public String getTopic() { return topic; }
+ 
+
+
+
+From rsmudge at berlios.de  Sun Jul 17 17:48:15 2005
+From: rsmudge at berlios.de (Raphael Mudge at BerliOS)
+Date: Sun, 17 Jul 2005 17:48:15 +0200
+Subject: [Jircii-svn] r34 - in rero/src: rero/client/functions rero/gui/windows text/list
+Message-ID: <200507171548.j6HFmFI9002757@sheep.berlios.de>
+
+Author: rsmudge
+Date: 2005-07-17 17:48:14 +0200 (Sun, 17 Jul 2005)
+New Revision: 34
+
+Modified:
+   rero/src/rero/client/functions/ChannelOperators.java
+   rero/src/rero/gui/windows/ChannelListData.java
+   rero/src/text/list/ListData.java
+   rero/src/text/list/ListDisplayComponent.java
+Log:
+An update to my deadlock fix with listbox data
+Added a check to prevent getModeFor() from throwing a null pointer exception if specified user arg doesn't exist
+
+
+Modified: rero/src/rero/client/functions/ChannelOperators.java
+===================================================================
+--- rero/src/rero/client/functions/ChannelOperators.java	2005-07-17 02:46:37 UTC (rev 33)
++++ rero/src/rero/client/functions/ChannelOperators.java	2005-07-17 15:48:14 UTC (rev 34)
+@@ -66,6 +66,9 @@
+           String  _channel = BridgeUtilities.getString(locals, "");
+           Channel channel  = data.getChannel(_channel);
+  
++          if (data.getUser(_nick) == null)
++              return SleepUtils.getEmptyScalar();
++
+           return SleepUtils.getScalar(data.getPrefixInfo().toString(data.getUser(_nick).getModeFor(channel)));
+       }
+ 
+
+Modified: rero/src/rero/gui/windows/ChannelListData.java
+===================================================================
+--- rero/src/rero/gui/windows/ChannelListData.java	2005-07-17 02:46:37 UTC (rev 33)
++++ rero/src/rero/gui/windows/ChannelListData.java	2005-07-17 15:48:14 UTC (rev 34)
+@@ -90,7 +90,8 @@
+       return null;
+    }
+ 
+-   public Object getSynchronizationKey()
++   // in the listbox painting code we ensure we have the script variable lock first before doing any painting...
++   public Object getSynchronizationKeyOuter()
+    {
+       if (capabilities != null)
+       {
+@@ -99,13 +100,15 @@
+       }
+       else
+       {
+-         // we'll use this given no choice, however permanently locking based on this
+-         // value is the road to deadlock since so much is synchronized on the script
+-         // variables already...
+-         return getChannel().getAllUsers();
++         return null;
+       }
+    }
+ 
++   public Object getSynchronizationKeyInner()
++   {
++      return getChannel().getAllUsers();
++   }
++
+    protected ListElement getElementForUser(User u)
+    {
+       UserElement temp = (UserElement)userInfo.get(u);
+
+Modified: rero/src/text/list/ListData.java
+===================================================================
+--- rero/src/text/list/ListData.java	2005-07-17 02:46:37 UTC (rev 33)
++++ rero/src/text/list/ListData.java	2005-07-17 15:48:14 UTC (rev 34)
+@@ -42,11 +42,16 @@
+     public abstract ListElement getElementAt(int number);
+     public abstract Iterator    dataIterator();
+ 
+-    public Object getSynchronizationKey()
++    public Object getSynchronizationKeyOuter()
+     {
+         return null;
+     }
+ 
++    public Object getSynchronizationKeyInner()
++    {
++        return null;
++    }
++
+     public void fireChangeEvent()
+     {
+         ListIterator i = listeners.listIterator();
+
+Modified: rero/src/text/list/ListDisplayComponent.java
+===================================================================
+--- rero/src/text/list/ListDisplayComponent.java	2005-07-17 02:46:37 UTC (rev 33)
++++ rero/src/text/list/ListDisplayComponent.java	2005-07-17 15:48:14 UTC (rev 34)
+@@ -67,8 +67,10 @@
+ 
+       int baseline = TextSource.fontMetrics.getHeight() - 2; // starting at the top for this one...
+ 
+-      synchronized (data.getSynchronizationKey())
++      synchronized (data.getSynchronizationKeyOuter())
+       {
++      synchronized (data.getSynchronizationKeyInner())
++      {
+       ListElement head = data.head(); // iteration is built into the ListData class, not my favorite pattern 
+ 
+       while (head != null && baseline < height)
+@@ -88,7 +90,9 @@
+          baseline += (TextSource.fontMetrics.getHeight() + 2);
+ 
+          head = data.next();
+-      }
+-      }
++      } // end while loop... I do need to reformat this...
++
++      } // end key inner
++      } // end key outer
+    }
+ }
+
+
+
+From rsmudge at berlios.de  Sun Jul 17 18:29:26 2005
+From: rsmudge at berlios.de (Raphael Mudge at BerliOS)
+Date: Sun, 17 Jul 2005 18:29:26 +0200
+Subject: [Jircii-svn] r35 - rero/lib
+Message-ID: <200507171629.j6HGTQtU006230@sheep.berlios.de>
+
+Author: rsmudge
+Date: 2005-07-17 18:29:24 +0200 (Sun, 17 Jul 2005)
+New Revision: 35
+
+Modified:
+   rero/lib/sleep.jar
+Log:
+Sleep 2.0-stable(?)
+
+
+Modified: rero/lib/sleep.jar
+===================================================================
+(Binary files differ)
+
+
+
+From rsmudge at berlios.de  Mon Jul 18 17:34:52 2005
+From: rsmudge at berlios.de (Raphael Mudge at BerliOS)
+Date: Mon, 18 Jul 2005 17:34:52 +0200
+Subject: [Jircii-svn] r36 - in rero: lib resources/help resources/toplevel resources/toplevel/docs src/rero/client/dcc src/rero/client/functions src/rero/config src/rero/dialogs src/rero/gui/windows src/rero/ircfw src/rero/net src/rero/util src/text src/text/list
+Message-ID: <200507181534.j6IFYqZ3013276@sheep.berlios.de>
+
+Author: rsmudge
+Date: 2005-07-18 17:34:42 +0200 (Mon, 18 Jul 2005)
+New Revision: 36
+
+Added:
+   rero/src/rero/dialogs/ClientOptions.java
+Modified:
+   rero/lib/sleep.jar
+   rero/resources/help/About
+   rero/resources/help/Contributors
+   rero/resources/help/KB_Shortcuts
+   rero/resources/help/aliases
+   rero/resources/toplevel/docs/sleeplang.pdf
+   rero/resources/toplevel/whatsnew.txt
+   rero/src/rero/client/dcc/FeatureDCC.java
+   rero/src/rero/client/functions/UtilOperators.java
+   rero/src/rero/config/ClientDefaults.java
+   rero/src/rero/dialogs/IRCOptions.java
+   rero/src/rero/dialogs/OptionWindow.java
+   rero/src/rero/gui/windows/ChannelListData.java
+   rero/src/rero/ircfw/InternalDataList.java
+   rero/src/rero/net/SocketConnection.java
+   rero/src/rero/util/ClientUtils.java
+   rero/src/text/LabelDisplay.java
+   rero/src/text/list/ListDisplayComponent.java
+Log:
+My changelist for b38...
+- fixed repainting issues with the channel listbox and statusbar under XP
+  (Serge/Raffi)
+- fixed bug with auto resume option, if a file is complete, auto resume
+  will no longer pop up a dialog asking you to rename the saved file.
+  (the idea behind the auto options is to be hands off...); a message is
+  fired to indicate this case as well.
+- moved the Update IAL on Join and Auto Reconnect options to a new dialog
+  panel called Client Options
+- added an option to strip out all formatting codes from IRC messages
+
+
+
+
+Modified: rero/lib/sleep.jar
+===================================================================
+(Binary files differ)
+
+Modified: rero/resources/help/About
+===================================================================
+--- rero/resources/help/About	2005-07-17 16:29:24 UTC (rev 35)
++++ rero/resources/help/About	2005-07-18 15:34:42 UTC (rev 36)
+@@ -11,7 +11,7 @@
+ <br>
+ <br><b>Contact Information</b></font>
+ <br>
+-<br>My name is Raffi, I wrote jIRCii.  If you'd like to get in touch with me feel free to email me.
++<br>My name is Raffi, I wrote jIRCii (with some help see Contributors section).  If you'd like to get in touch with me feel free to email me.
+ <br>
+ <br>email: <a href="mailto:raffi at hick.org">raffi at hick.org</a>
+ <br>www: <a href="http://www.hick.org/~raffi/">http://www.hick.org/~raffi/</a>
+
+Modified: rero/resources/help/Contributors
+===================================================================
+--- rero/resources/help/Contributors	2005-07-17 16:29:24 UTC (rev 35)
++++ rero/resources/help/Contributors	2005-07-18 15:34:42 UTC (rev 36)
+@@ -2,7 +2,12 @@
+ <br>
+ <br>jIRCii has been a work in progress for a long time now.  I originally started it as a project to learn java while in high school.  I tinkered with it as a hobby throughout college.  I didn't make that final push to create a release quality product until now though.  Anyways with such a long history as a project there are to many people to thank so I'm going to keep this list short.
+ <br>
+-<br><b>Patch Contributors</b></font>
++<br><p>Development Team</p>
++<br>Serge Baranov
++<br>Raphael Mudge
++<br>Andreas Ravnestad
++<br>
++<br><b>Patch Contributors</b>
+ <br>Mouton - found and fixed a Ctrl+K parsing bug
+ <br>Elly   - built initial UnrealIRCD support, bug fixes
+ <br>
+
+Modified: rero/resources/help/KB_Shortcuts
+===================================================================
+--- rero/resources/help/KB_Shortcuts	2005-07-17 16:29:24 UTC (rev 35)
++++ rero/resources/help/KB_Shortcuts	2005-07-18 15:34:42 UTC (rev 36)
+@@ -47,7 +47,7 @@
+ <br>
+ <br>It is possible to quickly create a /window for a query using Ctrl+W
+ <br>
+-<br>To close the current /window use Ctrl+D
++<br>To close the current /window use Ctrl+D.  Windows can also be closed by holding down shift and clicking on the switchbar button for the window you want to close.
+ <br>
+ <br><b>Navigate Channel/Query Windows</b></font>
+ <br>
+
+Modified: rero/resources/help/aliases
+===================================================================
+--- rero/resources/help/aliases	2005-07-17 16:29:24 UTC (rev 35)
++++ rero/resources/help/aliases	2005-07-18 15:34:42 UTC (rev 36)
+@@ -10,7 +10,6 @@
+ cping::/cping tanto::sends a ctcp ping request to the specified nick/channel.::+target - nick/channel to send ping to
+ creply::/creply Tobias VERSION x-chat: paid Windows version::sends a ctcp reply to the target::target - who to send reply to::type - type of ctcp reply to send::+parms - parameters to send
+ cycle::/cycle::leaves and joins the current/specified channel::+#channel - channel to cycle
+-d::/d blue-elf JakieChan::figures out the mode for the specified users (op,voice,halfop) and removes the mode.  You can specify up to 4 nicknames (uses nick completion).::nick - user to take mode from::+nick... - other users to take mode from.
+ dcc::/dcc send JakieChan ~/jerksrc.tar<br>/dcc chat tanto<br>/dcc accept blue-elf<br>/dcc close JakieChan::DCC stands for Direct Client Connection.  It is a way of sending and receiving files from other users on IRC.  It also provides facilities for chatting with another user outside of the IRC environment.::+stats - show dcc statistics in a window::send|chat|close|accept - type of dcc command to send.::nick - user to send dcc request to.::+file - filename to send
+ deop::/deop tijiez::takes away half operator privileges for user on active channel. You can specify up to 4 nicknames (uses nick completion).::nick - user to deop::+nick... - other users to deop.
+ describe::/describe #jIRC slaps tanto.::sends an action to the specified channel::#channel - channel to send action to.::text - action to perform.
+
+Modified: rero/resources/toplevel/docs/sleeplang.pdf
+===================================================================
+(Binary files differ)
+
+Modified: rero/resources/toplevel/whatsnew.txt
+===================================================================
+--- rero/resources/toplevel/whatsnew.txt	2005-07-17 16:29:24 UTC (rev 35)
++++ rero/resources/toplevel/whatsnew.txt	2005-07-18 15:34:42 UTC (rev 36)
+@@ -1,3 +1,24 @@
++Beta 38 
++====
++- jIRCii command history behavior has been completely overhauled to feel
++  more like mIRC and other clients (- Oracel -)
++- a bug has been fixed where jIRCii list dialogs (/list etc.) did not
++  have the appropriate row height set (- Serge -)
++- windows can now be closed by shift+clicking the switchbar button (- Serge -)
++- added better URL matching for clicked links (- Serge -)
++- added a check to getModeFor() to prevent a null pointer exception
++- fixed a potential deadlock issue from the listbox painting code
++- upgraded scripting library to Sleep 2.0-stable
++- fixed repainting issues with the channel listbox and statusbar under XP
++  (Serge/Raffi)
++- fixed bug with auto resume option, if a file is complete, auto resume
++  will no longer pop up a dialog asking you to rename the saved file.
++  (the idea behind the auto options is to be hands off...); a message is
++  fired to indicate this case as well.
++- moved the Update IAL on Join and Auto Reconnect options to a new dialog
++  panel called Client Options
++- added an option to strip out all formatting codes from IRC messages
++
+ Beta 37 release 07.13.05
+ ====
+ - fixed resource loading to ensure files in .jIRC have priority over 
+
+Modified: rero/src/rero/client/dcc/FeatureDCC.java
+===================================================================
+--- rero/src/rero/client/dcc/FeatureDCC.java	2005-07-17 16:29:24 UTC (rev 35)
++++ rero/src/rero/client/dcc/FeatureDCC.java	2005-07-18 15:34:42 UTC (rev 36)
+@@ -330,12 +330,19 @@
+ 
+                   getCapabilities().sendln(outputz);
+                   getCapabilities().getOutputCapabilities().fireSetStatus(description, "SEND_RESUME_REQUEST");
+-                  break;
+                }
++               else
++               {
++                  protocol.fireError("file already completed, no need to resume");
++               }
++               break;
++             case DCCUtilities.RENAME_OPTION_SELECTED:
++               boolean option = SendRequest.showDialog(getCapabilities().getGlobalCapabilities().getFrame(), connect);
+ 
+-             case DCCUtilities.RENAME_OPTION_SELECTED:
+-               SendRequest.showDialog(getCapabilities().getGlobalCapabilities().getFrame(), connect);
+-               handleReceive(protocol, connect, description, temp);
++               if (option)
++               {
++                  handleReceive(protocol, connect, description, temp);
++               }
+                break;
+ 
+              case DCCUtilities.OVERWRITE_OPTION_SELECTED:
+
+Modified: rero/src/rero/client/functions/UtilOperators.java
+===================================================================
+--- rero/src/rero/client/functions/UtilOperators.java	2005-07-17 16:29:24 UTC (rev 35)
++++ rero/src/rero/client/functions/UtilOperators.java	2005-07-18 15:34:42 UTC (rev 36)
+@@ -144,7 +144,7 @@
+    {
+       public Scalar evaluate(String f, ScriptInstance si, Stack locals)
+       {
+-         return SleepUtils.getScalar(AttributedString.CreateAttributedString(locals.pop().toString()).getText());
++         return SleepUtils.getScalar(ClientUtils.strip(BridgeUtilities.getString(locals, "")));
+       }
+    }
+ 
+
+Modified: rero/src/rero/config/ClientDefaults.java
+===================================================================
+--- rero/src/rero/config/ClientDefaults.java	2005-07-17 16:29:24 UTC (rev 35)
++++ rero/src/rero/config/ClientDefaults.java	2005-07-18 15:34:42 UTC (rev 36)
+@@ -60,6 +60,8 @@
+    public static final boolean switchbar_sort     = false; // sort switchbar buttons alphabetically...
+    public static final boolean switchbar_hilight  = true; // determine if switchbar hilighting is on/off
+ 
++   public static final boolean client_stripcodes  = false; // strip colors from server?
++
+    public static final boolean log_enabled   = false;
+    public static final String  log_saveto    = new File(System.getProperty("user.home"), "irc_logs").getAbsolutePath();
+    public static final boolean log_strip     = true;
+
+Added: rero/src/rero/dialogs/ClientOptions.java
+===================================================================
+--- rero/src/rero/dialogs/ClientOptions.java	2005-07-17 16:29:24 UTC (rev 35)
++++ rero/src/rero/dialogs/ClientOptions.java	2005-07-18 15:34:42 UTC (rev 36)
+@@ -0,0 +1,35 @@
++package rero.dialogs;
++
++import java.awt.*;
++import java.awt.event.*;
++
++import javax.swing.*;
++import javax.swing.event.*;
++
++import java.util.*;
++import rero.config.*;
++import rero.dck.*;
++
++public class ClientOptions extends DMain
++{
++   public String getTitle()
++   {
++      return "Client Options";
++   }
++
++   public String getDescription()
++   {
++      return "Client Options";
++   }
++
++   public void setupDialog()
++   {
++      addBlankSpace();
++
++      addCheckboxInput("update.ial" , ClientDefaults.option_showmotd,  "Update IAL on channel join", 'I');
++      addCheckboxInput("option.reconnect" , ClientDefaults.option_reconnect,  "Auto-reconnect when disconnected", 'r');
++   }
++}
++
++
++
+
+Modified: rero/src/rero/dialogs/IRCOptions.java
+===================================================================
+--- rero/src/rero/dialogs/IRCOptions.java	2005-07-17 16:29:24 UTC (rev 35)
++++ rero/src/rero/dialogs/IRCOptions.java	2005-07-18 15:34:42 UTC (rev 36)
+@@ -41,10 +41,9 @@
+ 
+       addBlankSpace();
+ 
+-      addCheckboxInput("update.ial" , ClientDefaults.option_showmotd,  "Update IAL on channel join", 'I');
+       addCheckboxInput("option.showmotd" , ClientDefaults.option_showmotd,  "Show MOTD", 'M');
+-      addCheckboxInput("option.reconnect" , ClientDefaults.option_reconnect,  "Auto-reconnect when disconnected", 'r');
+       addCheckboxInput("option.timestamp", ClientDefaults.option_timestamp, "Timestamp Events.", 'a');
++      addCheckboxInput("client.stripcodes" , ClientDefaults.client_stripcodes,  "Strip formatting codes from IRC messages", 'f');
+    }
+ }
+ 
+
+Modified: rero/src/rero/dialogs/OptionWindow.java
+===================================================================
+--- rero/src/rero/dialogs/OptionWindow.java	2005-07-17 16:29:24 UTC (rev 35)
++++ rero/src/rero/dialogs/OptionWindow.java	2005-07-18 15:34:42 UTC (rev 36)
+@@ -97,6 +97,7 @@
+ 
+        category = new DefaultMutableTreeNode("Client Options"); items.add(category);
+           option = new DefaultMutableTreeNode(addDialog(new IRCOptions()));   category.add(option);
++          option = new DefaultMutableTreeNode(addDialog(new ClientOptions()));   category.add(option);
+           option = new DefaultMutableTreeNode(addDialog(new DCCOptions()));   category.add(option);
+           option = new DefaultMutableTreeNode(addDialog(new LoggingDialog()));   category.add(option);
+           option = new DefaultMutableTreeNode(addDialog(new AutoWindowDialog()));   category.add(option);
+
+Modified: rero/src/rero/gui/windows/ChannelListData.java
+===================================================================
+--- rero/src/rero/gui/windows/ChannelListData.java	2005-07-17 16:29:24 UTC (rev 35)
++++ rero/src/rero/gui/windows/ChannelListData.java	2005-07-18 15:34:42 UTC (rev 36)
+@@ -100,7 +100,7 @@
+       }
+       else
+       {
+-         return null;
++         return getChannel().getAllUsers(); // prevent a null pointer exception when capabilities haven't been installed yet
+       }
+    }
+ 
+
+Modified: rero/src/rero/ircfw/InternalDataList.java
+===================================================================
+--- rero/src/rero/ircfw/InternalDataList.java	2005-07-17 16:29:24 UTC (rev 35)
++++ rero/src/rero/ircfw/InternalDataList.java	2005-07-18 15:34:42 UTC (rev 36)
+@@ -278,7 +278,7 @@
+ 
+     public boolean isOn(User user, Channel channel)
+     {
+-        return (user.getChannels().contains(channel));
++        return user != null && user.getChannels().contains(channel);
+     }
+ 
+     public void AddUser(String nickname, Channel channel)
+
+Modified: rero/src/rero/net/SocketConnection.java
+===================================================================
+--- rero/src/rero/net/SocketConnection.java	2005-07-17 16:29:24 UTC (rev 35)
++++ rero/src/rero/net/SocketConnection.java	2005-07-18 15:34:42 UTC (rev 36)
+@@ -246,8 +246,24 @@
+       event.data   = connectionInformation;
+ 
+       ClientState.getClientState().addClientStateListener("client.encoding", this);
++
++      if (listener2 == null)
++      {
++         listener2 = new ClientStateListener() {
++             public void propertyChanged(String key, String value)
++             {
++                stripcodes = ClientState.getClientState().isOption("client.stripcodes", ClientDefaults.client_stripcodes);
++             }
++         };
++
++         listener2.propertyChanged(null, null);
++         ClientState.getClientState().addClientStateListener("client.stripcodes", listener2);
++      }
+    }
+ 
++   private static boolean stripcodes;
++   private static ClientStateListener listener2 = null;
++
+    LinkedList connectDisconnectListeners = new LinkedList();
+    LinkedList messageReadListeners       = new LinkedList();
+ 
+@@ -290,6 +306,11 @@
+ 
+    public void fireReadEvent(String message)
+    {
++      if (stripcodes)
++      {
++         message = ClientUtils.strip(message);
++      }
++
+       event.message = message;
+       event.valid   = true;
+ 
+
+Modified: rero/src/rero/util/ClientUtils.java
+===================================================================
+--- rero/src/rero/util/ClientUtils.java	2005-07-17 16:29:24 UTC (rev 35)
++++ rero/src/rero/util/ClientUtils.java	2005-07-18 15:34:42 UTC (rev 36)
+@@ -44,6 +44,11 @@
+         return null;
+     }
+ 
++    public static String strip(String text)
++    {
++        return AttributedString.CreateAttributedString(text).getText();
++    }
++
+     public static String ShowVersion()
+     {
+         String tagline = ClientUtils.tagline();
+
+Modified: rero/src/text/LabelDisplay.java
+===================================================================
+--- rero/src/text/LabelDisplay.java	2005-07-17 16:29:24 UTC (rev 35)
++++ rero/src/text/LabelDisplay.java	2005-07-18 15:34:42 UTC (rev 36)
+@@ -59,8 +59,8 @@
+    {
+       TextSource.initGraphics(g);
+ 
+-      int checkY = (g.getClipBounds()).y;             // reverse these if
+-      int checkH = checkY+(g.getClipBounds()).height; // painting fucks up
++      int checkY = (g.getClipBounds()).y - 10;             // reverse these if
++      int checkH = checkY+(g.getClipBounds()).height + 20; // painting fucks up
+ 
+       int width = super.getWidth();
+       int height = super.getHeight();
+
+Modified: rero/src/text/list/ListDisplayComponent.java
+===================================================================
+--- rero/src/text/list/ListDisplayComponent.java	2005-07-17 16:29:24 UTC (rev 35)
++++ rero/src/text/list/ListDisplayComponent.java	2005-07-18 15:34:42 UTC (rev 36)
+@@ -57,8 +57,8 @@
+ 
+       data.setExtent(getHeight() / (TextSource.fontMetrics.getHeight() + 2));
+ 
+-      int checkY = (g.getClipBounds()).y;             // reverse these if
+-      int checkH = checkY+(g.getClipBounds()).height; // painting fucks up
++      int checkY = (g.getClipBounds()).y - 10;             // reverse these if
++      int checkH = checkY+(g.getClipBounds()).height + 20; // painting fucks up
+ 
+       int width = super.getWidth();
+       int height = super.getHeight();
+
+
+
+From rsmudge at berlios.de  Mon Jul 18 17:56:17 2005
+From: rsmudge at berlios.de (Raphael Mudge at BerliOS)
+Date: Mon, 18 Jul 2005 17:56:17 +0200
+Subject: [Jircii-svn] r37 - in rero: resources/help resources/toplevel resources/toplevel/docs src/rero/client/script src/rero/config
+Message-ID: <200507181556.j6IFuHj9015555@sheep.berlios.de>
+
+Author: rsmudge
+Date: 2005-07-18 17:56:17 +0200 (Mon, 18 Jul 2005)
+New Revision: 37
+
+Modified:
+   rero/resources/help/About
+   rero/resources/help/Contributors
+   rero/resources/toplevel/docs/jircii.faq
+   rero/resources/toplevel/readme.txt
+   rero/resources/toplevel/whatsnew.txt
+   rero/src/rero/client/script/ScriptManager.java
+   rero/src/rero/config/ClientDefaults.java
+Log:
+Final changes, b38 wh00t
+
+
+Modified: rero/resources/help/About
+===================================================================
+--- rero/resources/help/About	2005-07-18 15:34:42 UTC (rev 36)
++++ rero/resources/help/About	2005-07-18 15:56:17 UTC (rev 37)
+@@ -11,7 +11,7 @@
+ <br>
+ <br><b>Contact Information</b></font>
+ <br>
+-<br>My name is Raffi, I wrote jIRCii (with some help see Contributors section).  If you'd like to get in touch with me feel free to email me.
++<br>My name is Raffi, I wrote jIRCii (with some help, see the Contributors section).  If you'd like to get in touch with me feel free to email me.
+ <br>
+ <br>email: <a href="mailto:raffi at hick.org">raffi at hick.org</a>
+ <br>www: <a href="http://www.hick.org/~raffi/">http://www.hick.org/~raffi/</a>
+
+Modified: rero/resources/help/Contributors
+===================================================================
+--- rero/resources/help/Contributors	2005-07-18 15:34:42 UTC (rev 36)
++++ rero/resources/help/Contributors	2005-07-18 15:56:17 UTC (rev 37)
+@@ -2,10 +2,9 @@
+ <br>
+ <br>jIRCii has been a work in progress for a long time now.  I originally started it as a project to learn java while in high school.  I tinkered with it as a hobby throughout college.  I didn't make that final push to create a release quality product until now though.  Anyways with such a long history as a project there are to many people to thank so I'm going to keep this list short.
+ <br>
+-<br><p>Development Team</p>
+-<br>Serge Baranov
+-<br>Raphael Mudge
+-<br>Andreas Ravnestad
++<br><b>Development Team</b>
++<br>Serge Baranov (<i>Serge</i>)
++<br>Andreas Ravnestad (<i>oracel</i>)
+ <br>
+ <br><b>Patch Contributors</b>
+ <br>Mouton - found and fixed a Ctrl+K parsing bug
+
+Modified: rero/resources/toplevel/docs/jircii.faq
+===================================================================
+--- rero/resources/toplevel/docs/jircii.faq	2005-07-18 15:34:42 UTC (rev 36)
++++ rero/resources/toplevel/docs/jircii.faq	2005-07-18 15:56:17 UTC (rev 37)
+@@ -1,4 +1,4 @@
+-jircii faq - distributed with jircii 07.13.05:
++jircii faq - distributed with jircii 07.18.05:
+ 
+                .sS$$Ss.                           .sS$$Ss. .sS$$Ss.
+                $$$$$$$$                           $$$$$$$$ $$$$$$$$
+@@ -9,7 +9,7 @@
+          $$$$$$ $$$$$$ $$$$$$ $$$$$$ $$$$$$ $$$$$$ $$$$$$   $$$$$$
+          $$$$$$ $$$$$$ $$$$$$ $$$$$$ $$$$$$        $$$$$$   $$$$$$
+   """""" $$$$$$ $$$$$$ $$$$$$        $$$$$$ $$$$$$ $$$$$$   $$$$$$
+-  $$$$$$ $$$$$$ $$$$$$ $$$$$$ 071305 $$$$$$ $$$$$$ $$$$$$   $$$$$$
++  $$$$$$ $$$$$$ $$$$$$ $$$$$$ 071805 $$$$$$ $$$$$$ $$$$$$   $$$$$$
+   $$$$$$ $$$$$$ $$$$$$ $$$$$$        `?$$$$s$$$$P' $$$$$$   $$$$$$
+   `?$$$$s$$$$P'                                        
+ 
+@@ -30,50 +30,51 @@
+  9. What do the faded nicknames in the channel listbox mean?
+ 10. What is a jIRCii theme?
+ 11. How do I copy and paste in jIRCii?
+-12. Where does jIRCii store its settings?
+-13. How do I edit the jIRCii color scheme?
+-14. How can I change ________ in the default jIRCii script?
+-15. Is it possible to assign keyboard shortcuts in jIRCii?
+-16. How do I get 24-hour format time stamps?
++12. I can't cut text with Ctrl+X, what's wrong?
++13. Where does jIRCii store its settings?
++14. How do I edit the jIRCii color scheme?
++15. How can I change ________ in the default jIRCii script?
++16. Is it possible to assign keyboard shortcuts in jIRCii?
++17. How do I get 24-hour format time stamps?
+ 
+-17. What is the difference between a .THM and a .IRC file?
+-18. How do I reload jIRCii scripts?
++18. What is the difference between a .THM and a .IRC file?
++19. How do I reload jIRCii scripts?
+ 
+-19. What options need to be filled in to connect to an irc server?
+-20. How do I connect to multiple servers?  What command do I use?
+-21. How do I close the current IRC session?
+-22. How do I connect to an SSL server?
++20. What options need to be filled in to connect to an irc server?
++21. How do I connect to multiple servers?  What command do I use?
++22. How do I close the current IRC session?
++23. How do I connect to an SSL server?
+ 
+-23. How do I create a list of channels to automatically join?
+-24. How do I set jIRCii to automatically connect to a server on startup?
+-25. How can I make the server tabs get my attention when something happens?
++24. How do I create a list of channels to automatically join?
++25. How do I set jIRCii to automatically connect to a server on startup?
++26. How can I make the server tabs get my attention when something happens?
+ 
+-26. How do I specify my own local IP address information for DCCs?
+-27. What is Ident?  Do I have to use it?
++27. How do I specify my own local IP address information for DCCs?
++28. What is Ident?  Do I have to use it?
+ 
+-28. How do I use a different Java look and feel with jIRCii?
+-29. How do I make my statusbar transparent?
+-30. How do I change the statusbar color?
+-31. How can I set a background image in jIRCii?
+-32. Can I make jIRCii windows transparent?
++29. How do I use a different Java look and feel with jIRCii?
++30. How do I make my statusbar transparent?
++31. How do I change the statusbar color?
++32. How can I set a background image in jIRCii?
++33. Can I make jIRCii windows transparent?
+ 
+-33. Why don't you allow plugins written in Java, C, Python, Visual Basic etc.?
++34. Why don't you allow plugins written in Java, C, Python, Visual Basic etc.?
+ 
+-34. Will you ever charge money for jIRCii?
+-35. Can I get the jIRCii source code?
+-36. Can I use portions of jIRCii's source code in my GPL project?
+-37. What do the release designations (stable, beta) mean?
+-38. How do I embed jIRCii into my website?
++35. Will you ever charge money for jIRCii?
++36. Can I get the jIRCii source code?
++37. Can I use portions of jIRCii's source code in my GPL project?
++38. What do the release designations (stable, beta) mean?
++39. How do I embed jIRCii into my website?
+ 
+-39. What development environment do you use?
+-40. Why write another Java IRC Client?
+-41. What clients did you rip^H^H^H receive inspiration from?
+-42. How long has jIRCii been in development?
+-43. Why don't you wait until you have more changes to do a release?
++40. What development environment do you use?
++41. Why write another Java IRC Client?
++42. What clients did you rip^H^H^H receive inspiration from?
++43. How long has jIRCii been in development?
++44. Why don't you wait until you have more changes to do a release?
+ 
+-44. I disabled my jircii menubar, how do I get it back?
+-45. How do I reset the jIRCii settings?
+-46. My jIRCii window flashes or acts crazy occasionally, what's wrong?
++45. I disabled my jircii menubar, how do I get it back?
++46. How do I reset the jIRCii settings?
++47. My jIRCii window flashes or acts crazy occasionally, what's wrong?
+ 
+ If a question you would like answered is not here then post your question to 
+ the jIRCii Message Board at http://jircii.hick.org/jirc/wwwboard.prl
+@@ -224,8 +225,23 @@
+     paste.  Or you can use the cut, copy, paste keyboard shortcuts specific
+     to your operating system.
+ 
+-12. Where does jIRCii store its settings?
++12. I can't cut text with Ctrl+X, what's wrong?
+ 
++    Beleive it or not this actually isn't a bug.  jIRCii binds Ctrl+X by
++    default to switch the current active query in case you are IRC'ing out
++    of your status window (i.e. all auto /window options turned off).  
++
++    This is consistent with the Ctrl+X binding used by BitchX.  If you would
++    like Ctrl+X to provide the normal service of cutting text, paste the
++    following into notepad, save it, and load it into jIRCii:
++
++    bind Ctrl+X
++    {
++       cutSelectedText();
++    }
++
++13. Where does jIRCii store its settings?
++
+     jIRCii creates a folder called ".jIRC" in your home directory.  On UNIX
+     systems your home directory should be kind of obvious.  On Windows your
+     home directory will be something like:
+@@ -233,7 +249,7 @@
+ 
+     All of your settings are saved to this directory.  
+ 
+-13. How do I edit the jIRCii color scheme?
++14. How do I edit the jIRCii color scheme?
+ 
+     First off you don't have to script a single line of code to do this.  
+     Most of jIRCii colors can be edited by holding down shift and clicking 
+@@ -260,7 +276,7 @@
+     using the theme manager so you can share your color settings with 
+     others.
+       
+-14. How can I change ________ in the default jIRCii script?
++15. How can I change ________ in the default jIRCii script?
+ 
+     jIRCii internally has two scripts loaded.  default.irc contains all of
+     the default sets and a few commands.  menus.irc contains the popup and
+@@ -280,7 +296,7 @@
+     For more information on this feature see the file scriptjirc.pdf 
+     located in the docs/ directory of the jIRCii archive.
+     
+-15. Is it possible to assign keyboard shortcuts in jIRCii?
++16. Is it possible to assign keyboard shortcuts in jIRCii?
+ 
+     It is possible to do this.  However you must use jIRCii's scripting
+     interface.  Just about any key combination can be turned into a keyboard
+@@ -298,7 +314,7 @@
+     myscript.irc.  You can then load this file using the jIRCii script
+     manager.
+ 
+-16. How do I get 24-hour format time stamps?
++17. How do I get 24-hour format time stamps?
+ 
+     To change the timestamp format you will have to do a little bit of 
+     scripting.  Open up your favorite text editor and enter in the following:
+@@ -319,7 +335,7 @@
+     Appendix D of the Sleep Language Fundamentals:
+     http://jirc.hick.org/jirc/tutorial.prl?sleeplang#15
+ 
+-17. What is the difference between a .THM and a .IRC file?
++18. What is the difference between a .THM and a .IRC file?
+ 
+     A .THM file is a jIRCii theme script.  These are created with the jIRCii
+     theme manager under View->Options->Theme Manager.  A .thm file is the 
+@@ -330,7 +346,7 @@
+     to jIRCii.  These are created by users.  A jIRCii script is loaded with
+     the /load command or via the Script Manager.
+ 
+-18. How do I reload jIRCii scripts?
++19. How do I reload jIRCii scripts?
+ 
+     To reload a jIRCii script use the /reload command i.e.:
+     /reload myscript.irc
+@@ -339,7 +355,7 @@
+     Once a script is loaded jIRCii knows where the script is located and will
+     manage that detail for you.
+ 
+-19. What options need to be filled in to connect to an irc server?
++20. What options need to be filled in to connect to an irc server?
+ 
+     When you first launch jIRCii the options dialog will be open.  To 
+     connect to an IRC server you merely need to fill in the User 
+@@ -357,23 +373,23 @@
+     With this information filled in you should be ready to connect to an
+     irc server.
+  
+-20. How do I connect to multiple servers?  What command do I use?
++21. How do I connect to multiple servers?  What command do I use?
+ 
+     jIRCii is a multiserver IRC client.  To create a new server connection
+     you can use the /newserver command.
+ 
+-21. How do I close the current IRC session?
++22. How do I close the current IRC session?
+ 
+     To close the current IRC session simply close the "Status" window. 
+ 
+-22. How do I connect to an SSL server?
++23. How do I connect to an SSL server?
+ 
+     To connect to an SSL (Secure Socket Layer) with jIRCii simply
+     use:
+ 
+     /server -ssl server.hostname portnumber
+ 
+-23. How do I create a list of channels to automatically join?
++24. How do I create a list of channels to automatically join?
+ 
+     It is possible to set jIRCii to execute commands upon connecting to
+     a server using the Perform on Connect feature.  You can define
+@@ -396,7 +412,7 @@
+     The perform on connect feature can be used to execute any commands you
+     want when connecting to a server.
+ 
+-24. How do I set jIRCii to automatically connect to a server on startup?
++25. How do I set jIRCii to automatically connect to a server on startup?
+ 
+     a. Go to View -> Options -> jIRCii Setup.
+     b. Select the server you want to automatically connect to on startup.
+@@ -409,7 +425,7 @@
+     server list.  Any servers configured to be connected to on startup
+     will be blue.
+ 
+-25. How can I make the server tabs get my attention when something happens?
++26. How can I make the server tabs get my attention when something happens?
+ 
+    The normal answer I give to a feature request like this is to script
+    it.  Fortunately it has already been scripted.  You can download 
+@@ -417,7 +433,7 @@
+ 
+    http://jircii.hick.org/cgi-bin/jirc.cgi?ACTION=VIEW&PAGE=contrib    
+ 
+-26. How do I specify my own local IP address information for DCCs?
++27. How do I specify my own local IP address information for DCCs?
+ 
+     If you would like to set a specific IP address that others use to 
+     connect to you to receive files via DCC then:
+@@ -440,7 +456,7 @@
+     If you have any doubts on what to use then set jIRCii to use the
+     Server method.
+  
+-27. What is Ident?  Do I have to use it?
++28. What is Ident?  Do I have to use it?
+ 
+     Ident is an outdated protocol that many IRC servers expect your computer
+     to respond to.  Essentially it is an Identification server.
+@@ -471,7 +487,7 @@
+     If your using MacOS X, Linux, or any other *NIX variant then you don't
+     need to enable ident.  In fact don't enable it.
+  
+-28. How do I use a different Java look and feel with jIRCii?
++29. How do I use a different Java look and feel with jIRCii?
+ 
+     For those that don't know look and feels are a skinnining mechanism 
+     for Java.  An update to date selection of look and feels can be found
+@@ -498,7 +514,7 @@
+                      rero.test.WindowTest 
+                      -lnf com.birosoft.liquid.LiquidLookAndFeel
+ 
+-29. How do I make my statusbar transparent?
++30. How do I make my statusbar transparent?
+ 
+     a. Go to View -> Options -> Backgrounds.
+     b. Click on the statusbar in the preview thing in the top half of the 
+@@ -507,7 +523,7 @@
+     d. Select the Setup tab to change the tint color of the transparency
+     e. Select the Tint tab to adjust the level of transparency
+ 
+-30. How do I change the statusbar color?
++31. How do I change the statusbar color?
+ 
+     a. Go to View -> Options -> Backgrounds.
+     b. Click on the statusbar in the preview thing in the top half of the 
+@@ -518,7 +534,7 @@
+     Feel free to experiment with different combinations of background 
+     options.  
+   
+-31. How can I set a background image in jIRCii?
++32. How can I set a background image in jIRCii?
+ 
+     a. Go to View -> Options -> Backgrounds
+     b. Click on the window in the preview thing.  The window is the inner 
+@@ -531,7 +547,7 @@
+     preview thing.  The label in the middle of the dialog will reflect
+     which element of the display your editing background properties for.
+ 
+-32. Can I make jIRCii windows transparent?
++33. Can I make jIRCii windows transparent?
+ 
+     You can't make jIRCii windows themselves transparent.  However you
+     can setup an effect known as pseudotransprency. 
+@@ -565,7 +581,7 @@
+     configurations for your window backgrounds.  This is the only eye candy
+     you'll get so enjoy it.
+ 
+-33. Why don't you allow plugins written in Java, C, Python, Visual Basic etc.?
++34. Why don't you allow plugins written in Java, C, Python, Visual Basic etc.?
+ 
+     Some people have asked me why I use sleep and not some masterpeice of 
+     a language like Python.  Short answer is this:
+@@ -590,12 +606,12 @@
+ 
+     As for plugins and such.  Why not just modify the source code?
+ 
+-34. Will you ever charge money for jIRCii?
++35. Will you ever charge money for jIRCii?
+ 
+     No.  jIRCii is my gift to the IRC community.  Therefor I can't charge
+     money for the client.  However I may charge for shipping and handling.
+ 
+-35. Can I get the jIRCii source code?
++36. Can I get the jIRCii source code?
+ 
+     Yes!  jIRCii is an open source client.  jIRCii source code and 
+     binaries are released under the artistic license.  
+@@ -619,7 +635,7 @@
+     source project so long as I receive some form of credit for the code
+     I wrote.  If you modify it please note that too.
+ 
+-36. Can I use portions of jIRCii's source code in my GPL project?
++37. Can I use portions of jIRCii's source code in my GPL project?
+ 
+     Short answer, yes.  I grant you permission to use any jIRCii code "I
+     wrote" licensed under the artistic license in your GPL project and to
+@@ -629,7 +645,7 @@
+     of the license feels like a bit of a lock-in to me.  However feel 
+     free to do what you need to do.  :)
+ 
+-37. What do the release designations (stable, beta) mean?
++38. What do the release designations (stable, beta) mean?
+ 
+     No one has asked me this yet. However I'm going to answer because I'm 
+     sure someone is curious. 
+@@ -641,7 +657,7 @@
+     recently released beta. As such stable releases are considered stable 
+     since they've been tested by people other than me. 
+ 
+-38. How do I embed jIRCii into my website?
++39. How do I embed jIRCii into my website?
+ 
+     You can do this by using the jIRCii launch service.  jIRCii launch
+     service provides a way of specifying an irc server and a channel when
+@@ -655,7 +671,7 @@
+     More info about jIRCii launch service can be found at:
+     http://jircii.hick.org/jirc/link.prl
+ 
+-39. What development environment do you use?
++40. What development environment do you use?
+ 
+     Don't laugh, I use pico as my text editor.  I should be shot.  Or
+     maybe given an award for writing over 40,000 lines of code in pico.
+@@ -679,11 +695,11 @@
+     10.3.4.  jIRCii development in the past has been done on Linux using
+     the same type of environment and on Windows using editplus.  
+ 
+-40. Why write another Java IRC Client?
++41. Why write another Java IRC Client?
+ 
+     I don't own a TV or a playstation and I needed something to do.
+ 
+-41. What clients did you rip^H^H^H receive inspiration from?
++42. What clients did you rip^H^H^H receive inspiration from?
+ 
+     Years ago back when I was an IRC scripter.  I wrote an addon called
+     mIRCii.  mIRCii was essentially a multi-server addon for mIRC.  You
+@@ -713,7 +729,7 @@
+     mIRC gets points for heavy influence by default.  Since mIRC is the 
+     client most people use.
+ 
+-42. How long has jIRCii been in development?
++43. How long has jIRCii been in development?
+ 
+     I started writing jIRCii when I was in high school.  This was mostly
+     an effort to learn Java.  jIRC was my senior project for my high school
+@@ -768,7 +784,7 @@
+     Short answer:  I've been working on this client for a looong freaking
+     time.  
+ 
+-43. Why don't you wait until you have more changes to do a release?
++44. Why don't you wait until you have more changes to do a release?
+ 
+     Good question.  You may notice the main package jIRCii classes are 
+     stored in is named "rero".  I named the jIRCii package this because
+@@ -792,7 +808,7 @@
+     then I recommend downloading a released labeled stable and just
+     waiting until the next stable release ignoring betas in between.  
+ 
+-44. I disabled my jircii menubar, how do I get it back?
++45. I disabled my jircii menubar, how do I get it back?
+ 
+     Open up the options dialog using Alt+O.  From there navigate to 
+     "GUI Setup" near the bottom.  Make sure the box "Show menubar" is
+@@ -802,7 +818,7 @@
+     This could be due to a rogue script that got loaded.  The best thing 
+     to do in this case is to reset your jIRCii settings.
+ 
+-45. How do I reset the jIRCii settings?
++46. How do I reset the jIRCii settings?
+ 
+     You should only need to do this if your jIRCii settings become really 
+     messed up.  Symptoms of messed up settings include nothing happening
+@@ -824,7 +840,7 @@
+  
+     Do a file search for .jIRC and delete it.   
+ 
+-46. My jIRCii window flashes or acts crazy occasionally, what's wrong?
++47. My jIRCii window flashes or acts crazy occasionally, what's wrong?
+ 
+     Java uses a lot of video card hardware tricks to enhance performance.
+     Unfortunately buggy video card drivers can cause problems with the
+
+Modified: rero/resources/toplevel/readme.txt
+===================================================================
+--- rero/resources/toplevel/readme.txt	2005-07-18 15:34:42 UTC (rev 36)
++++ rero/resources/toplevel/readme.txt	2005-07-18 15:56:17 UTC (rev 37)
+@@ -1,5 +1,5 @@
+  ------- -------------------- ---------   ---------------  ------- ---------
+-jIRCii - Beta (37) 07.13.05 - README
++jIRCii - Beta (38) 07.18.05 - README
+ -  ------------- -------- -   ---------------- --       -    -     -     - - -
+ 
+ The official jIRCii homepage is at: http://jircii.hick.org
+
+Modified: rero/resources/toplevel/whatsnew.txt
+===================================================================
+--- rero/resources/toplevel/whatsnew.txt	2005-07-18 15:34:42 UTC (rev 36)
++++ rero/resources/toplevel/whatsnew.txt	2005-07-18 15:56:17 UTC (rev 37)
+@@ -1,16 +1,17 @@
+ Beta 38 
+ ====
+ - jIRCii command history behavior has been completely overhauled to feel
+-  more like mIRC and other clients (- Oracel -)
++  more like mIRC and other clients (oracel)
++- fixed pasted text being omitted from command history (oracel)
+ - a bug has been fixed where jIRCii list dialogs (/list etc.) did not
+-  have the appropriate row height set (- Serge -)
+-- windows can now be closed by shift+clicking the switchbar button (- Serge -)
+-- added better URL matching for clicked links (- Serge -)
++  have the appropriate row height set (Serge)
++- windows can now be closed by shift+clicking the switchbar button (Serge)
++- added better URL matching for clicked links (Serge)
+ - added a check to getModeFor() to prevent a null pointer exception
+ - fixed a potential deadlock issue from the listbox painting code
+ - upgraded scripting library to Sleep 2.0-stable
+ - fixed repainting issues with the channel listbox and statusbar under XP
+-  (Serge/Raffi)
++  (Serge/raffi)
+ - fixed bug with auto resume option, if a file is complete, auto resume
+   will no longer pop up a dialog asking you to rename the saved file.
+   (the idea behind the auto options is to be hands off...); a message is
+@@ -18,6 +19,7 @@
+ - moved the Update IAL on Join and Auto Reconnect options to a new dialog
+   panel called Client Options
+ - added an option to strip out all formatting codes from IRC messages
++- fixed /load ~/file not resolving ~
+ 
+ Beta 37 release 07.13.05
+ ====
+
+Modified: rero/src/rero/client/script/ScriptManager.java
+===================================================================
+--- rero/src/rero/client/script/ScriptManager.java	2005-07-18 15:34:42 UTC (rev 36)
++++ rero/src/rero/client/script/ScriptManager.java	2005-07-18 15:56:17 UTC (rev 37)
+@@ -95,6 +95,8 @@
+ 
+    public void addScript(String filename)
+    {
++      filename = ClientUtils.getFile(filename).getAbsolutePath();
++
+       if ((new File(filename)).exists())
+       {
+          StringList temp = ClientState.getClientState().getStringList("script.files");
+
+Modified: rero/src/rero/config/ClientDefaults.java
+===================================================================
+--- rero/src/rero/config/ClientDefaults.java	2005-07-18 15:34:42 UTC (rev 36)
++++ rero/src/rero/config/ClientDefaults.java	2005-07-18 15:56:17 UTC (rev 37)
+@@ -77,7 +77,7 @@
+ 
+    public static final boolean update_ial     = true;
+ 
+-   public static final String  version_string = "07.13.05";
++   public static final String  version_string = "07.18.05";
+ 
+    static
+    {
+
+
+
+From oracel at berlios.de  Mon Jul 18 18:45:15 2005
+From: oracel at berlios.de (Andreas Ravnestad at BerliOS)
+Date: Mon, 18 Jul 2005 18:45:15 +0200
+Subject: [Jircii-svn] r38 - rero/src/text/wrapped
+Message-ID: <200507181645.j6IGjFrq003060@sheep.berlios.de>
+
+Author: oracel
+Date: 2005-07-18 18:45:02 +0200 (Mon, 18 Jul 2005)
+New Revision: 38
+
+Modified:
+   rero/src/text/wrapped/WrappedData.java
+Log:
+Window find feature is now case insensitive
+
+Modified: rero/src/text/wrapped/WrappedData.java
+===================================================================
+--- rero/src/text/wrapped/WrappedData.java	2005-07-18 15:56:17 UTC (rev 37)
++++ rero/src/text/wrapped/WrappedData.java	2005-07-18 16:45:02 UTC (rev 38)
+@@ -49,7 +49,7 @@
+         WrappedContainer temp = last;
+         while (temp != null)
+         {
+-           if (temp.getText().indexOf(text) > -1)
++           if (temp.getText().toUpperCase().indexOf(text.toUpperCase()) > -1)
+            {
+                values.add(new Integer(x));
+            }
+
+
+
+From oracel at berlios.de  Mon Jul 18 19:01:46 2005
+From: oracel at berlios.de (Andreas Ravnestad at BerliOS)
+Date: Mon, 18 Jul 2005 19:01:46 +0200
+Subject: [Jircii-svn] r39 - in rero: resources/toplevel src/rero/gui/input
+Message-ID: <200507181701.j6IH1k3f015833@sheep.berlios.de>
+
+Author: oracel
+Date: 2005-07-18 19:01:42 +0200 (Mon, 18 Jul 2005)
+New Revision: 39
+
+Modified:
+   rero/resources/toplevel/whatsnew.txt
+   rero/src/rero/gui/input/InputField.java
+Log:
+Pasting multiple lines now resets the command history iterator to the end of the list
+
+Modified: rero/resources/toplevel/whatsnew.txt
+===================================================================
+--- rero/resources/toplevel/whatsnew.txt	2005-07-18 16:45:02 UTC (rev 38)
++++ rero/resources/toplevel/whatsnew.txt	2005-07-18 17:01:42 UTC (rev 39)
+@@ -1,3 +1,10 @@
++Beta 39 
++====
++- The find feature is now case insensitive (oracel)
++- Fixed bug in command history, the history was not reset when pasting
++  multiple lines of text (oracel)
++
++
+ Beta 38 
+ ====
+ - jIRCii command history behavior has been completely overhauled to feel
+
+Modified: rero/src/rero/gui/input/InputField.java
+===================================================================
+--- rero/src/rero/gui/input/InputField.java	2005-07-18 16:45:02 UTC (rev 38)
++++ rero/src/rero/gui/input/InputField.java	2005-07-18 17:01:42 UTC (rev 39)
+@@ -162,6 +162,10 @@
+                         // Add each line to the history
+                         this.addToHistory(lines[i].trim());
+                     }
++                    
++                    // Reset iterator to end in case the user had been 
++                    // browsing the command history.
++                    this.resetIterator(false);
+                 }
+             } 
+             
+
+
+
+From crazycoder at berlios.de  Tue Jul 19 01:17:13 2005
+From: crazycoder at berlios.de (Serge Baranov at BerliOS)
+Date: Tue, 19 Jul 2005 01:17:13 +0200
+Subject: [Jircii-svn] r40 - rero/src/text/list
+Message-ID: <200507182317.j6INHDXi000433@sheep.berlios.de>
+
+Author: crazycoder
+Date: 2005-07-19 01:17:12 +0200 (Tue, 19 Jul 2005)
+New Revision: 40
+
+Modified:
+   rero/src/text/list/ListSelectionSpace.java
+Log:
+Fixed flipped Ctrl+Click and Shift+Click behavior in the nicklist
+
+Modified: rero/src/text/list/ListSelectionSpace.java
+===================================================================
+--- rero/src/text/list/ListSelectionSpace.java	2005-07-18 17:01:42 UTC (rev 39)
++++ rero/src/text/list/ListSelectionSpace.java	2005-07-18 23:17:12 UTC (rev 40)
+@@ -64,7 +64,7 @@
+     {
+         if (ev.getButton() == MouseEvent.BUTTON1 && !(ev.isShiftDown() && ev.isControlDown()) )
+         {
+-           if ((ev.getModifiers() & MouseEvent.SHIFT_MASK) == MouseEvent.SHIFT_MASK)
++           if ((ev.getModifiers() & MouseEvent.CTRL_MASK) == MouseEvent.CTRL_MASK)
+            {
+               ListElement temp = data.getElementAtLocation(ev.getY());
+ 
+@@ -78,7 +78,7 @@
+                  display.repaint();
+               }
+            }
+-           else if ((ev.getModifiers() & MouseEvent.CTRL_MASK) == MouseEvent.CTRL_MASK)
++           else if ((ev.getModifiers() & MouseEvent.SHIFT_MASK) == MouseEvent.SHIFT_MASK)
+            {
+               selectRange(ev);
+            }
+
+
+
+From crazycoder at berlios.de  Tue Jul 19 01:19:07 2005
+From: crazycoder at berlios.de (Serge Baranov at BerliOS)
+Date: Tue, 19 Jul 2005 01:19:07 +0200
+Subject: [Jircii-svn] r41 - rero/src/text
+Message-ID: <200507182319.j6INJ708000649@sheep.berlios.de>
+
+Author: crazycoder
+Date: 2005-07-19 01:19:01 +0200 (Tue, 19 Jul 2005)
+New Revision: 41
+
+Modified:
+   rero/src/text/LabelDisplay.java
+Log:
+More proper repainting
+
+Modified: rero/src/text/LabelDisplay.java
+===================================================================
+--- rero/src/text/LabelDisplay.java	2005-07-18 23:17:12 UTC (rev 40)
++++ rero/src/text/LabelDisplay.java	2005-07-18 23:19:01 UTC (rev 41)
+@@ -59,7 +59,7 @@
+    {
+       TextSource.initGraphics(g);
+ 
+-      int checkY = (g.getClipBounds()).y - 10;             // reverse these if
++      int checkY = (g.getClipBounds()).y - 9;             // reverse these if
+       int checkH = checkY+(g.getClipBounds()).height + 20; // painting fucks up
+ 
+       int width = super.getWidth();
+
+
+
+From crazycoder at berlios.de  Tue Jul 19 01:21:26 2005
+From: crazycoder at berlios.de (Serge Baranov at BerliOS)
+Date: Tue, 19 Jul 2005 01:21:26 +0200
+Subject: [Jircii-svn] r42 - rero/resources/toplevel
+Message-ID: <200507182321.j6INLQel000960@sheep.berlios.de>
+
+Author: crazycoder
+Date: 2005-07-19 01:21:20 +0200 (Tue, 19 Jul 2005)
+New Revision: 42
+
+Modified:
+   rero/resources/toplevel/whatsnew.txt
+Log:
+Fixed flipped Ctrl+Click and Shift+Click behavior in the nicklist
+
+Modified: rero/resources/toplevel/whatsnew.txt
+===================================================================
+--- rero/resources/toplevel/whatsnew.txt	2005-07-18 23:19:01 UTC (rev 41)
++++ rero/resources/toplevel/whatsnew.txt	2005-07-18 23:21:20 UTC (rev 42)
+@@ -3,8 +3,8 @@
+ - The find feature is now case insensitive (oracel)
+ - Fixed bug in command history, the history was not reset when pasting
+   multiple lines of text (oracel)
++- Fixed flipped Ctrl+Click and Shift+Click behavior in the nicklist (Serge)
+ 
+-
+ Beta 38 
+ ====
+ - jIRCii command history behavior has been completely overhauled to feel
+
+
+
+From oracel at berlios.de  Tue Jul 19 02:28:01 2005
+From: oracel at berlios.de (Andreas Ravnestad at BerliOS)
+Date: Tue, 19 Jul 2005 02:28:01 +0200
+Subject: [Jircii-svn] r43 - rero/src/rero/client/user
+Message-ID: <200507190028.j6J0S1co001655@sheep.berlios.de>
+
+Author: oracel
+Date: 2005-07-19 02:28:00 +0200 (Tue, 19 Jul 2005)
+New Revision: 43
+
+Modified:
+   rero/src/rero/client/user/BuiltInCommands.java
+Log:
+Fixed misbehaviour in the /topic command. Previously the command would unset the topic in the given channel if no parameters were given. Instead it now displays the current topic if no parameters are given. This makes the command /st redundant. Also added a check so the current active channel name is used if no channel target parameter is given to the /topic command.
+
+Modified: rero/src/rero/client/user/BuiltInCommands.java
+===================================================================
+--- rero/src/rero/client/user/BuiltInCommands.java	2005-07-18 23:21:20 UTC (rev 42)
++++ rero/src/rero/client/user/BuiltInCommands.java	2005-07-19 00:28:00 UTC (rev 43)
+@@ -100,6 +100,7 @@
+    public static final int SEND       = 2541448;         // implemented within DCC framework
+    public static final int SERVER     = -1852497085;     // implemented
+    public static final int ST         = 2657;            // implemented
++   public static final int UT         = 2719;            // implemented
+    public static final int SM         = 2650;            // implemeneted
+    public static final int SV         = 2659;            // implemented
+    public static final int THEME      = 79789481;        // implemented
+@@ -556,6 +557,9 @@
+          case SERVER:
+             connectToServer(parms);
+             break;
++            
++         // TODO: this command is redundant and should be removed unless
++         // backwards compatability is an issue
+          case ST:
+             target = gui.getQuery();
+             if (parms.length() > 0)
+@@ -572,8 +576,45 @@
+             ((ScriptManager)getCapabilities().getDataStructure(DataStructures.ScriptManager)).loadTheme(parms);
+             break;
+          case TOPIC:
+-            getCapabilities().sendln("TOPIC " + tokens.getToken(0) + " :" + tokens.getTokenFrom(1));
++
++            // Fetch possible target from currently active window
++            target = gui.getQuery();
++            
++            // Check if there is a specified target parameter
++            if (parms.length() > 0)
++            {
++               target = tokens.getToken(0);
++            }
++         
++            // Check how many tokens there are
++            if (tokens.getTotalTokens() > 1) {
++
++                // Setting current topic
++                getCapabilities().sendln("TOPIC " + target + " :" + tokens.getTokenFrom(1));
++            }
++            else {
++
++                // Trying to fetch current topic
++                getCapabilities().sendln("TOPIC " + target);                
++            }
+             break;
++
++         // Unsets topic in the given channel
++         case UT:
++         
++            // Fetch possible target from currently active window
++            target = gui.getQuery();
++            
++            // Check if there is a specified target parameter
++            if (parms.length() > 0)
++            {
++               target = tokens.getToken(0);
++            }
++ 
++            // Send the command
++            getCapabilities().sendln("TOPIC " + target + " :");
++            break;
++
+          case UNBAN:
+             if (parms.indexOf('!') > -1)
+             {
+
+
+
+From oracel at berlios.de  Tue Jul 19 02:30:35 2005
+From: oracel at berlios.de (Andreas Ravnestad at BerliOS)
+Date: Tue, 19 Jul 2005 02:30:35 +0200
+Subject: [Jircii-svn] r44 - rero/src/rero/client/user
+Message-ID: <200507190030.j6J0UZ4h003057@sheep.berlios.de>
+
+Author: oracel
+Date: 2005-07-19 02:30:32 +0200 (Tue, 19 Jul 2005)
+New Revision: 44
+
+Modified:
+   rero/src/rero/client/user/BuiltInCommands.java
+Log:
+Added the built-in command /ut to allow users to easily unset the topic in a given channel. This command follows /st and /topic behaviour as in using the currently active channel name if no channel name parameter is given. This command was added to complement the recently changed /topic command.
+
+Modified: rero/src/rero/client/user/BuiltInCommands.java
+===================================================================
+--- rero/src/rero/client/user/BuiltInCommands.java	2005-07-19 00:28:00 UTC (rev 43)
++++ rero/src/rero/client/user/BuiltInCommands.java	2005-07-19 00:30:32 UTC (rev 44)
+@@ -611,7 +611,7 @@
+                target = tokens.getToken(0);
+             }
+  
+-            // Send the command
++            // Send the command to unset the topic
+             getCapabilities().sendln("TOPIC " + target + " :");
+             break;
+ 
+
+
+
+From oracel at berlios.de  Tue Jul 19 02:37:21 2005
+From: oracel at berlios.de (Andreas Ravnestad at BerliOS)
+Date: Tue, 19 Jul 2005 02:37:21 +0200
+Subject: [Jircii-svn] r45 - rero/resources/toplevel
+Message-ID: <200507190037.j6J0bL4U006502@sheep.berlios.de>
+
+Author: oracel
+Date: 2005-07-19 02:37:19 +0200 (Tue, 19 Jul 2005)
+New Revision: 45
+
+Modified:
+   rero/resources/toplevel/whatsnew.txt
+Log:
+
+
+Modified: rero/resources/toplevel/whatsnew.txt
+===================================================================
+--- rero/resources/toplevel/whatsnew.txt	2005-07-19 00:30:32 UTC (rev 44)
++++ rero/resources/toplevel/whatsnew.txt	2005-07-19 00:37:19 UTC (rev 45)
+@@ -4,7 +4,15 @@
+ - Fixed bug in command history, the history was not reset when pasting
+   multiple lines of text (oracel)
+ - Fixed flipped Ctrl+Click and Shift+Click behavior in the nicklist (Serge)
++- Modified the built-in /topic command to display the current topic
++  instead of unsetting it if no topic message was specified. (oracel)
++- Added the built-in command /ut to unset the topic in a given channel.
++  (oracel)
++- Both /topic and /ut now uses the currently active channel name if no
++  channel name is excplicitly given as a parameter to the respective
++  commands (oracel)
+ 
++
+ Beta 38 
+ ====
+ - jIRCii command history behavior has been completely overhauled to feel
+
+
+
+From oracel at berlios.de  Fri Jul 22 00:05:45 2005
+From: oracel at berlios.de (Andreas Ravnestad at BerliOS)
+Date: Fri, 22 Jul 2005 00:05:45 +0200
+Subject: [Jircii-svn] r46 - rero/resources/resource
+Message-ID: <200507212205.j6LM5jjG031039@sheep.berlios.de>
+
+Author: oracel
+Date: 2005-07-22 00:05:44 +0200 (Fri, 22 Jul 2005)
+New Revision: 46
+
+Modified:
+   rero/resources/resource/default.irc
+Log:
+Changed the SEND_MSG set in the default script so it uses standard <diamond brackets> instead of *asterix*.
+
+Modified: rero/resources/resource/default.irc
+===================================================================
+--- rero/resources/resource/default.irc	2005-07-19 00:37:19 UTC (rev 45)
++++ rero/resources/resource/default.irc	2005-07-21 22:05:44 UTC (rev 46)
+@@ -342,12 +342,23 @@
+ }
+ set SEND_MSG 
+ {
++
++   # Check if it's SDI before using * as nick bracets
++   if (getProperty("ui.sdi") eq "true") {
++      $lb = "*"; $rb = "*";
++   }
++   else {
++      $lb = "<"; $rb = ">";
++   }
++   
+    if (-iswindow $target)
+    {
+-       return "\C34*\B $+ $me $+ \B*\C17 $parms";
++       return "\C34 $+ $lb $+ \B $+ $me $+ \B $+ $rb $+ \C17 $parms ";
+    }
+    else
+    {
++   
++       # Use * as brackets here since it looks best
+        return "\C34 $+ \R->\R *\B $+ $target $+ \B*\C17 $parms";
+    }
+ }
+
+
+
+From oracel at berlios.de  Fri Jul 22 00:11:16 2005
+From: oracel at berlios.de (Andreas Ravnestad at BerliOS)
+Date: Fri, 22 Jul 2005 00:11:16 +0200
+Subject: [Jircii-svn] r47 - rero/resources/toplevel
+Message-ID: <200507212211.j6LMBG24031561@sheep.berlios.de>
+
+Author: oracel
+Date: 2005-07-22 00:11:16 +0200 (Fri, 22 Jul 2005)
+New Revision: 47
+
+Modified:
+   rero/resources/toplevel/whatsnew.txt
+Log:
+
+
+Modified: rero/resources/toplevel/whatsnew.txt
+===================================================================
+--- rero/resources/toplevel/whatsnew.txt	2005-07-21 22:05:44 UTC (rev 46)
++++ rero/resources/toplevel/whatsnew.txt	2005-07-21 22:11:16 UTC (rev 47)
+@@ -11,6 +11,8 @@
+ - Both /topic and /ut now uses the currently active channel name if no
+   channel name is excplicitly given as a parameter to the respective
+   commands (oracel)
++- Nicknames in private messages now uses standard diamond brackets instead 
++  of asterixes unless user is using the SDI interface option. (oracel)
+ 
+ 
+ Beta 38 
+
+
+
+From oracel at berlios.de  Sat Jul 23 00:37:29 2005
+From: oracel at berlios.de (Andreas Ravnestad at BerliOS)
+Date: Sat, 23 Jul 2005 00:37:29 +0200
+Subject: [Jircii-svn] r48 - in rero/resources: resource toplevel
+Message-ID: <200507222237.j6MMbToT032672@sheep.berlios.de>
+
+Author: oracel
+Date: 2005-07-23 00:37:27 +0200 (Sat, 23 Jul 2005)
+New Revision: 48
+
+Modified:
+   rero/resources/resource/default.irc
+   rero/resources/toplevel/whatsnew.txt
+Log:
+Added display of part messages in the default script. Note that on the freenode network (and possible other networks) empty part messages are parsed by jIRCii as ":"
+
+Modified: rero/resources/resource/default.irc
+===================================================================
+--- rero/resources/resource/default.irc	2005-07-21 22:11:16 UTC (rev 47)
++++ rero/resources/resource/default.irc	2005-07-22 22:37:27 UTC (rev 48)
+@@ -173,7 +173,11 @@
+ 
+ set CHANNEL_PART 
+ { 
+-   return "\C18*\B*\B* $nick has left: $target"; 
++   # Check if there's a part message we should display
++   if ($1-) {
++       $msg = "( $+ $1- $+ )";
++   }
++   return "\C18*\B*\B* $nick has left: $target $msg"; 
+ }
+ 
+ set CHANNEL_TEXT 
+
+Modified: rero/resources/toplevel/whatsnew.txt
+===================================================================
+--- rero/resources/toplevel/whatsnew.txt	2005-07-21 22:11:16 UTC (rev 47)
++++ rero/resources/toplevel/whatsnew.txt	2005-07-22 22:37:27 UTC (rev 48)
+@@ -13,8 +13,8 @@
+   commands (oracel)
+ - Nicknames in private messages now uses standard diamond brackets instead 
+   of asterixes unless user is using the SDI interface option. (oracel)
++- Channel part messages are now shown (oracel)
+ 
+-
+ Beta 38 
+ ====
+ - jIRCii command history behavior has been completely overhauled to feel
+
+
+
+From rsmudge at berlios.de  Fri Jul 29 23:42:21 2005
+From: rsmudge at berlios.de (Raphael Mudge at BerliOS)
+Date: Fri, 29 Jul 2005 23:42:21 +0200
+Subject: [Jircii-svn] r49 - in rero/resources: help resource toplevel
+Message-ID: <200507292142.j6TLgLP9016678@sheep.berlios.de>
+
+Author: rsmudge
+Date: 2005-07-29 23:42:20 +0200 (Fri, 29 Jul 2005)
+New Revision: 49
+
+Modified:
+   rero/resources/help/aliases
+   rero/resources/resource/default.irc
+   rero/resources/toplevel/whatsnew.txt
+Log:
+Updated help to include /ut and undid oracel's evil default.irc changes
+
+
+Modified: rero/resources/help/aliases
+===================================================================
+--- rero/resources/help/aliases	2005-07-22 22:37:27 UTC (rev 48)
++++ rero/resources/help/aliases	2005-07-29 21:42:20 UTC (rev 49)
+@@ -68,6 +68,7 @@
+ unban::/unban `butane::unsets bans against the specified nick.::nick|banmask - nickname to unset all matching bans for or banmask to unset.
+ unignore::/unignore *!*@*.aol.com::removes the specified mask from the ignore list.::nick!user at host - mask to remove from ignore list.
+ unload::/unload xdcc.irc::unloads specified script.::file.irc - script to unload.
++ut::/ut #jIRC::unsets the topic for the specified channel.::+#channel - channel to unset the topic for.
+ v::/v tijiez::gives voice (+v) privileges to specified users.  You may specify up to 4 nicks (uses nick completion)::nick - user to give voice to.::+nick... - other users to give voice to.
+ ver::/ver tanto::requests version information from specified nick/channel.::+target - nick/channel to request version info from.
+ voice::/voice tijiez::gives voice (+v) privileges to specified users.  You may specify up to 4 nicks (uses nick completion)::nick - user to give voice to.::+nick... - other users to give voice to.
+
+Modified: rero/resources/resource/default.irc
+===================================================================
+--- rero/resources/resource/default.irc	2005-07-22 22:37:27 UTC (rev 48)
++++ rero/resources/resource/default.irc	2005-07-29 21:42:20 UTC (rev 49)
+@@ -173,11 +173,7 @@
+ 
+ set CHANNEL_PART 
+ { 
+-   # Check if there's a part message we should display
+-   if ($1-) {
+-       $msg = "( $+ $1- $+ )";
+-   }
+-   return "\C18*\B*\B* $nick has left: $target $msg"; 
++   return "\C18*\B*\B* $nick has left: $target"; 
+ }
+ 
+ set CHANNEL_TEXT 
+@@ -346,23 +342,12 @@
+ }
+ set SEND_MSG 
+ {
+-
+-   # Check if it's SDI before using * as nick bracets
+-   if (getProperty("ui.sdi") eq "true") {
+-      $lb = "*"; $rb = "*";
+-   }
+-   else {
+-      $lb = "<"; $rb = ">";
+-   }
+-   
+    if (-iswindow $target)
+    {
+-       return "\C34 $+ $lb $+ \B $+ $me $+ \B $+ $rb $+ \C17 $parms ";
++       return "\C34*\B $+ $me $+ \B*\C17 $parms";
+    }
+    else
+    {
+-   
+-       # Use * as brackets here since it looks best
+        return "\C34 $+ \R->\R *\B $+ $target $+ \B*\C17 $parms";
+    }
+ }
+
+Modified: rero/resources/toplevel/whatsnew.txt
+===================================================================
+--- rero/resources/toplevel/whatsnew.txt	2005-07-22 22:37:27 UTC (rev 48)
++++ rero/resources/toplevel/whatsnew.txt	2005-07-29 21:42:20 UTC (rev 49)
+@@ -11,9 +11,6 @@
+ - Both /topic and /ut now uses the currently active channel name if no
+   channel name is excplicitly given as a parameter to the respective
+   commands (oracel)
+-- Nicknames in private messages now uses standard diamond brackets instead 
+-  of asterixes unless user is using the SDI interface option. (oracel)
+-- Channel part messages are now shown (oracel)
+ 
+ Beta 38 
+ ====
+
+
+
+From oracel at berlios.de  Sat Jul 30 00:00:24 2005
+From: oracel at berlios.de (Andreas Ravnestad at BerliOS)
+Date: Sat, 30 Jul 2005 00:00:24 +0200
+Subject: [Jircii-svn] r50 - rero/resources/help
+Message-ID: <200507292200.j6TM0Oxl017749@sheep.berlios.de>
+
+Author: oracel
+Date: 2005-07-30 00:00:23 +0200 (Sat, 30 Jul 2005)
+New Revision: 50
+
+Modified:
+   rero/resources/help/aliases
+Log:
+Updated help file to reflect the recent changes in /topic behaviour.
+
+Modified: rero/resources/help/aliases
+===================================================================
+--- rero/resources/help/aliases	2005-07-29 21:42:20 UTC (rev 49)
++++ rero/resources/help/aliases	2005-07-29 22:00:23 UTC (rev 50)
+@@ -64,7 +64,7 @@
+ st::/st::shows the topic on the current channel.
+ sv::/sv::show version - sends a message showing your jIRC pride to the current nick/channel.
+ theme::/theme /Users/raffi/mIRC-theme.thm::loads a jIRCii theme file::file.thm - the theme file to load
+-topic::/topic #jIRC no the beta is not done yet.::sets the topic for the specified channel.::+#channel - channel to set topic for.
++topic::/topic #jIRC no the beta is not done yet.::sets or displays the topic for the specified channel.::+#channel - channel to set topic for.::+new topic - The new topic to set for the given channel. If no new topic is specified, the current topic for the specified channel will be displayed.
+ unban::/unban `butane::unsets bans against the specified nick.::nick|banmask - nickname to unset all matching bans for or banmask to unset.
+ unignore::/unignore *!*@*.aol.com::removes the specified mask from the ignore list.::nick!user at host - mask to remove from ignore list.
+ unload::/unload xdcc.irc::unloads specified script.::file.irc - script to unload.
+
+
+
+From rsmudge at berlios.de  Sat Jul 30 18:19:02 2005
+From: rsmudge at berlios.de (Raphael Mudge at BerliOS)
+Date: Sat, 30 Jul 2005 18:19:02 +0200
+Subject: [Jircii-svn] r51 - in rero: resources/toplevel src/rero/client/functions src/rero/gui src/rero/ircfw
+Message-ID: <200507301619.j6UGJ2Z8022232@sheep.berlios.de>
+
+Author: rsmudge
+Date: 2005-07-30 18:19:01 +0200 (Sat, 30 Jul 2005)
+New Revision: 51
+
+Modified:
+   rero/resources/toplevel/whatsnew.txt
+   rero/src/rero/client/functions/UtilOperators.java
+   rero/src/rero/gui/UICapabilities.java
+   rero/src/rero/ircfw/InternalDataList.java
+   rero/src/rero/ircfw/Parsed1459.java
+Log:
+Several fixes / changes
+
+
+Modified: rero/resources/toplevel/whatsnew.txt
+===================================================================
+--- rero/resources/toplevel/whatsnew.txt	2005-07-29 22:00:23 UTC (rev 50)
++++ rero/resources/toplevel/whatsnew.txt	2005-07-30 16:19:01 UTC (rev 51)
+@@ -11,6 +11,12 @@
+ - Both /topic and /ut now uses the currently active channel name if no
+   channel name is excplicitly given as a parameter to the respective
+   commands (oracel)
++- Fixed bug with quit message showing twice in the status (turned out to
++  be a problem with the printAll function which has been fixed).
++- Fixd bug with IRC parser not creating $PARMS$ correctly when only a
++  : is present.
++- &use (in jIRCii) now cache's the shared script instance causing any
++  loaded modules to be instantiated only once for all jIRCii sessions
+ 
+ Beta 38 
+ ====
+
+Modified: rero/src/rero/client/functions/UtilOperators.java
+===================================================================
+--- rero/src/rero/client/functions/UtilOperators.java	2005-07-29 22:00:23 UTC (rev 50)
++++ rero/src/rero/client/functions/UtilOperators.java	2005-07-30 16:19:01 UTC (rev 51)
+@@ -17,7 +17,8 @@
+ 
+ import text.TextSource; // for colormap manipulation stuff
+ 
+-import java.io.File;
++import java.io.*;
++import java.net.*;
+ 
+ import javax.swing.*;
+ 
+@@ -62,6 +63,7 @@
+       script.getScriptEnvironment().getEnvironment().put("&versionString",       new versionString());
+ 
+       script.getScriptEnvironment().getEnvironment().put("&exit", new exit());
++      script.getScriptEnvironment().getEnvironment().put("&use", new f_use());
+ 
+       script.getScriptEnvironment().getEnvironment().put("-ischannel", new isChannel());
+ 
+@@ -73,6 +75,64 @@
+       return true;
+    }
+ 
++    private static class f_use implements Function
++    {
++       private static HashMap bridges = new HashMap();
++
++       public Scalar evaluate(String n, ScriptInstance si, Stack l)
++       {
++          File   parent;
++          String className;
++
++          if (l.size() == 2)
++          {
++             parent    = BridgeUtilities.getFile(l);
++             className = BridgeUtilities.getString(l, "");
++          }
++          else
++          {
++             File a    = BridgeUtilities.getFile(l);
++             parent    = a.getParentFile();
++             className = a.getName();
++          }
++
++          Class bridge;
++
++          try
++          {
++             if (parent != null)
++             {
++                URLClassLoader loader = new URLClassLoader(new URL[] { parent.toURL() });
++                bridge = Class.forName(className, true, loader);
++             }
++             else
++             {
++                bridge = Class.forName(className);
++             }
++
++             Loadable temp;
++
++             if (bridges.get(bridge) == null)
++             {
++                temp = (Loadable)bridge.newInstance();
++                bridges.put(bridge, temp);
++             }
++             else
++             {
++                temp = (Loadable)bridges.get(bridge);
++             }
++
++             temp.scriptLoaded(si);
++          }
++          catch (Exception ex)  
++          {   
++             si.getScriptEnvironment().flagError(ex.toString());
++          }
++              
++          return SleepUtils.getEmptyScalar();
++       }
++    }
++
+    public boolean scriptUnloaded(ScriptInstance script)
+    {
+       return true;
+
+Modified: rero/src/rero/gui/UICapabilities.java
+===================================================================
+--- rero/src/rero/gui/UICapabilities.java	2005-07-29 22:00:23 UTC (rev 50)
++++ rero/src/rero/gui/UICapabilities.java	2005-07-30 16:19:01 UTC (rev 51)
+@@ -80,7 +80,7 @@
+          }
+       }
+ 
+-      printStatus(text);
++//      printStatus(text);
+    }
+ 
+    /** prints text directly to the status window. */
+
+Modified: rero/src/rero/ircfw/InternalDataList.java
+===================================================================
+--- rero/src/rero/ircfw/InternalDataList.java	2005-07-29 22:00:23 UTC (rev 50)
++++ rero/src/rero/ircfw/InternalDataList.java	2005-07-30 16:19:01 UTC (rev 51)
+@@ -288,13 +288,16 @@
+         while (umode.isPrefixChar(nickname.charAt(0)))
+         {
+            modes    = umode.setMode(modes, umode.getModeForDisplay(nickname.charAt(0)));
+-           nickname = nickname.substring(1, nickname.length());           
++           nickname = nickname.substring(1, nickname.length());
+         }
+ 
+         User user = getUser(nickname);
+-        user.getChannelData().put(channel, new Integer(modes));
+ 
+-        channel.getAllUsers().add(user);
++        if (! user.getChannelData().containsKey(channel))
++        {
++           user.getChannelData().put(channel, new Integer(modes));
++           channel.getAllUsers().add(user);
++        }
+     }
+ 
+     public Channel getChannel(String channel)
+
+Modified: rero/src/rero/ircfw/Parsed1459.java
+===================================================================
+--- rero/src/rero/ircfw/Parsed1459.java	2005-07-29 22:00:23 UTC (rev 50)
++++ rero/src/rero/ircfw/Parsed1459.java	2005-07-30 16:19:01 UTC (rev 51)
+@@ -73,6 +73,17 @@
+ 
+    protected HashMap eventInformation;
+ 
++   public static void main(String args[])
++   {
++      HashMap temp = new Parsed1459().parseString(":nick!user at host TOPIC #jircii :");
++      java.util.Iterator i = temp.keySet().iterator();
++      while (i.hasNext())
++      {
++         Object n = i.next();
++         System.out.println(n + " = " + temp.get(n));
++      } 
++   }
++
+    public HashMap parseString (String data)
+    {
+       eventInformation = new HashMap();
+@@ -187,7 +198,7 @@
+        {
+            parmsString.append(parser.getParsedString(0));
+        }
+-       else
++       else if (!data.equals(":"))
+        {
+            parmsString.append(data);
+        }
+@@ -197,6 +208,10 @@
+        if (targetLength < parmsString.toString().length())
+        {
+           eventInformation.put($PARMS$, parmsString.toString().substring(targetLength, parmsString.toString().length()  ));
++       }
++       else
++       {
++          eventInformation.put($PARMS$, "");
+        }  
+ 
+        return eventInformation;
+
+
+
+From rsmudge at berlios.de  Sat Jul 30 18:40:58 2005
+From: rsmudge at berlios.de (Raphael Mudge at BerliOS)
+Date: Sat, 30 Jul 2005 18:40:58 +0200
+Subject: [Jircii-svn] r52 - rero/src/rero/client/functions
+Message-ID: <200507301640.j6UGewYK014286@sheep.berlios.de>
+
+Author: rsmudge
+Date: 2005-07-30 18:40:58 +0200 (Sat, 30 Jul 2005)
+New Revision: 52
+
+Modified:
+   rero/src/rero/client/functions/UtilOperators.java
+Log:
+Updated &use
+
+
+Modified: rero/src/rero/client/functions/UtilOperators.java
+===================================================================
+--- rero/src/rero/client/functions/UtilOperators.java	2005-07-30 16:19:01 UTC (rev 51)
++++ rero/src/rero/client/functions/UtilOperators.java	2005-07-30 16:40:58 UTC (rev 52)
+@@ -63,7 +63,7 @@
+       script.getScriptEnvironment().getEnvironment().put("&versionString",       new versionString());
+ 
+       script.getScriptEnvironment().getEnvironment().put("&exit", new exit());
+-      script.getScriptEnvironment().getEnvironment().put("&use", new f_use());
++      script.getScriptEnvironment().getEnvironment().put("&use", new f2_use());
+ 
+       script.getScriptEnvironment().getEnvironment().put("-ischannel", new isChannel());
+ 
+@@ -75,10 +75,10 @@
+       return true;
+    }
+ 
+-    private static class f_use implements Function
++    private static HashMap bridges = new HashMap();
++
++    private static class f2_use implements Function
+     {
+-       private static HashMap bridges = new HashMap();
+-
+        public Scalar evaluate(String n, ScriptInstance si, Stack l)
+        {
+           File   parent;
+
+
+
+From rsmudge at berlios.de  Sat Jul 30 18:49:45 2005
+From: rsmudge at berlios.de (Raphael Mudge at BerliOS)
+Date: Sat, 30 Jul 2005 18:49:45 +0200
+Subject: [Jircii-svn] r53 - in rero/src/rero: client/functions ircfw
+Message-ID: <200507301649.j6UGnjZj024758@sheep.berlios.de>
+
+Author: rsmudge
+Date: 2005-07-30 18:49:44 +0200 (Sat, 30 Jul 2005)
+New Revision: 53
+
+Modified:
+   rero/src/rero/client/functions/UtilOperators.java
+   rero/src/rero/ircfw/Parsed1459.java
+Log:
+Fixed &use
+
+
+Modified: rero/src/rero/client/functions/UtilOperators.java
+===================================================================
+--- rero/src/rero/client/functions/UtilOperators.java	2005-07-30 16:40:58 UTC (rev 52)
++++ rero/src/rero/client/functions/UtilOperators.java	2005-07-30 16:49:44 UTC (rev 53)
+@@ -81,6 +81,8 @@
+     {
+        public Scalar evaluate(String n, ScriptInstance si, Stack l)
+        {
++          System.out.println("The new use has been called");
++
+           File   parent;
+           String className;
+ 
+@@ -112,14 +114,14 @@
+ 
+              Loadable temp;
+ 
+-             if (bridges.get(bridge) == null)
++             if (bridges.get(bridge.toString()) == null)
+              {
+                 temp = (Loadable)bridge.newInstance();
+-                bridges.put(bridge, temp);
++                bridges.put(bridge.toString(), temp);
+              }
+              else
+              {
+-                temp = (Loadable)bridges.get(bridge);
++                temp = (Loadable)bridges.get(bridge.toString());
+              }
+ 
+              temp.scriptLoaded(si);
+
+Modified: rero/src/rero/ircfw/Parsed1459.java
+===================================================================
+--- rero/src/rero/ircfw/Parsed1459.java	2005-07-30 16:40:58 UTC (rev 52)
++++ rero/src/rero/ircfw/Parsed1459.java	2005-07-30 16:49:44 UTC (rev 53)
+@@ -73,17 +73,6 @@
+ 
+    protected HashMap eventInformation;
+ 
+-   public static void main(String args[])
+-   {
+-      HashMap temp = new Parsed1459().parseString(":nick!user at host TOPIC #jircii :");
+-      java.util.Iterator i = temp.keySet().iterator();
+-      while (i.hasNext())
+-      {
+-         Object n = i.next();
+-         System.out.println(n + " = " + temp.get(n));
+-      } 
+-   }
+-
+    public HashMap parseString (String data)
+    {
+       eventInformation = new HashMap();
+
+
+
+From rsmudge at berlios.de  Sat Jul 30 18:57:46 2005
+From: rsmudge at berlios.de (Raphael Mudge at BerliOS)
+Date: Sat, 30 Jul 2005 18:57:46 +0200
+Subject: [Jircii-svn] r54 - rero/src/rero/client/functions
+Message-ID: <200507301657.j6UGvkWk030141@sheep.berlios.de>
+
+Author: rsmudge
+Date: 2005-07-30 18:57:45 +0200 (Sat, 30 Jul 2005)
+New Revision: 54
+
+Modified:
+   rero/src/rero/client/functions/UtilOperators.java
+Log:
+
+
+Modified: rero/src/rero/client/functions/UtilOperators.java
+===================================================================
+--- rero/src/rero/client/functions/UtilOperators.java	2005-07-30 16:49:44 UTC (rev 53)
++++ rero/src/rero/client/functions/UtilOperators.java	2005-07-30 16:57:45 UTC (rev 54)
+@@ -122,7 +122,7 @@
+              else
+              {
+                 temp = (Loadable)bridges.get(bridge.toString());
+-             }
++              }
+ 
+              temp.scriptLoaded(si);
+           }
+
+
+
+From rsmudge at berlios.de  Sat Jul 30 20:29:12 2005
+From: rsmudge at berlios.de (Raphael Mudge at BerliOS)
+Date: Sat, 30 Jul 2005 20:29:12 +0200
+Subject: [Jircii-svn] r55 - in rero: resources/toplevel src/rero/client/functions src/rero/config src/rero/gui src/rero/gui/mdi src/rero/gui/sdi src/rero/gui/windows
+Message-ID: <200507301829.j6UITCRl017675@sheep.berlios.de>
+
+Author: rsmudge
+Date: 2005-07-30 20:29:11 +0200 (Sat, 30 Jul 2005)
+New Revision: 55
+
+Modified:
+   rero/resources/toplevel/whatsnew.txt
+   rero/src/rero/client/functions/UtilOperators.java
+   rero/src/rero/config/ClientDefaults.java
+   rero/src/rero/gui/KeyBindings.java
+   rero/src/rero/gui/mdi/ClientDesktop.java
+   rero/src/rero/gui/sdi/ClientPanel.java
+   rero/src/rero/gui/windows/WindowManager.java
+Log:
+Final stuff for b39
+
+
+Modified: rero/resources/toplevel/whatsnew.txt
+===================================================================
+--- rero/resources/toplevel/whatsnew.txt	2005-07-30 16:57:45 UTC (rev 54)
++++ rero/resources/toplevel/whatsnew.txt	2005-07-30 18:29:11 UTC (rev 55)
+@@ -1,4 +1,4 @@
+-Beta 39 
++Beta    39 release 07.30.05
+ ====
+ - The find feature is now case insensitive (oracel)
+ - Fixed bug in command history, the history was not reset when pasting
+@@ -17,8 +17,11 @@
+   : is present.
+ - &use (in jIRCii) now cache's the shared script instance causing any
+   loaded modules to be instantiated only once for all jIRCii sessions
++- fixed several bugs in the MDI window management routines
++- Added a workaround to keep Ctrl+Tab from freezing jIRCii on Windows.
++  Ctrl+Tab can still be binded by scripts though.
+ 
+-Beta 38 
++Beta    38 released 07.18.05
+ ====
+ - jIRCii command history behavior has been completely overhauled to feel
+   more like mIRC and other clients (oracel)
+@@ -41,7 +44,7 @@
+ - added an option to strip out all formatting codes from IRC messages
+ - fixed /load ~/file not resolving ~
+ 
+-Beta 37 release 07.13.05
++Beta    37 release 07.13.05
+ ====
+ - fixed resource loading to ensure files in .jIRC have priority over 
+   internal resources
+
+Modified: rero/src/rero/client/functions/UtilOperators.java
+===================================================================
+--- rero/src/rero/client/functions/UtilOperators.java	2005-07-30 16:57:45 UTC (rev 54)
++++ rero/src/rero/client/functions/UtilOperators.java	2005-07-30 18:29:11 UTC (rev 55)
+@@ -81,8 +81,6 @@
+     {
+        public Scalar evaluate(String n, ScriptInstance si, Stack l)
+        {
+-          System.out.println("The new use has been called");
+-
+           File   parent;
+           String className;
+ 
+
+Modified: rero/src/rero/config/ClientDefaults.java
+===================================================================
+--- rero/src/rero/config/ClientDefaults.java	2005-07-30 16:57:45 UTC (rev 54)
++++ rero/src/rero/config/ClientDefaults.java	2005-07-30 18:29:11 UTC (rev 55)
+@@ -77,7 +77,7 @@
+ 
+    public static final boolean update_ial     = true;
+ 
+-   public static final String  version_string = "07.18.05";
++   public static final String  version_string = "07.30.05";
+ 
+    static
+    {
+
+Modified: rero/src/rero/gui/KeyBindings.java
+===================================================================
+--- rero/src/rero/gui/KeyBindings.java	2005-07-30 16:57:45 UTC (rev 54)
++++ rero/src/rero/gui/KeyBindings.java	2005-07-30 18:29:11 UTC (rev 55)
+@@ -65,6 +65,12 @@
+           return true;
+        }
+ 
++       if (ev.isControlDown() && ev.getKeyCode() == 9) 
++       {
++          ev.consume();
++          return true;
++       }       
++
+        return false;
+    }
+ 
+
+Modified: rero/src/rero/gui/mdi/ClientDesktop.java
+===================================================================
+--- rero/src/rero/gui/mdi/ClientDesktop.java	2005-07-30 16:57:45 UTC (rev 54)
++++ rero/src/rero/gui/mdi/ClientDesktop.java	2005-07-30 18:29:11 UTC (rev 55)
+@@ -18,7 +18,7 @@
+ import rero.gui.toolkit.OrientedToolBar;
+ 
+ /** responsible for mantaining the state of the desktop GUI and switchbar */
+-public class ClientDesktop extends WindowManager implements ClientWindowListener, ChangeListener, ClientStateListener
++public class ClientDesktop extends WindowManager implements ClientWindowListener, ClientStateListener
+ {
+     protected JDesktopPane desktop;
+ 
+@@ -57,11 +57,8 @@
+        windowMap.put(window.getWindow(), window);
+        windowMap.put(window.getButton(), window);
+ 
+-       if (selected)
+-       {
+-          window.getWindow().addWindowListener(this);
+-          window.getButton().addChangeListener(this);
+-       }
++       window.getWindow().addWindowListener(this);
++       window.getButton().addActionListener(this);
+ 
+        // add to the switchbar
+        addToSwitchbar(window);
+@@ -72,8 +69,6 @@
+        if (!selected)
+        {
+           temp.setVisible(false);
+-          window.getWindow().addWindowListener(this);
+-          window.getButton().addChangeListener(this);
+        }
+        else
+        {
+@@ -90,39 +85,20 @@
+               {
+                  try
+                  {
+-//                    Thread.sleep(2 * 1000); // sleep for 2 seconds - originally used when we had problems requesting focus
+                     refreshFocus(desktop.getSelectedFrame()); 
+                     desktop.getSelectedFrame().setSelected(true);
+                  }
+                  catch (java.beans.PropertyVetoException ex) { }
+-//                 catch (InterruptedException ex2) { }
+-
+                  desktop.repaint();
+               }
+           }
+        });
+     }
+ 
+-    public void stateChanged(ChangeEvent e)
+-    {
+-       JToggleButton source = (JToggleButton)e.getSource();
+-       if (source.isSelected())
+-       {
+-          doActivate(getWindowFor(e.getSource()));
+-       }
+-       else
+-       {
+-          doDeactivate(getWindowFor(e.getSource()));
+-       }
+-    }
+-
+     public void onActive(ClientWindowEvent ev) 
+     { 
+        StatusWindow temp = getWindowFor(ev.getSource());
+        doActivate(temp);
+-
+-//       if (temp.isLegalWindow())
+-//          temp.getInput().requestFocus();
+     }
+ 
+     public void onInactive(ClientWindowEvent ev) 
+@@ -133,15 +109,13 @@
+     public void onMinimize(ClientWindowEvent ev) 
+     { 
+        doDeactivate(getWindowFor(ev.getSource()));
++       newActive(windows.indexOf(getWindowFor(ev.getSource())) - 1);
+     }
+ 
+     public void onOpen(ClientWindowEvent ev) 
+     { 
+        StatusWindow temp = getWindowFor(ev.getSource());
+        doActivate(temp);
+-
+-//       if (temp.isLegalWindow())
+-//          temp.getInput().requestFocus();
+     }
+ 
+     public void onClose(ClientWindowEvent ev) 
+
+Modified: rero/src/rero/gui/sdi/ClientPanel.java
+===================================================================
+--- rero/src/rero/gui/sdi/ClientPanel.java	2005-07-30 16:57:45 UTC (rev 54)
++++ rero/src/rero/gui/sdi/ClientPanel.java	2005-07-30 18:29:11 UTC (rev 55)
+@@ -156,21 +156,6 @@
+        refreshFocus(); 
+     }
+ 
+-    public void actionPerformed(ActionEvent e)
+-    {
+-       JToggleButton source = (JToggleButton)e.getSource();
+-
+-       if (source.isSelected())
+-       {
+-          doActivate(getWindowFor(e.getSource()));
+-       }
+-       else
+-       {
+-          doDeactivate(getWindowFor(e.getSource()));
+-          newActive(windows.indexOf(getWindowFor(e.getSource())) - 1);
+-       }
+-    }
+-
+     public void killWindow(ClientWindow cwindow)
+     {
+        StatusWindow window = getWindowFor(cwindow);
+@@ -210,32 +195,11 @@
+        }       
+     }
+ 
+-    public void newActive(int index)
+-    {
+-       StatusWindow temp;
+-
+-       if (index >= windows.size() || index < 0)
+-       {
+-          temp = (StatusWindow)windows.getFirst();
+-       }
+-       else
+-       {
+-          temp = (StatusWindow)windows.get(index);
+-       }
+-
+-       doActivate(temp);
+-    }
+-
+     public StatusWindow getActiveWindow()
+     {
+        return active;
+     }
+ 
+-    protected StatusWindow getWindowFor(Object o)
+-    {
+-       return (StatusWindow)windowMap.get(o);
+-    }
+-
+     protected void doActivate(StatusWindow window)
+     {
+        if (active != null && active != window.getWindow())
+
+Modified: rero/src/rero/gui/windows/WindowManager.java
+===================================================================
+--- rero/src/rero/gui/windows/WindowManager.java	2005-07-30 16:57:45 UTC (rev 54)
++++ rero/src/rero/gui/windows/WindowManager.java	2005-07-30 18:29:11 UTC (rev 55)
+@@ -3,8 +3,10 @@
+ import javax.swing.*;
+ import java.util.*;
+ import rero.config.*;
++import java.awt.*;
++import java.awt.event.*;
+ 
+-public abstract class WindowManager extends JPanel implements ClientStateListener
++public abstract class WindowManager extends JPanel implements ClientStateListener, ActionListener
+ {
+     protected SwitchBarOptions switchOptions; // we have to keep a reference to it or it will go bye bye
+     protected JToolBar         switchbar;
+@@ -13,6 +15,11 @@
+ 
+     protected boolean          isRelative; // is the bg being drawn relative to the main window, makes a difference in repainting..
+ 
++    public StatusWindow getWindowFor(Object o)
++    {
++       return (StatusWindow)windowMap.get(o);
++    }
++
+     public void addToSwitchbar(StatusWindow window)
+     {
+        if (ClientState.getClientState().isOption("switchbar.sort", ClientDefaults.switchbar_sort))
+@@ -39,6 +46,38 @@
+        switchbar.revalidate();
+     }
+ 
++    public void actionPerformed(ActionEvent e)
++    {
++       JToggleButton source = (JToggleButton)e.getSource();
++
++       if (source.isSelected())
++       {
++          doActivate(getWindowFor(e.getSource()));
++       }
++       else
++       {
++          doDeactivate(getWindowFor(e.getSource()));
++          newActive(windows.indexOf(getWindowFor(e.getSource())) - 1);
++       }
++    }
++
++    public void newActive(int index)
++    {
++       StatusWindow temp;
++
++       if (index >= windows.size() || index < 0)
++       {
++          temp = (StatusWindow)windows.getFirst();
++       }
++       else
++       {
++          temp = (StatusWindow)windows.get(index);
++       }
++
++       doActivate(temp);
++    }
++
++
+     public void propertyChanged(String key, String value)
+     {
+        isRelative = ClientState.getClientState().isOption("window.relative", false);
+@@ -76,4 +115,6 @@
+     public abstract void init();
+     public abstract void addWindow(StatusWindow window, boolean selected);
+     public abstract StatusWindow getActiveWindow();
++    protected abstract void doActivate(StatusWindow window);
++    protected abstract void doDeactivate(StatusWindow window);
+ }  
+
+
+
+From rsmudge at berlios.de  Sat Jul 30 21:52:34 2005
+From: rsmudge at berlios.de (Raphael Mudge at BerliOS)
+Date: Sat, 30 Jul 2005 21:52:34 +0200
+Subject: [Jircii-svn] r56 - rero/src/rero/gui/mdi
+Message-ID: <200507301952.j6UJqY2t022406@sheep.berlios.de>
+
+Author: rsmudge
+Date: 2005-07-30 21:52:33 +0200 (Sat, 30 Jul 2005)
+New Revision: 56
+
+Modified:
+   rero/src/rero/gui/mdi/ClientDesktop.java
+Log:
+fixed small compilation issue
+
+
+Modified: rero/src/rero/gui/mdi/ClientDesktop.java
+===================================================================
+--- rero/src/rero/gui/mdi/ClientDesktop.java	2005-07-30 18:29:11 UTC (rev 55)
++++ rero/src/rero/gui/mdi/ClientDesktop.java	2005-07-30 19:52:33 UTC (rev 56)
+@@ -147,11 +147,6 @@
+        return getWindowFor(f);
+     }
+ 
+-    protected StatusWindow getWindowFor(Object o)
+-    {
+-       return (StatusWindow)windowMap.get(o);
+-    }
+-
+     protected void doActivate(StatusWindow window)
+     {
+        try 
+
+
+
+From rsmudge at berlios.de  Sat Jul 30 23:12:40 2005
+From: rsmudge at berlios.de (Raphael Mudge at BerliOS)
+Date: Sat, 30 Jul 2005 23:12:40 +0200
+Subject: [Jircii-svn] r57 - in rero: resources/toplevel src/rero/gui/mdi src/rero/gui/sdi src/rero/gui/windows
+Message-ID: <200507302112.j6ULCef2027886@sheep.berlios.de>
+
+Author: rsmudge
+Date: 2005-07-30 23:12:39 +0200 (Sat, 30 Jul 2005)
+New Revision: 57
+
+Modified:
+   rero/resources/toplevel/readme.txt
+   rero/src/rero/gui/mdi/ClientDesktop.java
+   rero/src/rero/gui/sdi/ClientPanel.java
+   rero/src/rero/gui/windows/WindowManager.java
+Log:
+Fixed the window management stuff for real this time...
+
+
+Modified: rero/resources/toplevel/readme.txt
+===================================================================
+--- rero/resources/toplevel/readme.txt	2005-07-30 19:52:33 UTC (rev 56)
++++ rero/resources/toplevel/readme.txt	2005-07-30 21:12:39 UTC (rev 57)
+@@ -1,5 +1,5 @@
+  ------- -------------------- ---------   ---------------  ------- ---------
+-jIRCii - Beta (38) 07.18.05 - README
++jIRCii - Beta (39) 07.30.05 - README
+ -  ------------- -------- -   ---------------- --       -    -     -     - - -
+ 
+ The official jIRCii homepage is at: http://jircii.hick.org
+
+Modified: rero/src/rero/gui/mdi/ClientDesktop.java
+===================================================================
+--- rero/src/rero/gui/mdi/ClientDesktop.java	2005-07-30 19:52:33 UTC (rev 56)
++++ rero/src/rero/gui/mdi/ClientDesktop.java	2005-07-30 21:12:39 UTC (rev 57)
+@@ -108,8 +108,14 @@
+ 
+     public void onMinimize(ClientWindowEvent ev) 
+     { 
++       boolean wasSelected = ev.getSource().isSelected();
+        doDeactivate(getWindowFor(ev.getSource()));
+-       newActive(windows.indexOf(getWindowFor(ev.getSource())) - 1);
++
++       if (wasSelected)
++       {
++          int index = windows.indexOf(getWindowFor(ev.getSource()));
++          newActive(index, false);
++       }
+     }
+ 
+     public void onOpen(ClientWindowEvent ev) 
+@@ -120,6 +126,9 @@
+ 
+     public void onClose(ClientWindowEvent ev) 
+     { 
++       int index = windows.indexOf(getWindowFor(ev.getSource()));
++       boolean wasSelected = ev.getSource().isSelected();
++
+        ClientWindow window = ev.getSource();
+        StatusWindow temp = (StatusWindow)windowMap.get(window);
+ 
+@@ -135,9 +144,13 @@
+        switchbar.validate();
+        switchbar.repaint();
+ 
+-       if (getActiveWindow() != null)
++/*       if (getActiveWindow() != null)
+        {
+-           doActivate(getActiveWindow());
++          doActivate(getActiveWindow());
++       } */
++       if (wasSelected)
++       {
++          newActive(index - 1, true);
+        }
+     }
+ 
+
+Modified: rero/src/rero/gui/sdi/ClientPanel.java
+===================================================================
+--- rero/src/rero/gui/sdi/ClientPanel.java	2005-07-30 19:52:33 UTC (rev 56)
++++ rero/src/rero/gui/sdi/ClientPanel.java	2005-07-30 21:12:39 UTC (rev 57)
+@@ -174,13 +174,13 @@
+ 
+        desktop.remove(window);          
+ 
+-       if (window == active && !active.getName().equals(StatusWindow.STATUS_NAME))
++       if (window == active && active.getName().equals(StatusWindow.STATUS_NAME))
+        {
+-           newActive(idx - 1);
++          active = null; // if we close the status window, that's it... make sure we get rid fo the reference
+        }
+-       else
++       else if (window == active)
+        {
+-          active = null;
++          newActive(idx - 1, true); // if this window was the active one, make another one active instead...
+        }
+ 
+        switchbar.validate();
+
+Modified: rero/src/rero/gui/windows/WindowManager.java
+===================================================================
+--- rero/src/rero/gui/windows/WindowManager.java	2005-07-30 19:52:33 UTC (rev 56)
++++ rero/src/rero/gui/windows/WindowManager.java	2005-07-30 21:12:39 UTC (rev 57)
+@@ -57,27 +57,43 @@
+        else
+        {
+           doDeactivate(getWindowFor(e.getSource()));
+-          newActive(windows.indexOf(getWindowFor(e.getSource())) - 1);
++
++          int index = windows.indexOf(getWindowFor(e.getSource()));
++          newActive(index, false);
+        }
+     }
+ 
+-    public void newActive(int index)
++    // find next non-minimized window to the left of the specified index without making the specified index active again
++    public void newActive(int index, boolean includeCurrent)
+     {
+-       StatusWindow temp;
++       if (index > windows.size())
++       {
++          index = windows.size() - (includeCurrent ? 1 : 0);
++       }
+ 
+-       if (index >= windows.size() || index < 0)
++       for (int x = index - (includeCurrent ? 0 : 1); x >= 0; x--)
+        {
+-          temp = (StatusWindow)windows.getFirst();
++          StatusWindow temp   = (StatusWindow)windows.get(x);
++
++          if (temp != null && !temp.getWindow().isIcon())
++          {
++             doActivate(temp);
++             return;
++          }
+        }
+-       else
++
++       for (int x = windows.size() - 1; x > index; x--)
+        {
+-          temp = (StatusWindow)windows.get(index);
++          StatusWindow temp   = (StatusWindow)windows.get(x);
++
++          if (temp != null && !temp.getWindow().isIcon())
++          {
++             doActivate(temp);
++             return;
++          }
+        }
+-
+-       doActivate(temp);
+     }
+ 
+-
+     public void propertyChanged(String key, String value)
+     {
+        isRelative = ClientState.getClientState().isOption("window.relative", false);
+
+
+
+From rsmudge at berlios.de  Sun Jul 31 00:46:59 2005
+From: rsmudge at berlios.de (Raphael Mudge at BerliOS)
+Date: Sun, 31 Jul 2005 00:46:59 +0200
+Subject: [Jircii-svn] r58 - in rero/src/rero/gui: mdi sdi windows
+Message-ID: <200507302246.j6UMkxdI019282@sheep.berlios.de>
+
+Author: rsmudge
+Date: 2005-07-31 00:46:49 +0200 (Sun, 31 Jul 2005)
+New Revision: 58
+
+Modified:
+   rero/src/rero/gui/mdi/ClientDesktop.java
+   rero/src/rero/gui/sdi/ClientPanel.java
+   rero/src/rero/gui/windows/WindowManager.java
+Log:
+Fixed focus issues, maybe?!?
+
+
+Modified: rero/src/rero/gui/mdi/ClientDesktop.java
+===================================================================
+--- rero/src/rero/gui/mdi/ClientDesktop.java	2005-07-30 21:12:39 UTC (rev 57)
++++ rero/src/rero/gui/mdi/ClientDesktop.java	2005-07-30 22:46:49 UTC (rev 58)
+@@ -13,6 +13,7 @@
+ import rero.gui.windows.*;
+ import rero.gui.background.*;
+ 
++import rero.util.ClientUtils;
+ import rero.config.*;
+ 
+ import rero.gui.toolkit.OrientedToolBar;
+@@ -77,7 +78,8 @@
+ 
+        // one of my hacks...  make sure the selected window knows it is the selected window.
+        // for some reason when I first launch the program this concept doesn't take so well.
+-       SwingUtilities.invokeLater(new Runnable()
++ 
++       ClientUtils.invokeLater(new Runnable()
+        {
+           public void run()
+           {
+@@ -115,6 +117,7 @@
+        {
+           int index = windows.indexOf(getWindowFor(ev.getSource()));
+           newActive(index, false);
++          refreshFocus(desktop.getSelectedFrame()); 
+        }
+     }
+ 
+@@ -144,13 +147,10 @@
+        switchbar.validate();
+        switchbar.repaint();
+ 
+-/*       if (getActiveWindow() != null)
++       if (desktop.getSelectedFrame() == null)
+        {
+-          doActivate(getActiveWindow());
+-       } */
+-       if (wasSelected)
+-       {
+-          newActive(index - 1, true);
++          newActive(index, true);
++          refreshFocus(desktop.getSelectedFrame()); 
+        }
+     }
+ 
+@@ -215,7 +215,7 @@
+ 
+     public void refreshFocus(JInternalFrame f)
+     {
+-       if (isShowing() && getWindowFor(f).isLegalWindow() && !rero.gui.KeyBindings.is_dialog_active)
++       if (f != null && isShowing() && getWindowFor(f).isLegalWindow() && !rero.gui.KeyBindings.is_dialog_active)
+           getWindowFor(f).getInput().requestFocus();
+     }
+ 
+@@ -320,55 +320,14 @@
+ 
+     protected class MyModifiedDesktopManager extends DefaultDesktopManager
+     {
+-        protected void SunSucksAndShouldMakeActivateNextFrameAtLeastProtectedThisIsAPainInMyAss(Container c)
+-        {
+-           // taken from the DefaultDesktopManager source code.  This does not fall under whatever license
+-           // I decided this client falls under.  It falls under Suns Communist Source License.  Not that
+-           // it is anything stellar or innovative.  They should have made this method "protected" so I could
+-           // call it from my subclass.  But no.... they're to busy designing "mAD hATTER ThE JaVA DEsKTOp
+-           // eNViROnMEnt".   The ultra elite desktop that features mozilla with an uglier Sun icon, an ugly
+-           // scheme, and a bunch of general lameness.   
++        public void closeFrame(JInternalFrame f) { }
+ 
+-           int i;
+-           JInternalFrame nextFrame = null;
+-
+-           if (c == null)
+-           {
+-              return;
+-           }
+-
+-           for (i = 0; i < c.getComponentCount(); i++)
+-           {
+-              if (c.getComponent(i) instanceof JInternalFrame) 
+-              {
+-                 nextFrame = (JInternalFrame)c.getComponent(i);
+-                 break;
+-              }
+-           }
+-
+-           if (nextFrame != null)
+-           {
+-              try 
+-              {
+-                 nextFrame.setSelected(true);
+-              }
+-              catch(PropertyVetoException ex) { }
+-
+-              nextFrame.moveToFront();
+-           }
+-        }
+-
+         public void iconifyFrame(JInternalFrame f)
+         { 
+            boolean findNew = f.isSelected();
+ 
+            f.setVisible(false);
+            f.getParent().repaint(f.getX(), f.getY(), f.getWidth(), f.getHeight());
+-
+-           if (findNew)
+-           {
+-              SunSucksAndShouldMakeActivateNextFrameAtLeastProtectedThisIsAPainInMyAss(f.getParent());
+-           }
+         }
+ 
+         public void deiconifyFrame(JInternalFrame f)
+
+Modified: rero/src/rero/gui/sdi/ClientPanel.java
+===================================================================
+--- rero/src/rero/gui/sdi/ClientPanel.java	2005-07-30 21:12:39 UTC (rev 57)
++++ rero/src/rero/gui/sdi/ClientPanel.java	2005-07-30 22:46:49 UTC (rev 58)
+@@ -180,7 +180,8 @@
+        }
+        else if (window == active)
+        {
+-          newActive(idx - 1, true); // if this window was the active one, make another one active instead...
++          newActive(idx, true); // if this window was the active one, make another one active instead...
++          refreshFocus();
+        }
+ 
+        switchbar.validate();
+
+Modified: rero/src/rero/gui/windows/WindowManager.java
+===================================================================
+--- rero/src/rero/gui/windows/WindowManager.java	2005-07-30 21:12:39 UTC (rev 57)
++++ rero/src/rero/gui/windows/WindowManager.java	2005-07-30 22:46:49 UTC (rev 58)
+@@ -66,13 +66,8 @@
+     // find next non-minimized window to the left of the specified index without making the specified index active again
+     public void newActive(int index, boolean includeCurrent)
+     {
+-       if (index > windows.size())
++       for (int x = index - 1; x >= 0; x--)
+        {
+-          index = windows.size() - (includeCurrent ? 1 : 0);
+-       }
+-
+-       for (int x = index - (includeCurrent ? 0 : 1); x >= 0; x--)
+-       {
+           StatusWindow temp   = (StatusWindow)windows.get(x);
+ 
+           if (temp != null && !temp.getWindow().isIcon())
+@@ -81,6 +76,8 @@
+              return;
+           }
+        }
++ 
++       if (includeCurrent) { index = -1; }
+ 
+        for (int x = windows.size() - 1; x > index; x--)
+        {
+
+
+

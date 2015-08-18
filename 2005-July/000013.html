@@ -1,0 +1,124 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Jircii-svn] r33 - in rero/src/rero: client gui/windows ircfw
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/jircii-svn/2005-July/index.html" >
+   <LINK REL="made" HREF="mailto:jircii-svn%40lists.berlios.de?Subject=Re%3A%20%5BJircii-svn%5D%20r33%20-%20in%20rero/src/rero%3A%20client%20gui/windows%20ircfw&In-Reply-To=%3C200507170246.j6H2kgE3009912%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000012.html">
+   <LINK REL="Next"  HREF="000014.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Jircii-svn] r33 - in rero/src/rero: client gui/windows ircfw</H1>
+    <B>Raphael Mudge at BerliOS</B> 
+    <A HREF="mailto:jircii-svn%40lists.berlios.de?Subject=Re%3A%20%5BJircii-svn%5D%20r33%20-%20in%20rero/src/rero%3A%20client%20gui/windows%20ircfw&In-Reply-To=%3C200507170246.j6H2kgE3009912%40sheep.berlios.de%3E"
+       TITLE="[Jircii-svn] r33 - in rero/src/rero: client gui/windows ircfw">rsmudge at berlios.de
+       </A><BR>
+    <I>Sun Jul 17 04:46:42 CEST 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000012.html">[Jircii-svn] r32 - rero/src/rero/gui/input
+</A></li>
+        <LI>Next message: <A HREF="000014.html">[Jircii-svn] r34 - in rero/src: rero/client/functions rero/gui/windows text/list
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#13">[ date ]</a>
+              <a href="thread.html#13">[ thread ]</a>
+              <a href="subject.html#13">[ subject ]</a>
+              <a href="author.html#13">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: rsmudge
+Date: 2005-07-17 04:46:37 +0200 (Sun, 17 Jul 2005)
+New Revision: 33
+
+Modified:
+   rero/src/rero/client/DataStructures.java
+   rero/src/rero/gui/windows/ChannelListData.java
+   rero/src/rero/ircfw/Channel.java
+Log:
+Fixed a deadlock condition with channel listbox painting (a long time plague of jIRCii), we now synchronize on the jIRCii script 
+variables whenever possible, rather than some other arbitrary object....
+
+
+Modified: rero/src/rero/client/DataStructures.java
+===================================================================
+--- rero/src/rero/client/DataStructures.java	2005-07-16 23:23:28 UTC (rev 32)
++++ rero/src/rero/client/DataStructures.java	2005-07-17 02:46:37 UTC (rev 33)
+@@ -10,4 +10,5 @@
+    public static final String NotifyData       = &quot;notify&quot;;            // rero.client.notify.NotifyData
+    public static final String UserHandler      = &quot;commands&quot;;          // rero.client.user.UserHandler
+    public static final String DataDCC          = &quot;dcc&quot;;               // rero.dcc.DataDCC 
++   public static final String ScriptVariables  = &quot;scriptVariables&quot;;   // global variable container used by all scripts...
+ }
+
+Modified: rero/src/rero/gui/windows/ChannelListData.java
+===================================================================
+--- rero/src/rero/gui/windows/ChannelListData.java	2005-07-16 23:23:28 UTC (rev 32)
++++ rero/src/rero/gui/windows/ChannelListData.java	2005-07-17 02:46:37 UTC (rev 33)
+@@ -92,7 +92,18 @@
+ 
+    public Object getSynchronizationKey()
+    {
+-      return getChannel().getAllUsers();
++      if (capabilities != null)
++      {
++         // lock this tree by the script variables so no other thread can touch it...
++         return capabilities.getDataStructure(DataStructures.ScriptVariables);
++      }
++      else
++      {
++         // we'll use this given no choice, however permanently locking based on this
++         // value is the road to deadlock since so much is synchronized on the script
++         // variables already...
++         return getChannel().getAllUsers();
++      }
+    }
+ 
+    protected ListElement getElementForUser(User u)
+
+Modified: rero/src/rero/ircfw/Channel.java
+===================================================================
+--- rero/src/rero/ircfw/Channel.java	2005-07-16 23:23:28 UTC (rev 32)
++++ rero/src/rero/ircfw/Channel.java	2005-07-17 02:46:37 UTC (rev 33)
+@@ -8,7 +8,7 @@
+ public class Channel implements FrameworkConstants, Comparator
+ {
+     protected String topic = &quot;&quot;; /* channel topic */
+-    
++
+     public void setTopic(String t) { topic = t; }
+     public String getTopic() { return topic; }
+ 
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000012.html">[Jircii-svn] r32 - rero/src/rero/gui/input
+</A></li>
+	<LI>Next message: <A HREF="000014.html">[Jircii-svn] r34 - in rero/src: rero/client/functions rero/gui/windows text/list
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#13">[ date ]</a>
+              <a href="thread.html#13">[ thread ]</a>
+              <a href="subject.html#13">[ subject ]</a>
+              <a href="author.html#13">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/jircii-svn">More information about the Jircii-svn
+mailing list</a><br>
+</body></html>

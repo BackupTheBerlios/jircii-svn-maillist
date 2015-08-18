@@ -1,0 +1,152 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Jircii-svn] r84 - in rero: . resources/toplevel src/rero/gui/input	src/rero/gui/script
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/jircii-svn/2006-October/index.html" >
+   <LINK REL="made" HREF="mailto:jircii-svn%40lists.berlios.de?Subject=Re%3A%20%5BJircii-svn%5D%20r84%20-%20in%20rero%3A%20.%20resources/toplevel%20src/rero/gui/input%0A%09src/rero/gui/script&In-Reply-To=%3C200610130204.k9D24i73023662%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   
+   <LINK REL="Next"  HREF="000066.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Jircii-svn] r84 - in rero: . resources/toplevel src/rero/gui/input	src/rero/gui/script</H1>
+    <B>rsmudge at BerliOS</B> 
+    <A HREF="mailto:jircii-svn%40lists.berlios.de?Subject=Re%3A%20%5BJircii-svn%5D%20r84%20-%20in%20rero%3A%20.%20resources/toplevel%20src/rero/gui/input%0A%09src/rero/gui/script&In-Reply-To=%3C200610130204.k9D24i73023662%40sheep.berlios.de%3E"
+       TITLE="[Jircii-svn] r84 - in rero: . resources/toplevel src/rero/gui/input	src/rero/gui/script">rsmudge at mail.berlios.de
+       </A><BR>
+    <I>Fri Oct 13 04:04:44 CEST 2006</I>
+    <P><UL>
+        
+        <LI>Next message: <A HREF="000066.html">[Jircii-svn] r85 - in rero/src: . rero/util
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#65">[ date ]</a>
+              <a href="thread.html#65">[ thread ]</a>
+              <a href="subject.html#65">[ subject ]</a>
+              <a href="author.html#65">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: rsmudge
+Date: 2006-10-13 04:04:43 +0200 (Fri, 13 Oct 2006)
+New Revision: 84
+
+Modified:
+   rero/build.xml
+   rero/resources/toplevel/whatsnew.txt
+   rero/src/rero/gui/input/InputField.java
+   rero/src/rero/gui/script/WindowOperators.java
+Log:
+fixed a bug that broke setInputText
+
+
+
+Modified: rero/build.xml
+===================================================================
+--- rero/build.xml	2006-10-13 01:21:18 UTC (rev 83)
++++ rero/build.xml	2006-10-13 02:04:43 UTC (rev 84)
+@@ -19,7 +19,7 @@
+            depend=&quot;yes&quot;
+            source=&quot;1.4&quot;
+            target=&quot;1.4&quot;
+-           debug=&quot;no&quot;
++           debug=&quot;yes&quot;
+            optimize=&quot;yes&quot;
+     &gt;
+        &lt;classpath path=&quot;./lib/sleep.jar&quot; /&gt;
+
+Modified: rero/resources/toplevel/whatsnew.txt
+===================================================================
+--- rero/resources/toplevel/whatsnew.txt	2006-10-13 01:21:18 UTC (rev 83)
++++ rero/resources/toplevel/whatsnew.txt	2006-10-13 02:04:43 UTC (rev 84)
+@@ -60,6 +60,9 @@
+   /debug xdcc.irc +trace or /debug xdcc.irc -trace  (Raffi)
+   scripts can programatically set debug flags, see the sleep docs for more
+   info
++- fixed a bug with on input event breaking setInputText, text is immediately
++  cleared from edit box prior to fireing events.  Typed text is available as
++  $1- within on input though
+ 
+ Beta    39 release 07.30.05
+ ====
+
+Modified: rero/src/rero/gui/input/InputField.java
+===================================================================
+--- rero/src/rero/gui/input/InputField.java	2006-10-13 01:21:18 UTC (rev 83)
++++ rero/src/rero/gui/input/InputField.java	2006-10-13 02:04:43 UTC (rev 84)
+@@ -158,12 +158,13 @@
+     // Add text to history
+     this.addToHistory(event.text);
+ 
++    setText(&quot;&quot;); // clear the textbox first, on input will receive the event information 
++
+     while (i.hasNext()) {
+       InputListener temp = (InputListener) i.next();
+       temp.onInput(event);
+     }
+ 
+-    setText(&quot;&quot;);
+     this.resetIterator(false);
+ 
+     event.reset();
+
+Modified: rero/src/rero/gui/script/WindowOperators.java
+===================================================================
+--- rero/src/rero/gui/script/WindowOperators.java	2006-10-13 01:21:18 UTC (rev 83)
++++ rero/src/rero/gui/script/WindowOperators.java	2006-10-13 02:04:43 UTC (rev 84)
+@@ -332,18 +332,18 @@
+             session.getWindow(window).getInput().setIndent(text);
+          }
+       }
+-      else if (function.equals(&quot;&amp;setInputText&quot;))
++      else if (function.equals(&quot;&amp;refreshWindow&quot;))
+       {
+-         if (session.getWindow(window) != null)
++         if (session.getWindow(text) != null)
+          {
+-            session.getWindow(window).getInput().setText(text);
++            session.getWindow(text).touch();
+          }
+       }
+-      else if (function.equals(&quot;&amp;refreshWindow&quot;))
++      else if (function.equals(&quot;&amp;setInputText&quot;))
+       {
+-         if (session.getWindow(text) != null)
++         if (session.getWindow(window) != null)
+          {
+-            session.getWindow(text).touch();
++            session.getWindow(window).getInput().setText(text);
+          }
+       }
+    }
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	
+	<LI>Next message: <A HREF="000066.html">[Jircii-svn] r85 - in rero/src: . rero/util
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#65">[ date ]</a>
+              <a href="thread.html#65">[ thread ]</a>
+              <a href="subject.html#65">[ subject ]</a>
+              <a href="author.html#65">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/jircii-svn">More information about the Jircii-svn
+mailing list</a><br>
+</body></html>

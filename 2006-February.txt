@@ -1,0 +1,3828 @@
+From crazycoder at berlios.de  Mon Feb 13 00:03:22 2006
+From: crazycoder at berlios.de (crazycoder at BerliOS)
+Date: Mon, 13 Feb 2006 00:03:22 +0100
+Subject: [Jircii-svn] r64 - in rero: resources/resource resources/toplevel src/rero/config src/rero/gui src/rero/ircfw
+Message-ID: <200602122303.k1CN3MPx027744@sheep.berlios.de>
+
+Author: crazycoder
+Date: 2006-02-13 00:03:21 +0100 (Mon, 13 Feb 2006)
+New Revision: 64
+
+Modified:
+   rero/resources/resource/default.irc
+   rero/resources/toplevel/whatsnew.txt
+   rero/src/rero/config/ClientDefaults.java
+   rero/src/rero/gui/ClickableURLHandler.java
+   rero/src/rero/ircfw/InternalDataList.java
+Log:
+Bugfixes for BITCH 7013225, 7056241, 9936279
+
+Modified: rero/resources/resource/default.irc
+===================================================================
+--- rero/resources/resource/default.irc	2006-01-14 08:22:27 UTC (rev 63)
++++ rero/resources/resource/default.irc	2006-02-12 23:03:21 UTC (rev 64)
+@@ -94,14 +94,14 @@
+    {
+       return "\C26@\C29 $+ $3";
+    }
+-   else if ($1 isvoice $2) 
+-   {
+-      return "\C27+\C29 $+ $3";
+-   }
+    else if ($1 ishalfop $2)
+    {
+       return "\C28%\C29 $+ $3";
+    }
++   else if ($1 isvoice $2)
++   {
++      return "\C27+\C29 $+ $3";
++   }
+    else if ($1 hasmode $2)
+    {
+       return "\C26\B" . getModeFor($1, $2) . "\B\C29 $+ $3";
+@@ -503,14 +503,14 @@
+   {
+      $ime = "\B@\B $+ $me";
+   }
+-  else if ($me ishalfop $query) 
+-  {
+-     $ime = "\B%\B $+ $me";
+-  }
+   else if ($me isvoice $query) 
+   {
+      $ime = "\B+\B $+ $me";
+   }
++  else if ($me ishalfop $query)
++  {
++     $ime = "\B%\B $+ $me";
++  }
+   else
+   {
+      $ime = "$me";
+
+Modified: rero/resources/toplevel/whatsnew.txt
+===================================================================
+--- rero/resources/toplevel/whatsnew.txt	2006-01-14 08:22:27 UTC (rev 63)
++++ rero/resources/toplevel/whatsnew.txt	2006-02-12 23:03:21 UTC (rev 64)
+@@ -5,8 +5,10 @@
+   (oracel)
+ - Support for Unreal IRCD extended whois ('connecting from' & 'using modes')
+   (Serge)
++- Fix for http://jirc.hick.org/cgi-bin/bitch.cgi/view.html?7013225 (Serge)
++- Fix for http://jirc.hick.org/cgi-bin/bitch.cgi/view.html?7056241 (Serge)
++- Fix for http://jirc.hick.org/cgi-bin/bitch.cgi/view.html?9936279 (Serge)
+ 
+-
+ Beta    39 release 07.30.05
+ ====
+ - The find feature is now case insensitive (oracel)
+
+Modified: rero/src/rero/config/ClientDefaults.java
+===================================================================
+--- rero/src/rero/config/ClientDefaults.java	2006-01-14 08:22:27 UTC (rev 63)
++++ rero/src/rero/config/ClientDefaults.java	2006-02-12 23:03:21 UTC (rev 64)
+@@ -77,7 +77,7 @@
+ 
+    public static final boolean update_ial     = true;
+ 
+-   public static final String  version_string = "07.30.05";
++   public static final String  version_string = "02.13.06 (alpha)";
+ 
+    static
+    {
+
+Modified: rero/src/rero/gui/ClickableURLHandler.java
+===================================================================
+--- rero/src/rero/gui/ClickableURLHandler.java	2006-01-14 08:22:27 UTC (rev 63)
++++ rero/src/rero/gui/ClickableURLHandler.java	2006-02-12 23:03:21 UTC (rev 64)
+@@ -1,56 +1,46 @@
+ package rero.gui;
+ 
+-import rero.client.output.*;
++import rero.client.Feature;
++import rero.util.ClientUtils;
++import text.event.ClickEvent;
++import text.event.ClickListener;
+ 
+-import java.util.*;
++import java.util.regex.Matcher;
++import java.util.regex.Pattern;
+ 
+-import rero.ircfw.interfaces.ChatListener;
+-import rero.client.*;
+-import rero.gui.*;
+-
+-import rero.util.*;
+-
+-import rero.bridges.event.*;
+-
+-import text.event.*;
+-
+ public class ClickableURLHandler extends Feature implements ClickListener
+ {
++    private static final Pattern CHAN_PATTERN = Pattern.compile("[@+%]*(#.*)");
++
+     public void wordClicked(ClickEvent ev)
+     {
+         String item = ev.getClickedText().toLowerCase();
+ 
+-        if (item.matches("^\\(*(http|https|ftp)://.*"))
+-        {
++        if (item.matches("^\\(*(http|https|ftp)://.*")) {
+             ClientUtils.openURL(extractURL(ev.getClickedText()));
+             ev.consume();
+             ev.acknowledge();
+-        } else if (item.matches("^www\\..*"))
+-        {
++        } else if (item.matches("^www\\..*")) {
+             String location = extractURL(ev.getClickedText());
+             ClientUtils.openURL("http://" + location);
+             ev.consume();
+             ev.acknowledge();
+-        } else if (item.length() > 2 && ClientUtils.isChannel(item) && getCapabilities().isConnected() && !ev.getClickedText().endsWith("."))
+-        {
+-            getCapabilities().sendln("JOIN " + ev.getClickedText());
+-            ev.consume();
+-            ev.acknowledge();
+-        } else if (item.length() > 2 && ClientUtils.isChannel(item.substring(1, item.length())) && getCapabilities().isConnected())
+-        {
+-            getCapabilities().sendln("JOIN " + ev.getClickedText().substring(1, item.length() - 1));
+-            ev.consume();
+-            ev.acknowledge();
++        } else {
++            Matcher m = CHAN_PATTERN.matcher(ev.getClickedText());
++            if (m.matches()) {
++                String chan = m.group(1).trim();
++                getCapabilities().sendln("JOIN " + chan);
++                ev.consume();
++                ev.acknowledge();
++            }
+         }
+     }
+ 
+     private static String extractURL(String url)
+     {
+-        if (url.charAt(0) == '(')
+-        {
++        if (url.charAt(0) == '(') {
+             url = url.substring(1, url.length() - 1);
+         }
+-
+         return url;
+     }
+ 
+
+Modified: rero/src/rero/ircfw/InternalDataList.java
+===================================================================
+--- rero/src/rero/ircfw/InternalDataList.java	2006-01-14 08:22:27 UTC (rev 63)
++++ rero/src/rero/ircfw/InternalDataList.java	2006-02-12 23:03:21 UTC (rev 64)
+@@ -9,52 +9,55 @@
+          the bulk of this chore is handled by User List Info though.
+  */
+ 
+-import java.util.*;
+-
+-import rero.ircfw.data.GenericMode;
+ import rero.ircfw.interfaces.ChannelDataWatch;
+ 
++import java.util.*;
++
+ public class InternalDataList
+ {
+     protected String myNickname = "<Unknown>";
+     protected HashMap users = new HashMap(); /* key=<string>, value=<User> */
+     protected MyUser myInformation = new MyUser();
+     protected HashMap channels = new HashMap(); /* key=<string> value=<Channel> */
+-    protected HashMap sync     = new HashMap(); /* key=<string> value=<ChannelDataWatch> */
++    protected HashMap sync = new HashMap(); /* key=<string> value=<ChannelDataWatch> */
+ 
+-    protected HashMap wasOn    = new HashMap(); /* key=String value=Set hashmap containing nick->channel mappings for all users who quit.  Upon its first access though the value is removed. */
++    protected HashMap wasOn =
++        new HashMap(); /* key=String value=Set hashmap containing nick->channel mappings for all users who quit.  Upon its first access though the value is removed. */
+ 
+-    protected UserMode umode   = new UserMode("ohv", "@%+");
++    protected UserMode umode = new UserMode("ohv", "@%+");
+ 
+     protected HashMap iSupport = new HashMap();
+ 
+     public void reset()
+     {
+-       myNickname    = "<Unknown>";
+-       users         = new HashMap();
+-       myInformation = new MyUser();
+-       channels      = new HashMap();
+-       umode         = new UserMode("ohv", "@%+");
+-       iSupport      = new HashMap();
++        myNickname = "<Unknown>";
++        users = new HashMap();
++        myInformation = new MyUser();
++        channels = new HashMap();
++        umode = new UserMode("ohv", "@%+");
++        iSupport = new HashMap();
+     }
+ 
+     public Set getChannelsFromPriorLife(String nick)
+     {
+-       Set temp = (Set)wasOn.get(nick);
+-       wasOn.remove(temp);
+-       return temp;
++        Set temp = (Set) wasOn.get(nick);
++        wasOn.remove(temp);
++        return temp;
+     }
+ 
+     public HashMap getSupportInfo() { return iSupport; }
++
+     public void addSupportInfo(String key, String value) { iSupport.put(key, value); }
+ 
+     public String getMyNick() { return myNickname; }
++
+     public User getMyUser() { return getUser(getMyNick()); }
+-    
++
+     public UserMode getPrefixInfo() { return umode; }
++
+     public void setPrefixInfo(String modes, String chars) { umode = new UserMode(modes, chars); }
+ 
+-    public void setMyNick(String n) { myNickname = n; }     
++    public void setMyNick(String n) { myNickname = n; }
+ 
+     public MyUser getMyUserInformation() { return myInformation; }
+ 
+@@ -65,174 +68,159 @@
+ 
+     public ChannelDataWatch getChannelDataWatch(Channel ch)
+     {
+-        return (ChannelDataWatch)sync.get(ch.getName().toUpperCase());
++        return (ChannelDataWatch) sync.get(ch.getName().toUpperCase());
+     }
+ 
+-    /************************************************************************/
+-  
++    /**
++     * ********************************************************************
++     */
++
+     public LinkedList nickCompleteAll(String pnick, String channel)
+     {
+-       LinkedList rv = new LinkedList();
++        LinkedList rv = new LinkedList();
+ 
+-       if (getChannel(channel) != null)
+-       {
+-          Set users = getChannel(channel).getAllUsers();
++        if (getChannel(channel) != null) {
++            Set users = getChannel(channel).getAllUsers();
+ 
+-          Iterator i = users.iterator();
+-          while (i.hasNext())
+-          {
+-             User temp = (User)i.next();
+-             if (temp.getNick().length() >= pnick.length())
+-             {
+-                if (temp.getNick().toLowerCase().substring(0, pnick.length()).equals(pnick.toLowerCase()))
+-                {
+-                   rv.addFirst(temp.getNick());
++            Iterator i = users.iterator();
++            while (i.hasNext()) {
++                User temp = (User) i.next();
++                if (temp.getNick().length() >= pnick.length()) {
++                    if (temp.getNick().toLowerCase().substring(0, pnick.length()).equals(pnick.toLowerCase())) {
++                        rv.addFirst(temp.getNick());
++                    } else
++                    if (temp.getNick().toLowerCase().indexOf(pnick.toLowerCase()) > -1 && (!temp.getNick().toLowerCase().equals(getMyNick().toLowerCase())))
++                    {
++                        rv.addLast(temp.getNick());
++                    }
+                 }
+-                else if (temp.getNick().toLowerCase().indexOf(pnick.toLowerCase()) > -1 && (!temp.getNick().toLowerCase().equals(getMyNick().toLowerCase())))
+-                {
+-                   rv.addLast(temp.getNick());
+-                }
+-             }
+-          }
+-       }
++            }
++        }
+ 
+-       rv.addLast(pnick);
++        rv.addLast(pnick);
+ 
+-       return rv;
++        return rv;
+     }
+ 
+     public String nickComplete(String pnick, String channel)
+     {
+-       if (getChannel(channel) == null)
+-       {
+-          return pnick;
+-       }
++        if (getChannel(channel) == null) {
++            return pnick;
++        }
+ 
+-       Set users = getChannel(channel).getAllUsers();
++        Set users = getChannel(channel).getAllUsers();
+ 
+-       if (isUser(pnick) && users.contains(getUser(pnick)))
+-       {
+-          return pnick;
+-       }
++        if (isUser(pnick) && users.contains(getUser(pnick))) {
++            return pnick;
++        }
+ 
+-       String possible = null;
++        String possible = null;
+ 
+-       Iterator i = users.iterator();
+-       while (i.hasNext())
+-       {
+-          User temp = (User)i.next();
+-          if (temp.getNick().length() >= pnick.length())
+-          {
+-             if (temp.getNick().toLowerCase().substring(0, pnick.length()).equals(pnick.toLowerCase()))
+-             {
+-                return temp.getNick();
+-             }
++        Iterator i = users.iterator();
++        while (i.hasNext()) {
++            User temp = (User) i.next();
++            if (temp.getNick().length() >= pnick.length()) {
++                if (temp.getNick().toLowerCase().substring(0, pnick.length()).equals(pnick.toLowerCase())) {
++                    return temp.getNick();
++                }
+ 
+-             if (temp.getNick().toLowerCase().indexOf(pnick.toLowerCase()) > -1 && (!temp.getNick().toLowerCase().equals(getMyNick().toLowerCase())))
+-             {
+-                possible = temp.getNick();
+-             }
+-          }
+-       }
++                if (temp.getNick().toLowerCase().indexOf(pnick.toLowerCase()) > -1 && (!temp.getNick().toLowerCase().equals(getMyNick().toLowerCase())))
++                {
++                    possible = temp.getNick();
++                }
++            }
++        }
+ 
+-       if (possible != null)
+-       {
+-          return possible;
+-       }
++        if (possible != null) {
++            return possible;
++        }
+ 
+-       return pnick;
++        return pnick;
+     }
+ 
+     public Collection getAllUsers()
+     {
+-       return users.values();
++        return users.values();
+     }
+ 
+     public String toString()
+     {
+-       return "[IDL for " + myNickname + " - users: " + users.size() + ", channels:  " + channels.size() + "]";
++        return "[IDL for " + myNickname + " - users: " + users.size() + ", channels:  " + channels.size() + "]";
+     }
+ 
+     public InternalDataList()
+     {
+-       /* probably don't need to do anything */
++        /* probably don't need to do anything */
+     }
+ 
+     public boolean isUser(String nickname)
+     {
+-       return (users.get(nickname) != null);
++        return (users.get(nickname) != null);
+     }
+ 
+     public User getUser(String nickname)
+     {
+-       if (users.get(nickname) == null)
+-       {
+-           users.put(nickname, new User(nickname));           
+-       }
+-       return (User)users.get(nickname);
++        if (users.get(nickname) == null) {
++            users.put(nickname, new User(nickname));
++        }
++        return (User) users.get(nickname);
+     }
+ 
+     public Set getUsersWithMode(String channel, char mode)
+     {
+-       return umode.getUsersWithMode(getChannel(channel), mode);
++        return umode.getUsersWithMode(getChannel(channel), mode);
+     }
+ 
+     public void QuitNick(String nickname)
+     {
+-       Channel temp;
++        Channel temp;
+ 
+-       Set oldchannels = new HashSet();
++        Set oldchannels = new HashSet();
+ 
+-       Iterator iter = (new LinkedList(getUser(nickname).getChannels())).iterator();
+-       while (iter.hasNext())
+-       {
+-           temp = (Channel)iter.next();
+-           RemoveUser(getUser(nickname), temp);
+-           oldchannels.add(temp.getName());
+-       }
++        Iterator iter = (new LinkedList(getUser(nickname).getChannels())).iterator();
++        while (iter.hasNext()) {
++            temp = (Channel) iter.next();
++            RemoveUser(getUser(nickname), temp);
++            oldchannels.add(temp.getName());
++        }
+ 
+-       wasOn.put(nickname, oldchannels);
++        wasOn.put(nickname, oldchannels);
+ 
+-       users.remove(nickname);
++        users.remove(nickname);
+     }
+ 
+     public void PartNick(String nickname, Channel channel)
+     {
+-       if (getMyNick().equals(nickname))
+-       {
+-          Iterator iter =  channel.getAllUsers().iterator();
+-          while (iter.hasNext())
+-          {
+-              User temp = (User)iter.next();
+-              temp.getChannelData().remove(channel);
++        if (getMyNick().equals(nickname)) {
++            Iterator iter = channel.getAllUsers().iterator();
++            while (iter.hasNext()) {
++                User temp = (User) iter.next();
++                temp.getChannelData().remove(channel);
+ 
+-              if (temp.getChannelData().size() == 0)
+-              {
+-                 users.remove(temp); // remove users who are no longer visible
+-              }
+-          }
++                if (temp.getChannelData().size() == 0) {
++                    users.remove(temp); // remove users who are no longer visible
++                }
++            }
+ 
+-          channel.getAllUsers().clear();
+-          channels.remove(channel.getName().toUpperCase());
+-       }
++            channel.getAllUsers().clear();
++            channels.remove(channel.getName().toUpperCase());
++        }
+ 
+-       RemoveUser(getUser(nickname), channel);
++        RemoveUser(getUser(nickname), channel);
+     }
+ 
+     public void JoinNick(String nickname, String channel)
+     {
+-       if (getMyNick().equals(nickname))
+-       {
+-          createChannel(channel);
+-       }
++        if (getMyNick().equals(nickname)) {
++            createChannel(channel);
++        }
+ 
+-       getUser(nickname).getChannelData().put(getChannel(channel), new Integer(0));      
+-       getChannel(channel).getAllUsers().add(getUser(nickname));
++        getUser(nickname).getChannelData().put(getChannel(channel), new Integer(0));
++        getChannel(channel).getAllUsers().add(getUser(nickname));
+ 
+-       if (getChannelDataWatch(getChannel(channel)) != null)
+-       {
+-          getChannelDataWatch(getChannel(channel)).userAdded(getUser(nickname));
+-       }
++        if (getChannelDataWatch(getChannel(channel)) != null) {
++            getChannelDataWatch(getChannel(channel)).userAdded(getUser(nickname));
++        }
+     }
+ 
+     public void ChangeNick(String oldnick, String newnick)
+@@ -242,36 +230,32 @@
+         // remove the user before the nick is changed in the data structure
+         Channel channel;
+ 
+-        Iterator iter =  temp.getChannels().iterator();
+-        while (iter.hasNext())
+-        {
+-            channel = (Channel)iter.next();
++        Iterator iter = temp.getChannels().iterator();
++        while (iter.hasNext()) {
++            channel = (Channel) iter.next();
+             channel.getAllUsers().remove(temp);
+         }
+-    
++
+         // change the nick in the data structure
+         users.remove(oldnick);
+ 
+-        temp.setNick(newnick);        
++        temp.setNick(newnick);
+ 
+         users.put(newnick, temp);
+ 
+         // re add the user to the channel data structure
+-        iter =  temp.getChannels().iterator();
+-        while (iter.hasNext())
+-        {
+-            channel = (Channel)iter.next();
++        iter = temp.getChannels().iterator();
++        while (iter.hasNext()) {
++            channel = (Channel) iter.next();
+             channel.getAllUsers().add(temp);
+ 
+-            if (getChannelDataWatch(channel) != null)
+-            {
+-               getChannelDataWatch(channel).userChanged();
++            if (getChannelDataWatch(channel) != null) {
++                getChannelDataWatch(channel).userChanged();
+             }
+         }
+-   
++
+         // change my nickname (if applicable)
+-        if (oldnick.equals(getMyNick()))
+-        {
++        if (oldnick.equals(getMyNick())) {
+             setMyNick(newnick);
+         }
+     }
+@@ -284,34 +268,39 @@
+     public void AddUser(String nickname, Channel channel)
+     {
+         int modes = 0;
+- 
+-        while (umode.isPrefixChar(nickname.charAt(0)))
+-        {
+-           modes    = umode.setMode(modes, umode.getModeForDisplay(nickname.charAt(0)));
+-           nickname = nickname.substring(1, nickname.length());
++
++        while (umode.isPrefixChar(nickname.charAt(0))) {
++            modes = umode.setMode(modes, umode.getModeForDisplay(nickname.charAt(0)));
++            nickname = nickname.substring(1, nickname.length());
+         }
+ 
+         User user = getUser(nickname);
+ 
+-        if (! user.getChannelData().containsKey(channel))
+-        {
+-           user.getChannelData().put(channel, new Integer(modes));
+-           channel.getAllUsers().add(user);
++        // @Serge: when user joins empty channel and obtains +o automatically, he's already present on this channel,
++        // (user.getChannelData().containsKey(channel) returns true on some networks), but without +o,
++        // so we need to update user's mode.
++        // Fix for: http://jirc.hick.org/cgi-bin/bitch.cgi/view.html?7013225
++        if (user.getChannelData().containsKey(channel)) {
++            // only put new mode if it's different
++            if (((Integer) user.getChannelData().get(channel)).intValue() != modes)
++                user.getChannelData().put(channel, new Integer(modes));
++        } else {
++            user.getChannelData().put(channel, new Integer(modes));
++            channel.getAllUsers().add(user);
+         }
+     }
+ 
+     public Channel getChannel(String channel)
+     {
+-        return (Channel)channels.get(channel.toUpperCase());
++        return (Channel) channels.get(channel.toUpperCase());
+     }
+ 
+     public void createChannel(String channel)
+     {
+         channels.put(channel.toUpperCase(), new Channel(channel));
+ 
+-        if (getChannelDataWatch(getChannel(channel)) != null)
+-        {
+-           getChannelDataWatch(getChannel(channel)).createChannel(getChannel(channel));
++        if (getChannelDataWatch(getChannel(channel)) != null) {
++            getChannelDataWatch(getChannel(channel)).createChannel(getChannel(channel));
+         }
+     }
+ 
+@@ -323,9 +312,8 @@
+     public void synchronizeUserPostChange(User user, Channel channel)
+     {
+         channel.getAllUsers().add(user);
+-        if (getChannelDataWatch(channel) != null)
+-        {
+-           getChannelDataWatch(channel).userChanged();
++        if (getChannelDataWatch(channel) != null) {
++            getChannelDataWatch(channel).userChanged();
+         }
+     }
+ 
+@@ -334,14 +322,12 @@
+         channel.getAllUsers().remove(user);
+         user.getChannelData().remove(channel);
+ 
+-        if (user.getChannelData().size() == 0)
+-        {
+-           users.remove(user);  
++        if (user.getChannelData().size() == 0) {
++            users.remove(user);
+         }
+ 
+-        if (getChannelDataWatch(channel) != null)
+-        {
+-           getChannelDataWatch(channel).userRemoved(user);
++        if (getChannelDataWatch(channel) != null) {
++            getChannelDataWatch(channel).userRemoved(user);
+         }
+     }
+ }
+
+
+
+From crazycoder at berlios.de  Mon Feb 13 01:43:58 2006
+From: crazycoder at berlios.de (crazycoder at BerliOS)
+Date: Mon, 13 Feb 2006 01:43:58 +0100
+Subject: [Jircii-svn] r65 - in rero: resources/toplevel src/rero/ircfw/data
+Message-ID: <200602130043.k1D0hwPl006800@sheep.berlios.de>
+
+Author: crazycoder
+Date: 2006-02-13 01:43:46 +0100 (Mon, 13 Feb 2006)
+New Revision: 65
+
+Modified:
+   rero/resources/toplevel/whatsnew.txt
+   rero/src/rero/ircfw/data/UserHostParser.java
+Log:
+Bugfixes for BITCH 3984134
+
+Modified: rero/resources/toplevel/whatsnew.txt
+===================================================================
+--- rero/resources/toplevel/whatsnew.txt	2006-02-12 23:03:21 UTC (rev 64)
++++ rero/resources/toplevel/whatsnew.txt	2006-02-13 00:43:46 UTC (rev 65)
+@@ -8,6 +8,7 @@
+ - Fix for http://jirc.hick.org/cgi-bin/bitch.cgi/view.html?7013225 (Serge)
+ - Fix for http://jirc.hick.org/cgi-bin/bitch.cgi/view.html?7056241 (Serge)
+ - Fix for http://jirc.hick.org/cgi-bin/bitch.cgi/view.html?9936279 (Serge)
++- Fix for http://jirc.hick.org/cgi-bin/bitch.cgi/view.html?3984134 (Serge)
+ 
+ Beta    39 release 07.30.05
+ ====
+
+Modified: rero/src/rero/ircfw/data/UserHostParser.java
+===================================================================
+--- rero/src/rero/ircfw/data/UserHostParser.java	2006-02-12 23:03:21 UTC (rev 64)
++++ rero/src/rero/ircfw/data/UserHostParser.java	2006-02-13 00:43:46 UTC (rev 65)
+@@ -12,7 +12,7 @@
+ 
+ public class UserHostParser extends DataEventAction implements FrameworkConstants
+ {
+-    protected static Pattern userHostPattern = Pattern.compile("(.*)=(.*)");
++    protected static Pattern userHostPattern = Pattern.compile("(.*?)=(.*)");
+ 
+     public boolean isEvent(HashMap data)
+     {
+
+
+
+From crazycoder at berlios.de  Mon Feb 13 02:40:00 2006
+From: crazycoder at berlios.de (crazycoder at BerliOS)
+Date: Mon, 13 Feb 2006 02:40:00 +0100
+Subject: [Jircii-svn] r66 - in rero: resources/toplevel src/rero/client/server
+Message-ID: <200602130140.k1D1e0oX023319@sheep.berlios.de>
+
+Author: crazycoder
+Date: 2006-02-13 02:39:54 +0100 (Mon, 13 Feb 2006)
+New Revision: 66
+
+Modified:
+   rero/resources/toplevel/whatsnew.txt
+   rero/src/rero/client/server/PerformOnConnect.java
+Log:
+Fix for BITCH 4487090
+
+Modified: rero/resources/toplevel/whatsnew.txt
+===================================================================
+--- rero/resources/toplevel/whatsnew.txt	2006-02-13 00:43:46 UTC (rev 65)
++++ rero/resources/toplevel/whatsnew.txt	2006-02-13 01:39:54 UTC (rev 66)
+@@ -9,6 +9,7 @@
+ - Fix for http://jirc.hick.org/cgi-bin/bitch.cgi/view.html?7056241 (Serge)
+ - Fix for http://jirc.hick.org/cgi-bin/bitch.cgi/view.html?9936279 (Serge)
+ - Fix for http://jirc.hick.org/cgi-bin/bitch.cgi/view.html?3984134 (Serge)
++- Fix for http://jirc.hick.org/cgi-bin/bitch.cgi/view.html?4487090 (Serge)
+ 
+ Beta    39 release 07.30.05
+ ====
+
+Modified: rero/src/rero/client/server/PerformOnConnect.java
+===================================================================
+--- rero/src/rero/client/server/PerformOnConnect.java	2006-02-13 00:43:46 UTC (rev 65)
++++ rero/src/rero/client/server/PerformOnConnect.java	2006-02-13 01:39:54 UTC (rev 66)
+@@ -1,120 +1,110 @@
+ package rero.client.server;
+ 
+-import rero.ircfw.interfaces.*;
+-import java.util.*;
+-
+-import rero.dialogs.server.*;
++import rero.client.DataStructures;
++import rero.client.Feature;
++import rero.client.script.ScriptManager;
++import rero.client.user.UserHandler;
++import rero.config.ClientState;
++import rero.config.StringList;
+ import rero.dck.items.NetworkSelect;
++import rero.dialogs.server.Server;
++import rero.dialogs.server.ServerData;
++import rero.ircfw.interfaces.ChatListener;
+ 
+-import rero.config.*;
++import java.util.HashMap;
++import java.util.Iterator;
+ 
+-import rero.util.*;
+-import rero.client.user.*;
+-import rero.client.*;
+-
+-import rero.client.script.*;
+-
+-import rero.net.*;
+-
+-/** temporary listener to halt /list replies that don't match our criteria **/
++/**
++ * temporary listener to halt /list replies that don't match our criteria *
++ */
+ public class PerformOnConnect extends Feature implements ChatListener
+ {
+-   UserHandler user;
+-   String      network; // just in case...
+-   boolean     newConnect = false;
++    UserHandler user;
++    String network; // just in case...
++    boolean newConnect = false;
+ 
+-   public void init()
+-   {
+-      user = (UserHandler)getCapabilities().getDataStructure(DataStructures.UserHandler);
+-      getCapabilities().addChatListener(this);
+-   }
++    public void init()
++    {
++        user = (UserHandler) getCapabilities().getDataStructure(DataStructures.UserHandler);
++        getCapabilities().addChatListener(this);
++    }
+ 
+-   public int fireChatEvent(HashMap eventDescription)
+-   {
+-      String event = (String)eventDescription.get("$event");
++    public int fireChatEvent(HashMap eventDescription)
++    {
++        String event = (String) eventDescription.get("$event");
+ 
+-         // perform on connect code, should be in its own class...
+-      if (event.equals("001"))
+-      {
+-         String[] temp = eventDescription.get("$parms").toString().split(" ");
++        // perform on connect code, should be in its own class...
++        if (event.equals("001")) {
++            String[] temp = eventDescription.get("$parms").toString().split(" ");
+ 
+-         if (temp.length >= 4)
+-         {
+-            getCapabilities().getSocketConnection().getSocketInformation().network = temp[3];
+-            network = temp[3];
+-         }
+-         else
+-         {
+-            getCapabilities().getSocketConnection().getSocketInformation().network = "";
+-            network = "";
+-         }
++            if (temp.length >= 4) {
++                getCapabilities().getSocketConnection().getSocketInformation().network = temp[3];
++                network = temp[3];
++            } else {
++                getCapabilities().getSocketConnection().getSocketInformation().network = "";
++                network = "";
++            }
+ 
+-         newConnect = true; // flag this as a new connection...
+-      }
+-      else if ((event.equals("376") || event.equals("422")) && newConnect) // 422 = no motd, 376 = end of /motd
+-      {
+-         if (ClientState.getClientState().isOption("perform.enabled", false))
+-         {
+-            Server myserver = ServerData.getServerData().getServerByName(getCapabilities().getSocketConnection().getSocketInformation().hostname);
+-            StringList actions;
++            newConnect = true; // flag this as a new connection...
++        } else if ((event.equals("376") || event.equals("422")) && newConnect) // 422 = no motd, 376 = end of /motd
++        {
++            if (ClientState.getClientState().isOption("perform.enabled", false)) {
++                Server myserver =
++                    ServerData.getServerData().getServerByName(getCapabilities().getSocketConnection().getSocketInformation().hostname);
++                StringList actions;
+ 
+-            if (myserver != null && !myserver.isRandom())
+-            { 
+-               getCapabilities().getSocketConnection().getSocketInformation().network = myserver.getNetwork();
+-               network = myserver.getNetwork(); 
+-            }
++                if (myserver != null && !myserver.isRandom()) {
++                    getCapabilities().getSocketConnection().getSocketInformation().network = myserver.getNetwork();
++                    network = myserver.getNetwork();
++                }
+ 
+-            if (ClientState.getClientState().getString("perform." + network.toLowerCase(), null) != null)
+-            {
+-               actions = ClientState.getClientState().getStringList("perform." + network.toLowerCase());
+-            }
+-            else if (ClientState.getClientState().getString("perform." + network, null) != null) 
+-            {
+-               // this is a hack to help users migrate their jIRCii perform settings...
++                if (ClientState.getClientState().getString("perform." + network.toLowerCase(), null) != null) {
++                    actions = ClientState.getClientState().getStringList("perform." + network.toLowerCase());
++                } else if (ClientState.getClientState().getString("perform." + network, null) != null) {
++                    // this is a hack to help users migrate their jIRCii perform settings...
+ 
+-               actions = ClientState.getClientState().getStringList("perform." + network);
++                    actions = ClientState.getClientState().getStringList("perform." + network);
++                } else {
++                    actions =
++                        ClientState.getClientState().getStringList("perform." + NetworkSelect.ALL_NETWORKS.toLowerCase());
++                }
++
++                Iterator ii = actions.getList().iterator();
++                while (ii.hasNext()) {
++                    String temp = ii.next().toString();
++                    processInput(temp);
++                }
+             }
+-            else
+-            {
+-               actions = ClientState.getClientState().getStringList("perform." + NetworkSelect.ALL_NETWORKS.toLowerCase());
+-            }
+ 
+-            Iterator ii = actions.getList().iterator();
+-            while (ii.hasNext())
+-            {
+-               String temp = ii.next().toString();
+-               processInput(temp);
++            //
++            // lets not interrupt the processing for "this" server...
++            //
++            if (rero.test.QuickConnect.IsQuickConnect()) {
++                user.processInput(rero.test.QuickConnect.GetInformation().getCommand());
+             }
+-         }
+ 
+-         //
+-         // lets not interrupt the processing for "this" server...
+-         //
+-         if (rero.test.QuickConnect.IsQuickConnect())
+-         {
+-            user.processInput(rero.test.QuickConnect.GetInformation().getCommand());
+-         }
++            newConnect = false; // our new connection status just expired...
++        }
++        return EVENT_DONE;
++    }
+ 
+-         newConnect = false; // our new connection status just expired...
+-      }
+-      return EVENT_DONE;
+-   }
++    public void processInput(String input)
++    {
++        // @Serge: ignore text, only process commands that start with slash
++        // Fix for: http://jirc.hick.org/cgi-bin/bitch.cgi/view.html?4487090
++        if (input.charAt(0) != '/') return;
++        String command;
++        if (input.indexOf('$') > -1) {
++            command =
++                ((ScriptManager) getCapabilities().getDataStructure(DataStructures.ScriptManager)).evalString("\"" + input + "\"");
++        } else {
++            command = input;
++        }
++        user.processInput(command);
++    }
+ 
+-   public void processInput(String input)
+-   {
+-      if (input.indexOf('$') > -1)
+-      {
+-         String command = ((ScriptManager)getCapabilities().getDataStructure(DataStructures.ScriptManager)).evalString("\"" + input + "\"");
+-         user.processInput(command);         
+-      }
+-      else
+-      {
+-         user.processInput(input);
+-      }
+-   }   
+-
+-   public boolean isChatEvent(String event, HashMap eventDescription)
+-   {
+-       return (event.equals("376") || event.equals("001") || event.equals("422")); /* end of /MOTD reply */
+-   }
++    public boolean isChatEvent(String event, HashMap eventDescription)
++    {
++        return (event.equals("376") || event.equals("001") || event.equals("422")); /* end of /MOTD reply */
++    }
+ }
+
+
+
+From crazycoder at berlios.de  Mon Feb 13 04:25:05 2006
+From: crazycoder at berlios.de (crazycoder at BerliOS)
+Date: Mon, 13 Feb 2006 04:25:05 +0100
+Subject: [Jircii-svn] r67 - in rero: resources/toplevel src/rero/client/server src/rero/ircfw/data
+Message-ID: <200602130325.k1D3P5cc022298@sheep.berlios.de>
+
+Author: crazycoder
+Date: 2006-02-13 04:24:40 +0100 (Mon, 13 Feb 2006)
+New Revision: 67
+
+Modified:
+   rero/resources/toplevel/whatsnew.txt
+   rero/src/rero/client/server/ProcessEvents.java
+   rero/src/rero/ircfw/data/ChannelUserWatch.java
+Log:
+Fix for BITCH 1912086
+
+Modified: rero/resources/toplevel/whatsnew.txt
+===================================================================
+--- rero/resources/toplevel/whatsnew.txt	2006-02-13 01:39:54 UTC (rev 66)
++++ rero/resources/toplevel/whatsnew.txt	2006-02-13 03:24:40 UTC (rev 67)
+@@ -10,6 +10,7 @@
+ - Fix for http://jirc.hick.org/cgi-bin/bitch.cgi/view.html?9936279 (Serge)
+ - Fix for http://jirc.hick.org/cgi-bin/bitch.cgi/view.html?3984134 (Serge)
+ - Fix for http://jirc.hick.org/cgi-bin/bitch.cgi/view.html?4487090 (Serge)
++- Fix for http://jirc.hick.org/cgi-bin/bitch.cgi/view.html?1912086 (Serge)
+ 
+ Beta    39 release 07.30.05
+ ====
+
+Modified: rero/src/rero/client/server/ProcessEvents.java
+===================================================================
+--- rero/src/rero/client/server/ProcessEvents.java	2006-02-13 01:39:54 UTC (rev 66)
++++ rero/src/rero/client/server/ProcessEvents.java	2006-02-13 03:24:40 UTC (rev 67)
+@@ -44,6 +44,7 @@
+              } */
+ 
+              output.fireSetTarget(eventDescription, channel, output.chooseSet(channel, "CHANNEL_TEXT", "CHANNEL_TEXT_INACTIVE"));
++             touchUser(nick, target);
+          }
+          else
+          {
+@@ -91,6 +92,7 @@
+          if (ClientUtils.isChannel(target))
+          {
+              output.fireSetTarget(eventDescription, channel, output.chooseSet(channel, "ACTION", "ACTION_INACTIVE"));
++             touchUser(nick, target);
+          }
+          else
+          {
+@@ -180,6 +182,7 @@
+       {
+          output.fireSetTarget(eventDescription, channel, "CHANNEL_TOPIC_CHANGED");
+          getCapabilities().getUserInterface().notifyWindow(channel);
++         touchUser(nick, target);
+       }
+       else if (event.equals("SIGNON"))
+       {
+@@ -479,4 +482,19 @@
+          return ChatListener.EVENT_DONE;
+       }
+    }
++
++    private void touchUser(String nick, String channel)
++    {
++        User user = ircData.getUser(nick);
++
++        boolean wasIdle = user.isIdle();
++
++        user.touch();
++
++        if (wasIdle && ircData.getChannel(channel) != null) {
++            ChannelDataWatch temp = ircData.getChannelDataWatch(ircData.getChannel(channel));
++            if (temp != null)
++                temp.userChanged();
++        }
++    }
+ }
+
+Modified: rero/src/rero/ircfw/data/ChannelUserWatch.java
+===================================================================
+--- rero/src/rero/ircfw/data/ChannelUserWatch.java	2006-02-13 01:39:54 UTC (rev 66)
++++ rero/src/rero/ircfw/data/ChannelUserWatch.java	2006-02-13 03:24:40 UTC (rev 67)
+@@ -64,18 +64,9 @@
+         }     
+         else if (event.equals("PRIVMSG"))
+         {
+-            User user = dataList.getUser(nick);
+-
+-            boolean wasIdle = user.isIdle();
+-
+-            user.touch();
+-
+-            if (wasIdle && dataList.getChannel(channel) != null)
+-            {
+-                ChannelDataWatch temp = dataList.getChannelDataWatch(dataList.getChannel(channel));
+-                if (temp != null)
+-                   temp.userChanged();
+-            }
++            // @Serge: code moved to ProcessEvents.java, where we can touch user not only on
++            // PRIVMSG, but also on ACTION and other events.
++            // Fix for: http://jirc.hick.org/cgi-bin/bitch.cgi/view.html?1912086
+         }
+     }
+ }
+
+
+
+From crazycoder at berlios.de  Mon Feb 13 08:30:03 2006
+From: crazycoder at berlios.de (crazycoder at BerliOS)
+Date: Mon, 13 Feb 2006 08:30:03 +0100
+Subject: [Jircii-svn] r68 - in rero: resources/toplevel src/rero/client/script
+Message-ID: <200602130730.k1D7U3qd024230@sheep.berlios.de>
+
+Author: crazycoder
+Date: 2006-02-13 08:29:50 +0100 (Mon, 13 Feb 2006)
+New Revision: 68
+
+Modified:
+   rero/resources/toplevel/whatsnew.txt
+   rero/src/rero/client/script/ScriptManager.java
+Log:
+Fix for BITCH 8618918
+
+Modified: rero/resources/toplevel/whatsnew.txt
+===================================================================
+--- rero/resources/toplevel/whatsnew.txt	2006-02-13 03:24:40 UTC (rev 67)
++++ rero/resources/toplevel/whatsnew.txt	2006-02-13 07:29:50 UTC (rev 68)
+@@ -5,12 +5,18 @@
+   (oracel)
+ - Support for Unreal IRCD extended whois ('connecting from' & 'using modes')
+   (Serge)
++- Fix for http://jirc.hick.org/cgi-bin/bitch.cgi/view.html?8300256 (Serge)
+ - Fix for http://jirc.hick.org/cgi-bin/bitch.cgi/view.html?7013225 (Serge)
+ - Fix for http://jirc.hick.org/cgi-bin/bitch.cgi/view.html?7056241 (Serge)
+ - Fix for http://jirc.hick.org/cgi-bin/bitch.cgi/view.html?9936279 (Serge)
+ - Fix for http://jirc.hick.org/cgi-bin/bitch.cgi/view.html?3984134 (Serge)
+ - Fix for http://jirc.hick.org/cgi-bin/bitch.cgi/view.html?4487090 (Serge)
+ - Fix for http://jirc.hick.org/cgi-bin/bitch.cgi/view.html?1912086 (Serge)
++- Fix for http://jirc.hick.org/cgi-bin/bitch.cgi/view.html?8618918
++  If script file name is name.charset.irc or just name.charset, it will be
++  loaded in the specified charset.
++  List of valid charsets: http://www.iana.org/assignments/character-sets
++  (Serge)
+ 
+ Beta    39 release 07.30.05
+ ====
+
+Modified: rero/src/rero/client/script/ScriptManager.java
+===================================================================
+--- rero/src/rero/client/script/ScriptManager.java	2006-02-13 03:24:40 UTC (rev 67)
++++ rero/src/rero/client/script/ScriptManager.java	2006-02-13 07:29:50 UTC (rev 68)
+@@ -1,347 +1,373 @@
+ package rero.client.script;
+ 
+-import rero.client.*;
+-import rero.config.*;
+-import rero.script.*;
++import rero.client.DataStructures;
++import rero.client.Feature;
++import rero.config.ClientDefaults;
++import rero.config.ClientState;
++import rero.config.ClientStateListener;
++import rero.config.StringList;
++import rero.util.ClientUtils;
++import sleep.error.RuntimeWarningWatcher;
++import sleep.error.ScriptWarning;
++import sleep.error.SyntaxError;
++import sleep.error.YourCodeSucksException;
++import sleep.runtime.ScriptInstance;
++import sleep.runtime.ScriptLoader;
+ 
+-import rero.util.*;
+-
+-import sleep.error.*;
+-import sleep.runtime.*;
+-
+-import java.io.*;
++import java.io.File;
++import java.io.IOException;
+ import java.util.*;
++import java.util.regex.Matcher;
++import java.util.regex.Pattern;
++import java.nio.charset.Charset;
+ 
+ public class ScriptManager extends Feature implements ClientStateListener, RuntimeWarningWatcher
+ {
+-   protected ScriptLoader loader;
+-   protected Hashtable    environment; // shared environment...
+-   protected boolean      lock     = false;
++    protected ScriptLoader loader;
++    protected Hashtable environment; // shared environment...
++    protected boolean lock = false;
+ 
+-   private static boolean SILENT   = false;  // for /reload mainly...
++    private static boolean SILENT = false;  // for /reload mainly...
+ 
+-   public void init()
+-   {
+-      loader      = (ScriptLoader)getCapabilities().getDataStructure(DataStructures.ScriptLoader);
+-      environment = (Hashtable)getCapabilities().getDataStructure(DataStructures.SharedEnv);
++    public void init()
++    {
++        loader = (ScriptLoader) getCapabilities().getDataStructure(DataStructures.ScriptLoader);
++        environment = (Hashtable) getCapabilities().getDataStructure(DataStructures.SharedEnv);
+ 
+-      ClientState.getClientState().addClientStateListener("script.files", this);
+-   }
++        ClientState.getClientState().addClientStateListener("script.files", this);
++    }
+ 
+-   public void storeDataStructures(WeakHashMap data)
+-   {
+-      data.put(DataStructures.ScriptManager, this);
+-   }
++    public void storeDataStructures(WeakHashMap data)
++    {
++        data.put(DataStructures.ScriptManager, this);
++    }
+ 
+-   public void hashScripts()
+-   {
+-      if (lock) 
+-         return;
++    public void hashScripts()
++    {
++        if (lock)
++            return;
+ 
+-      Set unload, load, configured;
++        Set unload, load, configured;
+ 
+-      configured = new LinkedHashSet();
+-      configured.addAll(ClientState.getClientState().getStringList("script.files").getList());
++        configured = new LinkedHashSet();
++        configured.addAll(ClientState.getClientState().getStringList("script.files").getList());
+ 
+-      load   = loader.getScriptsToLoad(configured);
+-      unload = loader.getScriptsToUnload(configured);
++        load = loader.getScriptsToLoad(configured);
++        unload = loader.getScriptsToUnload(configured);
+ 
+-      load.remove("menus");   
+-      load.remove("default");
+-      load.remove("lame");
++        load.remove("menus");
++        load.remove("default");
++        load.remove("lame");
+ 
+-      unload.remove("menus");   
+-      unload.remove("lame");   
+-      unload.remove("default");
++        unload.remove("menus");
++        unload.remove("lame");
++        unload.remove("default");
+ 
+-      Iterator i = unload.iterator();
+-      while (i.hasNext())
+-      {
+-         String tt = (String)i.next();
+-         loader.unloadScript(tt);
++        Iterator i = unload.iterator();
++        while (i.hasNext()) {
++            String tt = (String) i.next();
++            loader.unloadScript(tt);
+ 
+-         if (ClientState.getClientState().isOption("script.verboseLoad", ClientDefaults.script_verboseLoad))
+-         {
+-            getCapabilities().getUserInterface().printStatus("Successfully unloaded script " + tt);
+-         }
+-      }
++            if (ClientState.getClientState().isOption("script.verboseLoad", ClientDefaults.script_verboseLoad)) {
++                getCapabilities().getUserInterface().printStatus("Successfully unloaded script " + tt);
++            }
++        }
+ 
+-      i = load.iterator();
+-      while (i.hasNext())
+-      {
+-         String tt = (String)i.next();
+-         if (!loader.isLoaded(tt))
+-         {   
+-            internalScriptLoad(tt); // this check is overly redundant, however if a script loads a script while this operation is
+-                                    // taking place things will have the potential to break, never any fun
+-         }
+-      }
+-   }
++        i = load.iterator();
++        while (i.hasNext()) {
++            String tt = (String) i.next();
++            if (!loader.isLoaded(tt)) {
++                internalScriptLoad(tt); // this check is overly redundant, however if a script loads a script while this operation is
++                // taking place things will have the potential to break, never any fun
++            }
++        }
++    }
+ 
+-   public void loadTheme(String filename)
+-   {
+-      filename = ClientUtils.getFile(filename).getAbsolutePath();
++    public void loadTheme(String filename)
++    {
++        filename = ClientUtils.getFile(filename).getAbsolutePath();
+ 
+-      if ((new File(filename)).exists())
+-      {
+-         internalScriptLoad(filename);
+-         loader.unloadScript(filename);
+-      }
+-      else
+-      {
+-         getCapabilities().getUserInterface().printStatus("Error loading script: " + new File(filename).getAbsolutePath() + " does not exist");
+-      }
+-   }
++        if ((new File(filename)).exists()) {
++            internalScriptLoad(filename);
++            loader.unloadScript(filename);
++        } else {
++            getCapabilities().getUserInterface().printStatus("Error loading script: " + new File(filename).getAbsolutePath() + " does not exist");
++        }
++    }
+ 
+-   public void addScript(String filename)
+-   {
+-      filename = ClientUtils.getFile(filename).getAbsolutePath();
++    public void addScript(String filename)
++    {
++        filename = ClientUtils.getFile(filename).getAbsolutePath();
+ 
+-      if ((new File(filename)).exists())
+-      {
+-         StringList temp = ClientState.getClientState().getStringList("script.files");
+-         String     fn   = ClientUtils.getFile(filename).getAbsolutePath();
++        if ((new File(filename)).exists()) {
++            StringList temp = ClientState.getClientState().getStringList("script.files");
++            String fn = ClientUtils.getFile(filename).getAbsolutePath();
+ 
+-         if (!temp.getList().contains(fn))
+-         {
+-            temp.add(fn);
+-            temp.save();
+-            ClientState.getClientState().sync();
+-         }
+-         else
+-         {
+-            getCapabilities().getUserInterface().printStatus("Script file " + fn + " is already loaded.  Grabbing a beer instead");
+-         }
+-      }
+-      else
+-      {
+-         getCapabilities().getUserInterface().printStatus("Error loading script: " + new File(filename).getAbsolutePath() + " does not exist");
+-      }
+-   }
++            if (!temp.getList().contains(fn)) {
++                temp.add(fn);
++                temp.save();
++                ClientState.getClientState().sync();
++            } else {
++                getCapabilities().getUserInterface().printStatus("Script file " + fn + " is already loaded.  Grabbing a beer instead");
++            }
++        } else {
++            getCapabilities().getUserInterface().printStatus("Error loading script: " + new File(filename).getAbsolutePath() + " does not exist");
++        }
++    }
+ 
+-   public void evalScript(String code)
+-   {
+-      try
+-      {
+-         getCapabilities().getUserInterface().printActive(((ScriptInstance)loader.getScripts().getFirst()).getScriptEnvironment().evaluateExpression(code).toString()); 
+-      }
+-      catch (YourCodeSucksException ex)
+-      {
+-         formatCodeException("/eval input", ex);
+-      }
+-   }
++    public void evalScript(String code)
++    {
++        try {
++            getCapabilities().getUserInterface().printActive(((ScriptInstance) loader.getScripts().getFirst()).getScriptEnvironment().evaluateExpression(code).toString());
++        }
++        catch (YourCodeSucksException ex) {
++            formatCodeException("/eval input", ex);
++        }
++    }
+ 
+-   public String evalString(String code)
+-   {
+-      try
+-      {
+-         return ((ScriptInstance)loader.getScripts().getFirst()).getScriptEnvironment().evaluateExpression(code).toString(); 
+-      }
+-      catch (YourCodeSucksException ex)
+-      {
+-         formatCodeException("/eval input", ex);
+-      }
+-      return code;
+-   }
++    public String evalString(String code)
++    {
++        try {
++            return ((ScriptInstance) loader.getScripts().getFirst()).getScriptEnvironment().evaluateExpression(code).toString();
++        }
++        catch (YourCodeSucksException ex) {
++            formatCodeException("/eval input", ex);
++        }
++        return code;
++    }
+ 
+-   public void reloadScript(String filename)
+-   {
+-      boolean flag = true;
++    public void reloadScript(String filename)
++    {
++        boolean flag = true;
+ 
+-      Iterator i = findScripts(filename, ClientState.getClientState().getStringList("script.files").getList()).iterator();
+-      while (i.hasNext())
+-      {
+-         flag = false;
++        Iterator i =
++            findScripts(filename, ClientState.getClientState().getStringList("script.files").getList()).iterator();
++        while (i.hasNext()) {
++            flag = false;
+ 
+-         String scriptf = (String)i.next();
++            String scriptf = (String) i.next();
+ 
+ //         if (ClientState.getClientState().isOption("script.verboseLoad", ClientDefaults.script_verboseLoad))
+ //         {
+ //            getCapabilities().getUserInterface().printStatus("Attempting to reload script " + scriptf);
+ //         }
+ 
+-         removeScript(scriptf);
+-         addScript(scriptf);
++            removeScript(scriptf);
++            addScript(scriptf);
+ //         loader.unloadScript(scriptf);
+ //         internalScriptLoad(scriptf);        
+-      }
++        }
+ 
+-      if (flag)
+-         getCapabilities().getUserInterface().printStatus("Error (re)loading script: " + filename + " isn't loaded");
+-   }
++        if (flag)
++            getCapabilities().getUserInterface().printStatus("Error (re)loading script: " + filename + " isn't loaded");
++    }
+ 
+-   private LinkedList findScripts(String filename, LinkedList theList)
+-   {
+-      LinkedList goodBye = new LinkedList();
++    private LinkedList findScripts(String filename, LinkedList theList)
++    {
++        LinkedList goodBye = new LinkedList();
+ 
+-      Iterator i = theList.iterator();
+-      while (i.hasNext())
+-      {
+-         File temp = new File((String)i.next());
+-         if (temp.getName().equals(filename) || temp.getAbsolutePath().equals(filename))
+-         {
+-            goodBye.add(temp.getAbsolutePath());
+-         }
+-      }
++        Iterator i = theList.iterator();
++        while (i.hasNext()) {
++            File temp = new File((String) i.next());
++            if (temp.getName().equals(filename) || temp.getAbsolutePath().equals(filename)) {
++                goodBye.add(temp.getAbsolutePath());
++            }
++        }
+ 
+-      return goodBye;
+-   }
++        return goodBye;
++    }
+ 
+-   public void removeScript(String filename)
+-   {
+-      StringList temp = ClientState.getClientState().getStringList("script.files");
+-      Iterator i      = findScripts(filename, temp.getList()).iterator();
++    public void removeScript(String filename)
++    {
++        StringList temp = ClientState.getClientState().getStringList("script.files");
++        Iterator i = findScripts(filename, temp.getList()).iterator();
+ 
+-      while (i.hasNext())
+-      {
+-         String remMe = (String)i.next();
+-         temp.remove(remMe);
+-      }
++        while (i.hasNext()) {
++            String remMe = (String) i.next();
++            temp.remove(remMe);
++        }
+ 
+-      temp.save();
+-      ClientState.getClientState().sync(); // this will cause all the script values to be rehashed...
+-   }
++        temp.save();
++        ClientState.getClientState().sync(); // this will cause all the script values to be rehashed...
++    }
+ 
+-   private static boolean lame = true;
++    private static boolean lame = true;
+ 
+-   public void loadLameScripts()
+-   {
+-      try
+-      {
+-         if (lame)
+-         {
+-            ScriptInstance defaults = loader.loadScript("lame", ClientState.getClientState().getResourceAsStream("lame.irc"), environment);
++    public void loadLameScripts()
++    {
++        try {
++            if (lame) {
++                ScriptInstance defaults =
++                    loader.loadScript("lame", ClientState.getClientState().getResourceAsStream("lame.irc"), environment);
+ 
+-            defaults.addWarningWatcher(this);
+-            defaults.runScript();
++                defaults.addWarningWatcher(this);
++                defaults.runScript();
+ 
+-            lame = false;
+-         }
+-      }
+-      catch (Exception ex)
+-      {
++                lame = false;
++            }
++        }
++        catch (Exception ex) {
+ 
+-      }
+-   }
++        }
++    }
+ 
+-   public void loadScripts()
+-   {
+-      //
+-      // do other fun stuff... i.e. script loading and such
+-      //
+- 
+-      try
+-      {
+-         if (ClientState.getClientState().isOption("load.default", true))
+-         {
+-            long start = System.currentTimeMillis();
+-            ScriptInstance defaults = loader.loadScript("default", ClientState.getClientState().getResourceAsStream("default.irc"), environment);
++    public void loadScripts()
++    {
++        //
++        // do other fun stuff... i.e. script loading and such
++        //
++
++        try {
++            if (ClientState.getClientState().isOption("load.default", true)) {
++                long start = System.currentTimeMillis();
++                ScriptInstance defaults =
++                    loader.loadScript("default", ClientState.getClientState().getResourceAsStream("default.irc"), environment);
+ //            System.out.println("Default script loaded in: " + (System.currentTimeMillis() - start));
+ 
+-            defaults.addWarningWatcher(this);
+-            defaults.runScript();
+-         }
++                defaults.addWarningWatcher(this);
++                defaults.runScript();
++            }
+ 
+-         if (ClientState.getClientState().isOption("load.menus", true))
+-         {
+-            long start = System.currentTimeMillis();
+-            ScriptInstance defaults = loader.loadScript("menus", ClientState.getClientState().getResourceAsStream("menus.irc"), environment);
++            if (ClientState.getClientState().isOption("load.menus", true)) {
++                long start = System.currentTimeMillis();
++                ScriptInstance defaults =
++                    loader.loadScript("menus", ClientState.getClientState().getResourceAsStream("menus.irc"), environment);
+ //            System.out.println("Menu script loaded in: " + (System.currentTimeMillis() - start));
+ 
+-            defaults.addWarningWatcher(this);
+-            defaults.runScript();
+-         }
++                defaults.addWarningWatcher(this);
++                defaults.runScript();
++            }
+ 
+-         if (ClientState.getClientState().isOption("load.lame", false))
+-         {
+-            loadLameScripts();
+-         }
+-      }
+-      catch (YourCodeSucksException ex)
+-      {
+-         formatCodeException("<Internal Scripts>", ex);
+-      }
+-      catch (IOException ex)
+-      {
+-         ex.printStackTrace();
+-      }
++            if (ClientState.getClientState().isOption("load.lame", false)) {
++                loadLameScripts();
++            }
++        }
++        catch (YourCodeSucksException ex) {
++            formatCodeException("<Internal Scripts>", ex);
++        }
++        catch (IOException ex) {
++            ex.printStackTrace();
++        }
+ 
+-      Iterator i = ClientState.getClientState().getStringList("script.files").getList().iterator();
+-      while (i.hasNext())
+-      {
+-         internalScriptLoad((String)i.next());
+-      }
+-   }
++        Iterator i = ClientState.getClientState().getStringList("script.files").getList().iterator();
++        while (i.hasNext()) {
++            internalScriptLoad((String) i.next());
++        }
++    }
+ 
+-   public void propertyChanged(String name, String value)
+-   {
+-       hashScripts(); 
+-   }
++    public void propertyChanged(String name, String value)
++    {
++        hashScripts();
++    }
+ 
+-   private void internalScriptLoad(String scriptFile)
+-   {
+-      try
+-      {   
+-         ScriptInstance scripti = loader.loadScript(scriptFile, environment);
+-         scripti.addWarningWatcher(this);
++    private void internalScriptLoad(String scriptFile)
++    {
++        try {
++            String charset = guessCharsetFromFileName(scriptFile);
+ 
+-         if (ClientState.getClientState().isOption("script.verboseLoad", ClientDefaults.script_verboseLoad))
+-         {
+-            getCapabilities().getUserInterface().printStatus("Successfully loaded script " + new File(scriptFile).getName());
+-         }
++            // keep old conversion mode
++            boolean charsetConversions = loader.isCharsetConversions();
++            String oldcharset = loader.getCharset();
+ 
+-         scripti.runScript();
+-      }
+-      catch (YourCodeSucksException ex)
+-      {
+-         formatCodeException(scriptFile, ex);
++            // set charset to use when loading script
++            if (charset != null) {
++                loader.setCharsetConversion(true);
++                loader.setCharset(charset);
++            }
+ 
+-         lock = true;
+-         removeScript(scriptFile);
+-         lock = false;
+-      }
+-      catch (IOException ex2)
+-      {
+-         getCapabilities().getUserInterface().printStatus("Error loading "+(new File(scriptFile)).getName()+": " + ex2.getMessage());
+-      }      
+-      catch (Exception ex3)
+-      {
+-         getCapabilities().getUserInterface().printStatus("Error loading "+(new File(scriptFile)).getName()+": " + ex3.getMessage() + " <-- could be a sleep bug, please report :)");
+-         ex3.printStackTrace();
+-      }
+-   }
++            ScriptInstance scripti = loader.loadScript(scriptFile, environment);
+ 
+-   public void processScriptWarning(ScriptWarning warn)
+-   {
+-      if (! ClientState.getClientState().isOption("script.ignoreWarnings", ClientDefaults.script_ignoreWarnings))
+-      {
+-          String[] temp = warn.getMessage().split("\n");
++            // restore previous mode
++            if (charset != null) {
++                loader.setCharsetConversion(charsetConversions);
++                loader.setCharset(oldcharset);
++            }
+ 
+-          String fname = warn.getNameShort();
++            scripti.addWarningWatcher(this);
+ 
+-          getCapabilities().getUserInterface().printStatus("*** Script Warning: " + temp[0] + " at " + fname + ":" + warn.getLineNumber());
++            if (ClientState.getClientState().isOption("script.verboseLoad", ClientDefaults.script_verboseLoad)) {
++                getCapabilities().getUserInterface().printStatus("Successfully loaded script " + new File(scriptFile).getName());
++            }
+ 
+-          for (int x = 1; x < temp.length; x++)
+-          {
+-             getCapabilities().getUserInterface().printStatus("     " + temp[x]);
+-          }
+-      }
+-   }
++            scripti.runScript();
++        }
++        catch (YourCodeSucksException ex) {
++            formatCodeException(scriptFile, ex);
+ 
+-   private void formatCodeException(String scriptFile, YourCodeSucksException ex)
+-   {
+-      getCapabilities().getUserInterface().printStatus("*** " + ex.getErrors().size() + " error(s) loading " + scriptFile);
++            lock = true;
++            removeScript(scriptFile);
++            lock = false;
++        }
++        catch (IOException ex2) {
++            getCapabilities().getUserInterface().printStatus("Error loading " + (new File(scriptFile)).getName() + ": " + ex2.getMessage());
++        }
++        catch (Exception ex3) {
++            getCapabilities().getUserInterface().printStatus("Error loading " + (new File(scriptFile)).getName() + ": " + ex3.getMessage() + " <-- could be a sleep bug, please report :)");
++            ex3.printStackTrace();
++        }
++    }
+ 
+-      Iterator i = ex.getErrors().iterator();
+-      while (i.hasNext())
+-      {
+-         SyntaxError anError = (SyntaxError)i.next();
+-         getCapabilities().getUserInterface().printStatus("Error: " + anError.getDescription() + " at line " + anError.getLineNumber());
+-         getCapabilities().getUserInterface().printStatus("       " + anError.getCodeSnippet());
++    private static final Pattern ENCODING_IN_FILE = Pattern.compile(".*\\.(.*?)\\..*$");
++    private static final Pattern ENCODING_IN_EXTENSION = Pattern.compile(".*\\.(.*)$");
+ 
+-         if (anError.getMarker() != null)
+-            getCapabilities().getUserInterface().printStatus("       " + anError.getMarker());
+-      }
+-   }
++    /**
++     * Script file name may contain charset, like file.charset.irc, or just file.charset
++     *
++     * @param scriptFile file name
++     * @return valid charset if found in file name, null otherwise
++     */
++    private String guessCharsetFromFileName(String scriptFile)
++    {
++        File f = new File(scriptFile);
++        String name = f.getName();
++
++        Matcher mname = ENCODING_IN_FILE.matcher(name);
++        Matcher mext = ENCODING_IN_EXTENSION.matcher(name);
++
++        if (mname.matches() || mext.matches()) {
++            SortedMap charsets = Charset.availableCharsets();
++
++            if (mname.matches()) {
++                String charset = mname.group(1);
++                if (charsets.containsKey(charset))
++                    return charset;
++            } else {
++                String charset = mext.group(1);
++                if (charsets.containsKey(charset))
++                    return charset;
++            }
++        }
++        return null;
++    }
++
++    public void processScriptWarning(ScriptWarning warn)
++    {
++        if (! ClientState.getClientState().isOption("script.ignoreWarnings", ClientDefaults.script_ignoreWarnings)) {
++            String[] temp = warn.getMessage().split("\n");
++
++            String fname = warn.getNameShort();
++
++            getCapabilities().getUserInterface().printStatus("*** Script Warning: " + temp[0] + " at " + fname + ":" + warn.getLineNumber());
++
++            for (int x = 1; x < temp.length; x++) {
++                getCapabilities().getUserInterface().printStatus("     " + temp[x]);
++            }
++        }
++    }
++
++    private void formatCodeException(String scriptFile, YourCodeSucksException ex)
++    {
++        getCapabilities().getUserInterface().printStatus("*** " + ex.getErrors().size() + " error(s) loading " + scriptFile);
++
++        Iterator i = ex.getErrors().iterator();
++        while (i.hasNext()) {
++            SyntaxError anError = (SyntaxError) i.next();
++            getCapabilities().getUserInterface().printStatus("Error: " + anError.getDescription() + " at line " + anError.getLineNumber());
++            getCapabilities().getUserInterface().printStatus("       " + anError.getCodeSnippet());
++
++            if (anError.getMarker() != null)
++                getCapabilities().getUserInterface().printStatus("       " + anError.getMarker());
++        }
++    }
+ }
+ 
+
+
+
+From crazycoder at berlios.de  Mon Feb 13 08:48:19 2006
+From: crazycoder at berlios.de (crazycoder at BerliOS)
+Date: Mon, 13 Feb 2006 08:48:19 +0100
+Subject: [Jircii-svn] r69 - rero/src/rero/client/script
+Message-ID: <200602130748.k1D7mJ2H032157@sheep.berlios.de>
+
+Author: crazycoder
+Date: 2006-02-13 08:48:12 +0100 (Mon, 13 Feb 2006)
+New Revision: 69
+
+Modified:
+   rero/src/rero/client/script/ScriptManager.java
+Log:
+Fix for BITCH 8618918
+
+Modified: rero/src/rero/client/script/ScriptManager.java
+===================================================================
+--- rero/src/rero/client/script/ScriptManager.java	2006-02-13 07:29:50 UTC (rev 68)
++++ rero/src/rero/client/script/ScriptManager.java	2006-02-13 07:48:12 UTC (rev 69)
+@@ -309,6 +309,7 @@
+ 
+     private static final Pattern ENCODING_IN_FILE = Pattern.compile(".*\\.(.*?)\\..*$");
+     private static final Pattern ENCODING_IN_EXTENSION = Pattern.compile(".*\\.(.*)$");
++    private static SortedMap charsets = null;
+ 
+     /**
+      * Script file name may contain charset, like file.charset.irc, or just file.charset
+@@ -324,19 +325,19 @@
+         Matcher mname = ENCODING_IN_FILE.matcher(name);
+         Matcher mext = ENCODING_IN_EXTENSION.matcher(name);
+ 
+-        if (mname.matches() || mext.matches()) {
+-            SortedMap charsets = Charset.availableCharsets();
++        // lazy init
++        if (charsets == null) charsets = Charset.availableCharsets();
++        if (mname.matches()) {
++            String charset = mname.group(1);
++            if (charsets.containsKey(charset))
++                return charset;
++        }
++        if (mext.matches()) {
++            String charset = mext.group(1);
++            if (charsets.containsKey(charset))
++                return charset;
++        }
+ 
+-            if (mname.matches()) {
+-                String charset = mname.group(1);
+-                if (charsets.containsKey(charset))
+-                    return charset;
+-            } else {
+-                String charset = mext.group(1);
+-                if (charsets.containsKey(charset))
+-                    return charset;
+-            }
+-        }
+         return null;
+     }
+ 
+
+
+
+From crazycoder at berlios.de  Sat Feb 18 04:35:07 2006
+From: crazycoder at berlios.de (crazycoder at BerliOS)
+Date: Sat, 18 Feb 2006 04:35:07 +0100
+Subject: [Jircii-svn] r70 - in rero: resources/toplevel src/rero/gui
+Message-ID: <200602180335.k1I3Z7RC020599@sheep.berlios.de>
+
+Author: crazycoder
+Date: 2006-02-18 04:34:38 +0100 (Sat, 18 Feb 2006)
+New Revision: 70
+
+Modified:
+   rero/resources/toplevel/whatsnew.txt
+   rero/src/rero/gui/ClickableURLHandler.java
+Log:
+Fix for BITCH 4225366
+
+Modified: rero/resources/toplevel/whatsnew.txt
+===================================================================
+--- rero/resources/toplevel/whatsnew.txt	2006-02-13 07:48:12 UTC (rev 69)
++++ rero/resources/toplevel/whatsnew.txt	2006-02-18 03:34:38 UTC (rev 70)
+@@ -17,6 +17,7 @@
+   loaded in the specified charset.
+   List of valid charsets: http://www.iana.org/assignments/character-sets
+   (Serge)
++- Fix for http://jirc.hick.org/cgi-bin/bitch.cgi/view.html?4225366 (Serge)
+ 
+ Beta    39 release 07.30.05
+ ====
+
+Modified: rero/src/rero/gui/ClickableURLHandler.java
+===================================================================
+--- rero/src/rero/gui/ClickableURLHandler.java	2006-02-13 07:48:12 UTC (rev 69)
++++ rero/src/rero/gui/ClickableURLHandler.java	2006-02-18 03:34:38 UTC (rev 70)
+@@ -14,24 +14,27 @@
+ 
+     public void wordClicked(ClickEvent ev)
+     {
+-        String item = ev.getClickedText().toLowerCase();
++        int clickCount = ev.getEvent().getClickCount();
++        if (clickCount == 2) {
++            String item = ev.getClickedText().toLowerCase();
+ 
+-        if (item.matches("^\\(*(http|https|ftp)://.*")) {
+-            ClientUtils.openURL(extractURL(ev.getClickedText()));
+-            ev.consume();
+-            ev.acknowledge();
+-        } else if (item.matches("^www\\..*")) {
+-            String location = extractURL(ev.getClickedText());
+-            ClientUtils.openURL("http://" + location);
+-            ev.consume();
+-            ev.acknowledge();
+-        } else {
+-            Matcher m = CHAN_PATTERN.matcher(ev.getClickedText());
+-            if (m.matches()) {
+-                String chan = m.group(1).trim();
+-                getCapabilities().sendln("JOIN " + chan);
++            if (item.matches("^\\(*(http|https|ftp)://.*")) {
++                ClientUtils.openURL(extractURL(ev.getClickedText()));
+                 ev.consume();
+                 ev.acknowledge();
++            } else if (item.matches("^www\\..*")) {
++                String location = extractURL(ev.getClickedText());
++                ClientUtils.openURL("http://" + location);
++                ev.consume();
++                ev.acknowledge();
++            } else {
++                Matcher m = CHAN_PATTERN.matcher(ev.getClickedText());
++                if (m.matches()) {
++                    String chan = m.group(1).trim();
++                    getCapabilities().sendln("JOIN " + chan);
++                    ev.consume();
++                    ev.acknowledge();
++                }
+             }
+         }
+     }
+
+
+
+From crazycoder at berlios.de  Sat Feb 18 04:40:50 2006
+From: crazycoder at berlios.de (crazycoder at BerliOS)
+Date: Sat, 18 Feb 2006 04:40:50 +0100
+Subject: [Jircii-svn] r71 - in rero: resources/toplevel src/rero/config
+Message-ID: <200602180340.k1I3eoFe022720@sheep.berlios.de>
+
+Author: crazycoder
+Date: 2006-02-18 04:40:41 +0100 (Sat, 18 Feb 2006)
+New Revision: 71
+
+Modified:
+   rero/resources/toplevel/whatsnew.txt
+   rero/src/rero/config/ClientDefaults.java
+Log:
+Fix for BITCH 4225366
+
+Modified: rero/resources/toplevel/whatsnew.txt
+===================================================================
+--- rero/resources/toplevel/whatsnew.txt	2006-02-18 03:34:38 UTC (rev 70)
++++ rero/resources/toplevel/whatsnew.txt	2006-02-18 03:40:41 UTC (rev 71)
+@@ -17,7 +17,8 @@
+   loaded in the specified charset.
+   List of valid charsets: http://www.iana.org/assignments/character-sets
+   (Serge)
+-- Fix for http://jirc.hick.org/cgi-bin/bitch.cgi/view.html?4225366 (Serge)
++- Fix for http://jirc.hick.org/cgi-bin/bitch.cgi/view.html?4225366
++  Double click is now the default to open links and channels (Serge)
+ 
+ Beta    39 release 07.30.05
+ ====
+
+Modified: rero/src/rero/config/ClientDefaults.java
+===================================================================
+--- rero/src/rero/config/ClientDefaults.java	2006-02-18 03:34:38 UTC (rev 70)
++++ rero/src/rero/config/ClientDefaults.java	2006-02-18 03:40:41 UTC (rev 71)
+@@ -77,7 +77,7 @@
+ 
+    public static final boolean update_ial     = true;
+ 
+-   public static final String  version_string = "02.13.06 (alpha)";
++   public static final String  version_string = "02.18.06 (alpha)";
+ 
+    static
+    {
+
+
+
+From crazycoder at berlios.de  Sat Feb 18 21:08:00 2006
+From: crazycoder at berlios.de (crazycoder at BerliOS)
+Date: Sat, 18 Feb 2006 21:08:00 +0100
+Subject: [Jircii-svn] r72 - in rero: resources/toplevel src/rero/gui/script src/text
+Message-ID: <200602182008.k1IK80tr019269@sheep.berlios.de>
+
+Author: crazycoder
+Date: 2006-02-18 21:07:57 +0100 (Sat, 18 Feb 2006)
+New Revision: 72
+
+Added:
+   rero/src/rero/gui/script/WindowAreaClickListener.java
+Modified:
+   rero/resources/toplevel/whatsnew.txt
+   rero/src/rero/gui/script/UIScriptBridge.java
+   rero/src/rero/gui/script/WindowClickListener.java
+   rero/src/text/WrappedDisplay.java
+Log:
+Added cclick event and $clicks variable for all click events
+
+Modified: rero/resources/toplevel/whatsnew.txt
+===================================================================
+--- rero/resources/toplevel/whatsnew.txt	2006-02-18 03:40:41 UTC (rev 71)
++++ rero/resources/toplevel/whatsnew.txt	2006-02-18 20:07:57 UTC (rev 72)
+@@ -19,6 +19,9 @@
+   (Serge)
+ - Fix for http://jirc.hick.org/cgi-bin/bitch.cgi/view.html?4225366
+   Double click is now the default to open links and channels (Serge)
++- cclick event, fired when user clicks on empty channel window area.
++  $item is set to window name, $clicks is set to number of clicks (Serge)
++- $clicks variable added for all click events (Serge)
+ 
+ Beta    39 release 07.30.05
+ ====
+
+Modified: rero/src/rero/gui/script/UIScriptBridge.java
+===================================================================
+--- rero/src/rero/gui/script/UIScriptBridge.java	2006-02-18 03:40:41 UTC (rev 71)
++++ rero/src/rero/gui/script/UIScriptBridge.java	2006-02-18 20:07:57 UTC (rev 72)
+@@ -1,91 +1,90 @@
+ package rero.gui.script;
+ 
+-import rero.gui.*;
+-import rero.gui.windows.*;
++import rero.bridges.event.EventBridge;
++import rero.gui.IRCSession;
++import rero.gui.windows.ChannelWindow;
++import rero.gui.windows.ClientWindowEvent;
++import rero.gui.windows.EmptyWindow;
++import rero.gui.windows.StatusWindow;
+ 
+-import rero.client.*;
+-import rero.bridges.event.*;
++public class UIScriptBridge {
++  protected IRCSession session;
+ 
+-import javax.swing.*;
++  protected WindowStateListener windowState;       // dispatches window state related events (on close,open,minimize etc.)
++  protected WindowDataListener windowData;        // dispatches the "on window" event for text being echo'd to a window
++  protected WindowClickListener windowClick;       // handles the "on click" event for text being clicked on in a window...
++  protected WindowClickListener windowDoubleClick; // handles the "on dclick" event for text being (double) clicked on in a listbox...
++  protected WindowClickListener windowSpecialClick; // handles the "on sclick" event for text being (double) clicked on in a special window
++  protected WindowInputListener windowInput;       // handles the "on input" event
+ 
+-import text.*;
+-import text.list.*;
++  protected WindowAreaClickListener areaClickListener;       // handles double clicks for empty channel areas
+ 
+-public class UIScriptBridge
+-{
+-   protected IRCSession          session;
++  protected SessionOperators sessionOps;
+ 
+-   protected WindowStateListener windowState;       // dispatches window state related events (on close,open,minimize etc.)
+-   protected WindowDataListener  windowData;        // dispatches the "on window" event for text being echo'd to a window 
+-   protected WindowClickListener windowClick;       // handles the "on click" event for text being clicked on in a window...
+-   protected WindowClickListener windowDoubleClick; // handles the "on dclick" event for text being (double) clicked on in a listbox...
+-   protected WindowClickListener windowSpecialClick; // handles the "on sclick" event for text being (double) clicked on in a special window
+-   protected WindowInputListener windowInput;       // handles the "on input" event
++  protected WindowOperators windowOps;         // functions related to windows specifically
++  protected WindowManagementOperators windowMgmt;        // functions related to windows specifically
+ 
+-   protected SessionOperators    sessionOps;
++  protected UIOperators interfaceOps;
+ 
+-   protected WindowOperators     windowOps;         // functions related to windows specifically
+-   protected WindowManagementOperators     windowMgmt;        // functions related to windows specifically
++  public UIScriptBridge(IRCSession _session) {
++    session = _session;
+ 
+-   protected UIOperators         interfaceOps;
++    EventBridge bridge = (EventBridge) session.getCapabilities().getDataStructure("eventBridge");
+ 
+-   public UIScriptBridge(IRCSession _session)
+-   {
+-       session = _session;
++    windowState = new WindowStateListener(session);
++    windowState.registerListener(bridge);
+ 
+-       EventBridge bridge = (EventBridge)session.getCapabilities().getDataStructure("eventBridge");
++    windowData = new WindowDataListener(session.getCapabilities().getUserInterface());
++    bridge.registerEvent("window", windowData);
+ 
+-       windowState = new WindowStateListener(session);
+-       windowState.registerListener(bridge);
++    windowClick = new WindowClickListener();
++    bridge.registerEvent("click", windowClick);
+ 
+-       windowData  = new WindowDataListener(session.getCapabilities().getUserInterface());
+-       bridge.registerEvent("window", windowData);       
++    windowDoubleClick = new WindowClickListener();
++    bridge.registerEvent("dclick", windowDoubleClick);
+ 
+-       windowClick = new WindowClickListener();
+-       bridge.registerEvent("click", windowClick);
++    areaClickListener = new WindowAreaClickListener();
++    bridge.registerEvent("cclick", areaClickListener);
+ 
+-       windowDoubleClick = new WindowClickListener();
+-       bridge.registerEvent("dclick", windowDoubleClick);
++    windowSpecialClick = new WindowClickListener();
++    bridge.registerEvent("sclick", windowSpecialClick);
+ 
+-       windowSpecialClick = new WindowClickListener();
+-       bridge.registerEvent("sclick", windowSpecialClick);
++    windowInput = new WindowInputListener();
++    bridge.registerEvent("input", windowInput);
+ 
+-       windowInput = new WindowInputListener();
+-       bridge.registerEvent("input", windowInput);
++    windowOps = new WindowOperators(session);
++    session.getCapabilities().getScriptCore().addBridge(windowOps);
+ 
+-       windowOps = new WindowOperators(session);
+-       session.getCapabilities().getScriptCore().addBridge(windowOps);
++    windowMgmt = new WindowManagementOperators(session);
++    session.getCapabilities().getScriptCore().addBridge(windowMgmt);
+ 
+-       windowMgmt = new WindowManagementOperators(session);
+-       session.getCapabilities().getScriptCore().addBridge(windowMgmt);
++    sessionOps = new SessionOperators(session);
++    session.getCapabilities().getScriptCore().addBridge(sessionOps);
+ 
+-       sessionOps = new SessionOperators(session);
+-       session.getCapabilities().getScriptCore().addBridge(sessionOps);
++    interfaceOps = new UIOperators(session);
++    session.getCapabilities().getScriptCore().addBridge(interfaceOps);
++  }
+ 
+-       interfaceOps = new UIOperators(session);
+-       session.getCapabilities().getScriptCore().addBridge(interfaceOps);
+-   }
++  /**
++   * called to notify the scripting bridge that a window has been created, this is for listeners and such to get
++   * registered
++   */
++  public void windowCreated(final StatusWindow window) {
++    window.getWindow().addWindowListener(windowState);
+ 
+-   /** called to notify the scripting bridge that a window has been created, this is for listeners and such to get registered */
+-   public void windowCreated(final StatusWindow window)
+-   {
+-       window.getWindow().addWindowListener(windowState);
++    if (window.isLegalWindow()) {
++      window.getDisplay().addClickListener(windowClick);
++      window.getDisplay().addClickListener(areaClickListener);
++      window.getInput().addInputListener(windowInput);
+ 
+-       if (window.isLegalWindow())
+-       {
+-          window.getDisplay().addClickListener(windowClick);
+-          window.getInput().addInputListener(windowInput);
++      if (window instanceof ChannelWindow) {
++        ((ChannelWindow) window).addClickListener(windowDoubleClick);
++      }
++    } else {
++      ((EmptyWindow) window).addClickListener(windowSpecialClick);
++    }
+ 
+-          if (window instanceof ChannelWindow)
+-          {
+-             ((ChannelWindow)window).addClickListener(windowDoubleClick);
+-          }
+-       }
+-       else
+-       {
+-          ((EmptyWindow)window).addClickListener(windowSpecialClick);
+-       }
+-   
+-       windowState.onOpen(new ClientWindowEvent(window.getWindow())); // fake out the scripting saying "the window has opened"
+-   }
++    windowState
++      .onOpen(new ClientWindowEvent(window.getWindow())); // fake out the scripting saying "the window has opened"
++  }
+ }
+
+Added: rero/src/rero/gui/script/WindowAreaClickListener.java
+===================================================================
+--- rero/src/rero/gui/script/WindowAreaClickListener.java	2006-02-18 03:40:41 UTC (rev 71)
++++ rero/src/rero/gui/script/WindowAreaClickListener.java	2006-02-18 20:07:57 UTC (rev 72)
+@@ -0,0 +1,31 @@
++package rero.gui.script;
++
++import rero.bridges.event.ScriptedEventListener;
++import rero.ircfw.interfaces.ChatListener;
++import text.event.ClickEvent;
++import text.event.ClickListener;
++
++import java.util.HashMap;
++import java.awt.event.MouseEvent;
++
++/**
++ * Event listener class that handles double clicks on empty channel area
++ */
++public class WindowAreaClickListener extends ScriptedEventListener implements ClickListener {
++  public void wordClicked(ClickEvent ev) {
++    MouseEvent event = ev.getEvent();
++
++    HashMap eventData = new HashMap();
++    eventData.put("$item", ev.getContext());
++    eventData.put("$mouse", event.paramString());
++    eventData.put("$clicks", new Integer(event.getClickCount()).toString());
++
++    if (dispatchEvent(eventData) == ChatListener.EVENT_HALT) {
++      ev.consume();
++    }
++  }
++
++  public void setupListener() {
++    // already setup by default *shrug*
++  }
++}
+
+Modified: rero/src/rero/gui/script/WindowClickListener.java
+===================================================================
+--- rero/src/rero/gui/script/WindowClickListener.java	2006-02-18 03:40:41 UTC (rev 71)
++++ rero/src/rero/gui/script/WindowClickListener.java	2006-02-18 20:07:57 UTC (rev 72)
+@@ -21,6 +21,7 @@
+       eventData.put("$parms", ev.getContext());
+       eventData.put("$data",  ev.getClickedText() + " " + ev.getContext());
+       eventData.put("$mouse", ev.getEvent().paramString());
++      eventData.put("$clicks", new Integer(ev.getEvent().getClickCount()).toString());
+ 
+       if (dispatchEvent(eventData) == rero.ircfw.interfaces.ChatListener.EVENT_HALT)
+       {
+
+Modified: rero/src/text/WrappedDisplay.java
+===================================================================
+--- rero/src/text/WrappedDisplay.java	2006-02-18 03:40:41 UTC (rev 71)
++++ rero/src/text/WrappedDisplay.java	2006-02-18 20:07:57 UTC (rev 72)
+@@ -11,6 +11,9 @@
+ import java.awt.datatransfer.*;
+ 
+ import rero.config.*;
++import rero.gui.script.WindowAreaClickListener;
++import rero.gui.windows.ChannelWindow;
++import rero.gui.SessionManager;
+ 
+ import text.event.*;
+ 
+@@ -191,6 +194,9 @@
+                }
+             }).start();
+          }
++      } else {
++        String wname = SessionManager.getGlobalCapabilities().getActiveSession().getActiveWindow().getName();
++        fireClickEvent(null, wname, ev);
+       }
+    }   
+ 
+@@ -236,7 +242,9 @@
+       while (i.hasNext() && !event.isConsumed())
+       {
+          ClickListener l = (ClickListener)i.next();
+-         l.wordClicked(event);
++        // pass events with null text only to area click listener
++        if(text == null && !(l instanceof WindowAreaClickListener)) continue;
++        l.wordClicked(event);
+       }
+ 
+       return event;
+
+
+
+From crazycoder at berlios.de  Sun Feb 19 13:03:01 2006
+From: crazycoder at berlios.de (crazycoder at BerliOS)
+Date: Sun, 19 Feb 2006 13:03:01 +0100
+Subject: [Jircii-svn] r73 - in rero: resources/toplevel src/rero/config src/rero/gui
+Message-ID: <200602191203.k1JC31QE015598@sheep.berlios.de>
+
+Author: crazycoder
+Date: 2006-02-19 13:02:57 +0100 (Sun, 19 Feb 2006)
+New Revision: 73
+
+Modified:
+   rero/resources/toplevel/whatsnew.txt
+   rero/src/rero/config/ClientDefaults.java
+   rero/src/rero/gui/ClickableURLHandler.java
+Log:
+Added cclick event and $clicks variable for all click events
+
+Modified: rero/resources/toplevel/whatsnew.txt
+===================================================================
+--- rero/resources/toplevel/whatsnew.txt	2006-02-18 20:07:57 UTC (rev 72)
++++ rero/resources/toplevel/whatsnew.txt	2006-02-19 12:02:57 UTC (rev 73)
+@@ -18,7 +18,8 @@
+   List of valid charsets: http://www.iana.org/assignments/character-sets
+   (Serge)
+ - Fix for http://jirc.hick.org/cgi-bin/bitch.cgi/view.html?4225366
+-  Double click is now the default to open links and channels (Serge)
++  Double click is now the default to open links and channels.
++  dclick.links config option controls this behavior (Serge)
+ - cclick event, fired when user clicks on empty channel window area.
+   $item is set to window name, $clicks is set to number of clicks (Serge)
+ - $clicks variable added for all click events (Serge)
+
+Modified: rero/src/rero/config/ClientDefaults.java
+===================================================================
+--- rero/src/rero/config/ClientDefaults.java	2006-02-18 20:07:57 UTC (rev 72)
++++ rero/src/rero/config/ClientDefaults.java	2006-02-19 12:02:57 UTC (rev 73)
+@@ -31,6 +31,7 @@
+    public static final boolean option_showmotd  = true;
+    public static final boolean option_reconnect = true;
+    public static final boolean option_timestamp = false;
++   public static final boolean dclick_links     = true; // open links with double click
+ 
+    public static       boolean ui_sdi        = true;
+    public static final boolean ui_native     = true; 
+
+Modified: rero/src/rero/gui/ClickableURLHandler.java
+===================================================================
+--- rero/src/rero/gui/ClickableURLHandler.java	2006-02-18 20:07:57 UTC (rev 72)
++++ rero/src/rero/gui/ClickableURLHandler.java	2006-02-19 12:02:57 UTC (rev 73)
+@@ -1,6 +1,8 @@
+ package rero.gui;
+ 
+ import rero.client.Feature;
++import rero.config.ClientDefaults;
++import rero.config.ClientState;
+ import rero.util.ClientUtils;
+ import text.event.ClickEvent;
+ import text.event.ClickListener;
+@@ -8,46 +10,45 @@
+ import java.util.regex.Matcher;
+ import java.util.regex.Pattern;
+ 
+-public class ClickableURLHandler extends Feature implements ClickListener
+-{
+-    private static final Pattern CHAN_PATTERN = Pattern.compile("[@+%]*(#.*)");
++public class ClickableURLHandler extends Feature implements ClickListener {
++  private static final Pattern CHAN_PATTERN = Pattern.compile("[@+%]*(#.*)");
+ 
+-    public void wordClicked(ClickEvent ev)
+-    {
+-        int clickCount = ev.getEvent().getClickCount();
+-        if (clickCount == 2) {
+-            String item = ev.getClickedText().toLowerCase();
++  public void wordClicked(ClickEvent ev) {
++    int clickCount = ev.getEvent().getClickCount();
++    boolean dclick = ClientState.getClientState().isOption("dclick.links", ClientDefaults.dclick_links);
++    int need_clicks = dclick ? 2 : 1;
+ 
+-            if (item.matches("^\\(*(http|https|ftp)://.*")) {
+-                ClientUtils.openURL(extractURL(ev.getClickedText()));
+-                ev.consume();
+-                ev.acknowledge();
+-            } else if (item.matches("^www\\..*")) {
+-                String location = extractURL(ev.getClickedText());
+-                ClientUtils.openURL("http://" + location);
+-                ev.consume();
+-                ev.acknowledge();
+-            } else {
+-                Matcher m = CHAN_PATTERN.matcher(ev.getClickedText());
+-                if (m.matches()) {
+-                    String chan = m.group(1).trim();
+-                    getCapabilities().sendln("JOIN " + chan);
+-                    ev.consume();
+-                    ev.acknowledge();
+-                }
+-            }
++    if (clickCount == need_clicks) {
++      String item = ev.getClickedText().toLowerCase();
++
++      if (item.matches("^\\(*(http|https|ftp)://.*")) {
++        ClientUtils.openURL(extractURL(ev.getClickedText()));
++        ev.consume();
++        ev.acknowledge();
++      } else if (item.matches("^www\\..*")) {
++        String location = extractURL(ev.getClickedText());
++        ClientUtils.openURL("http://" + location);
++        ev.consume();
++        ev.acknowledge();
++      } else {
++        Matcher m = CHAN_PATTERN.matcher(ev.getClickedText());
++        if (m.matches()) {
++          String chan = m.group(1).trim();
++          getCapabilities().sendln("JOIN " + chan);
++          ev.consume();
++          ev.acknowledge();
+         }
++      }
+     }
++  }
+ 
+-    private static String extractURL(String url)
+-    {
+-        if (url.charAt(0) == '(') {
+-            url = url.substring(1, url.length() - 1);
+-        }
+-        return url;
++  private static String extractURL(String url) {
++    if (url.charAt(0) == '(') {
++      url = url.substring(1, url.length() - 1);
+     }
++    return url;
++  }
+ 
+-    public void init()
+-    {
+-    }
++  public void init() {
++  }
+ }
+
+
+
+From crazycoder at berlios.de  Mon Feb 20 01:21:56 2006
+From: crazycoder at berlios.de (crazycoder at BerliOS)
+Date: Mon, 20 Feb 2006 01:21:56 +0100
+Subject: [Jircii-svn] r74 - in rero/resources: help resource toplevel
+Message-ID: <200602200021.k1K0Lup3002644@sheep.berlios.de>
+
+Author: crazycoder
+Date: 2006-02-20 01:21:47 +0100 (Mon, 20 Feb 2006)
+New Revision: 74
+
+Modified:
+   rero/resources/help/KB_Shortcuts
+   rero/resources/resource/menus.irc
+   rero/resources/toplevel/whatsnew.txt
+Log:
+Fix for 8150450
+
+Modified: rero/resources/help/KB_Shortcuts
+===================================================================
+--- rero/resources/help/KB_Shortcuts	2006-02-19 12:02:57 UTC (rev 73)
++++ rero/resources/help/KB_Shortcuts	2006-02-20 00:21:47 UTC (rev 74)
+@@ -63,7 +63,7 @@
+ <br>
+ <br><b>Changing Queries</b></font>
+ <br>
+-<br>If you use irc primarily through your status window then you can use the keyboard shortcut Ctrl+X to cycle through all of the non /window'd channels your on.
++<br>If you use irc primarily through your status window then you can use the keyboard shortcut Ctrl+S to cycle through all of the non /window'd channels your on.
+ <br>
+ <br><b>Open the Options Dialog</b></font>
+ <br>
+
+Modified: rero/resources/resource/menus.irc
+===================================================================
+--- rero/resources/resource/menus.irc	2006-02-19 12:02:57 UTC (rev 73)
++++ rero/resources/resource/menus.irc	2006-02-20 00:21:47 UTC (rev 74)
+@@ -17,11 +17,16 @@
+    showSearchDialog(getActiveWindow());
+ }
+ 
+-bind Ctrl+X
++bind Ctrl+S
+ {
+    cycleQuery();
+ }
+ 
++bind Ctrl+X
++{
++   cutSelectedText();
++}
++
+ bind Ctrl+W
+ {
+    if (strlen($active) > 0)
+
+Modified: rero/resources/toplevel/whatsnew.txt
+===================================================================
+--- rero/resources/toplevel/whatsnew.txt	2006-02-19 12:02:57 UTC (rev 73)
++++ rero/resources/toplevel/whatsnew.txt	2006-02-20 00:21:47 UTC (rev 74)
+@@ -23,6 +23,9 @@
+ - cclick event, fired when user clicks on empty channel window area.
+   $item is set to window name, $clicks is set to number of clicks (Serge)
+ - $clicks variable added for all click events (Serge)
++- Ctrl+X now cuts text instead of cycleQuery() which is now Ctrl+S.
++  It's a fix for http://jircii.hick.org/cgi-bin/bitch.cgi/view.html?8150450
++  (Serge)
+ 
+ Beta    39 release 07.30.05
+ ====
+
+
+
+From crazycoder at berlios.de  Mon Feb 20 01:39:07 2006
+From: crazycoder at berlios.de (crazycoder at BerliOS)
+Date: Mon, 20 Feb 2006 01:39:07 +0100
+Subject: [Jircii-svn] r75 - rero/lib
+Message-ID: <200602200039.k1K0d7ax006673@sheep.berlios.de>
+
+Author: crazycoder
+Date: 2006-02-20 01:38:13 +0100 (Mon, 20 Feb 2006)
+New Revision: 75
+
+Modified:
+   rero/lib/sleep.jar
+Log:
+Updated Sleep
+
+Modified: rero/lib/sleep.jar
+===================================================================
+(Binary files differ)
+
+
+
+From crazycoder at berlios.de  Wed Feb 22 22:31:55 2006
+From: crazycoder at berlios.de (crazycoder at BerliOS)
+Date: Wed, 22 Feb 2006 22:31:55 +0100
+Subject: [Jircii-svn] r76 - in rero: resources/toplevel src/rero/gui/input
+Message-ID: <200602222131.k1MLVtmx003251@sheep.berlios.de>
+
+Author: crazycoder
+Date: 2006-02-22 22:31:54 +0100 (Wed, 22 Feb 2006)
+New Revision: 76
+
+Modified:
+   rero/resources/toplevel/whatsnew.txt
+   rero/src/rero/gui/input/InputField.java
+Log:
+Fixed pasting of multiple lines deleting current input field text
+
+Modified: rero/resources/toplevel/whatsnew.txt
+===================================================================
+--- rero/resources/toplevel/whatsnew.txt	2006-02-20 00:38:13 UTC (rev 75)
++++ rero/resources/toplevel/whatsnew.txt	2006-02-22 21:31:54 UTC (rev 76)
+@@ -26,6 +26,7 @@
+ - Ctrl+X now cuts text instead of cycleQuery() which is now Ctrl+S.
+   It's a fix for http://jircii.hick.org/cgi-bin/bitch.cgi/view.html?8150450
+   (Serge)
++- Fixed pasting of multiple lines deleting current input field text (Serge)
+ 
+ Beta    39 release 07.30.05
+ ====
+
+Modified: rero/src/rero/gui/input/InputField.java
+===================================================================
+--- rero/src/rero/gui/input/InputField.java	2006-02-20 00:38:13 UTC (rev 75)
++++ rero/src/rero/gui/input/InputField.java	2006-02-22 21:31:54 UTC (rev 76)
+@@ -1,544 +1,456 @@
+ package rero.gui.input;
+ 
+-import javax.swing.*;
+-import javax.swing.border.*;
+-import javax.swing.event.*;
+-import javax.swing.text.*;
++import rero.config.ClientDefaults;
++import rero.config.ClientState;
++import rero.config.ClientStateListener;
++import text.AttributedString;
++import text.AttributedText;
++import text.ModifyColorMapDialog;
++import text.TextSource;
+ 
++import javax.swing.*;
++import javax.swing.border.Border;
++import javax.swing.border.CompoundBorder;
++import javax.swing.text.AttributeSet;
++import javax.swing.text.BadLocationException;
++import javax.swing.text.Document;
++import javax.swing.text.PlainDocument;
+ import java.awt.*;
+ import java.awt.event.*;
+-import java.awt.datatransfer.* ;
++import java.util.ArrayList;
++import java.util.LinkedList;
++import java.util.ListIterator;
+ 
+-import java.util.*;
++public class InputField extends JTextField implements KeyListener, ActionListener, MouseListener, ClientStateListener {
++  //protected InputList  list = null;
++  protected Border defaultBorder;
++  protected LinkedList listeners;
++  protected UserInputEvent event;
+ 
+-import java.io.IOException;
++  // This is the command history for this InputField
++  // WARNING: Do not, under any circumstance, modify this structure.
++  //          This will lead to a ConcurrentModificationException!
++  private ArrayList commandHistory;
+ 
++  // An iterator for the command history. This is what is actually
++  // used for manipulating the command history.
++  private ListIterator commandIterator;
+ 
+-import text.*;
++  // This is the maximum number of commands in the command history.
++  // TODO: This should be configurable.
++  private int maxCommands = 30;
+ 
+-import rero.config.*;
++  // True if the key pressed in the previous keyevent was the upkey
++  // This flag is modified in a variety of places in the code.
++  private boolean previousKeyUpArrow = true;
+ 
+-public class InputField extends JTextField implements KeyListener, ActionListener, MouseListener, ClientStateListener
+-{
+-    //protected InputList  list = null;
+-    protected Border     defaultBorder;
+-    protected LinkedList listeners;
+-    protected UserInputEvent event;
++  protected InputBorder indent;
+ 
+-    // This is the command history for this InputField
+-    // WARNING: Do not, under any circumstance, modify this structure.
+-    //          This will lead to a ConcurrentModificationException!
+-    private ArrayList commandHistory;
++  public void mouseClicked(MouseEvent ev) {
++    if (ev.getButton() == MouseEvent.BUTTON1 && ev.isShiftDown() && indent != null) {
++      AttributedText temp =
++        indent.getAttributes().getAttributesAt(ev.getX() - defaultBorder.getBorderInsets(this).left);
+ 
+-    // An iterator for the command history. This is what is actually
+-    // used for manipulating the command history.
+-    private ListIterator commandIterator;
++      if (temp != null) {
++        if (temp.backIndex != -1 && ev.isControlDown()) {
++          ModifyColorMapDialog.showModifyColorMapDialog((JComponent) ev.getSource(), temp.backIndex);
++        } else {
++          ModifyColorMapDialog.showModifyColorMapDialog((JComponent) ev.getSource(), temp.foreIndex);
++        }
++        repaint();
++      }
++    }
++  }
+ 
+-    // This is the maximum number of commands in the command history.
+-    // TODO: This should be configurable.
+-    private int maxCommands = 30;
++  public boolean isFocusable() {
++    return true;
++  }
+ 
+-    // True if the key pressed in the previous keyevent was the upkey
+-    // This flag is modified in a variety of places in the code.
+-    private boolean previousKeyUpArrow = true;
++  public void mouseEntered(MouseEvent ev) {
++  }
+ 
+-    protected InputBorder indent;
++  public void mouseExited(MouseEvent ev) {
++  }
+ 
+-    public void mouseClicked(MouseEvent ev)
+-    {
+-       if (ev.getButton() == MouseEvent.BUTTON1 && ev.isShiftDown() && indent != null)
+-       {
+-          AttributedText temp = indent.getAttributes().getAttributesAt(ev.getX() - defaultBorder.getBorderInsets(this).left);
++  public void mousePressed(MouseEvent ev) {
++  }
+ 
+-          if (temp != null)
+-          {
+-             if (temp.backIndex != -1 && ev.isControlDown())
+-             {
+-                ModifyColorMapDialog.showModifyColorMapDialog((JComponent)ev.getSource(), temp.backIndex);
+-             }
+-             else
+-             {
+-                ModifyColorMapDialog.showModifyColorMapDialog((JComponent)ev.getSource(), temp.foreIndex);
+-             }
+-             repaint();
+-          }
+-       }
+-    }
++  public void mouseReleased(MouseEvent ev) {
++  }
+ 
+-    public boolean isFocusable()
+-    {
+-       return true;
+-    }
++  public InputField() {
++    setUI(new javax.swing.plaf.basic.BasicTextFieldUI());
+ 
+-    public void mouseEntered(MouseEvent ev) { }
+-    public void mouseExited(MouseEvent ev) { }
+-    public void mousePressed(MouseEvent ev) { }
+-    public void mouseReleased(MouseEvent ev) { }
++    setOpaque(false);
+ 
+-    public InputField()
+-    {
+-       setUI(new javax.swing.plaf.basic.BasicTextFieldUI());
+-
+-       setOpaque(false);
+-
+-       defaultBorder = BorderFactory.createEmptyBorder(1, TextSource.UNIVERSAL_TWEAK, 1, 1); // a 1 pixel empty border all around;
+-       setBorder(defaultBorder);
++    defaultBorder =
++      BorderFactory.createEmptyBorder(1, TextSource.UNIVERSAL_TWEAK, 1, 1); // a 1 pixel empty border all around;
++    setBorder(defaultBorder);
+ /*
+        setBackground(null); // suggested by Sun as a fix to a background being painted problem
+                             // in the GTK+ look and feel, unfortunately it doesn't work... maybe it will when 1.5 comes out
+ */
+ 
+-       addActionListener(this);
+-       addKeyListener(this);
++    addActionListener(this);
++    addKeyListener(this);
+ 
+-       listeners = new LinkedList();
++    listeners = new LinkedList();
+ 
+-       event = new UserInputEvent();
+-       event.source = this;
++    event = new UserInputEvent();
++    event.source = this;
+ 
+-       indent = null;
++    indent = null;
+ 
+-       addMouseListener(this);
++    addMouseListener(this);
+ 
+-       rehashColors();
++    rehashColors();
+ 
+-       ClientState.getClientState().addClientStateListener("ui.editcolor", this);
+-       ClientState.getClientState().addClientStateListener("ui.font", this);
++    ClientState.getClientState().addClientStateListener("ui.editcolor", this);
++    ClientState.getClientState().addClientStateListener("ui.font", this);
+ 
+-       // Instantiate the command history -oracel
+-       this.commandHistory = new ArrayList(maxCommands + 1);
+-       this.commandIterator = commandHistory.listIterator();
++    // Instantiate the command history -oracel
++    this.commandHistory = new ArrayList(maxCommands + 1);
++    this.commandIterator = commandHistory.listIterator();
+ 
+-    }
++  }
+ 
+-    public void propertyChanged(String name, String parms)
+-    {
+-       rehashColors();
+-    }
++  public void propertyChanged(String name, String parms) {
++    rehashColors();
++  }
+ 
+-    public void rehashColors()
+-    {
+-       Color temp = ClientState.getClientState().getColor("ui.editcolor", ClientDefaults.ui_editcolor);
++  public void rehashColors() {
++    Color temp = ClientState.getClientState().getColor("ui.editcolor", ClientDefaults.ui_editcolor);
+ 
+-       setForeground(temp);
+-       setCaretColor(temp.brighter());
++    setForeground(temp);
++    setCaretColor(temp.brighter());
+ 
+-       setFont(ClientState.getClientState().getFont("ui.font", ClientDefaults.ui_font));
++    setFont(ClientState.getClientState().getFont("ui.font", ClientDefaults.ui_font));
+ 
+-       revalidate();
+-    }
+-    
+-    
+-    // Override JTextfield.paste() to be able to capture pasted input
+-    // for the command history
+-    public void paste() {
++    revalidate();
++  }
+ 
+-        // Get the clipboard
+-        Clipboard cb = getToolkit().getSystemClipboard() ;
++  public void actionPerformed(ActionEvent ev) {
++    event.text = ev.getActionCommand();
+ 
+-        // Probably won't happen
+-        if (cb == null)
+-        {
+-            return;
+-        }
+-        
+-        // Get the contents
+-        Transferable t =  cb.getContents(null);
+-        if (t != null) 
+-        {
+-            try 
+-            {
+-                
+-                // Get the data and check that it's a String
+-                Object obj = t.getTransferData(DataFlavor.stringFlavor);
+-                if (obj != null && obj instanceof String) 
+-                {
+-                    // Split the string into lines
+-                    String lines[] = String.valueOf(obj).split("\\n");
+-                    
+-                    // Loop through the lines in the pasted text
+-                    for (int i = 0; i < lines.length; i++) {
+-                        
+-                        // Add each line to the history
+-                        this.addToHistory(lines[i].trim());
+-                    }
+-                    
+-                    // Reset iterator to end in case the user had been 
+-                    // browsing the command history.
+-                    this.resetIterator(false);
+-                }
+-            } 
+-            
+-            catch (IOException ioe) 
+-            {
+-                return;
+-            } 
+-            
+-            catch (UnsupportedFlavorException ufe)
+-            {
+-                return ;
+-            }
+-        }
+-        
+-        // Make sure the garble is pasted
+-        super.paste();   
++    if (event.text.length() <= 0) {
++      fireInputEvent(); // fire an empty input event, it helps sometimes
++      return;
+     }
+ 
++    fireInputEvent();
++  }
+ 
+-    public void actionPerformed(ActionEvent ev)
+-    {
+-       event.text = ev.getActionCommand();
++  public void addInputListener(InputListener l) {
++    // we use addFirst for the following reasons...  generally input fields will have two listeners
++    // the client itself will be listening and then there is a sort of master listener for all of the scripts.
++    // the client itself will of course register the listener first
++    // the master listener for scripts will register its listener second
++    // by firing listeners in a last in first fired manner the scripts will get a chance to halt the processing
++    // of the input event.   These kinds of things can be tough to keep track of so that is why I write this
++    // comment.
+ 
+-       if (event.text.length() <= 0)
+-       {
+-          fireInputEvent(); // fire an empty input event, it helps sometimes
+-          return;
+-       }
++    listeners.addFirst(l);
++  }
+ 
+-       // Add text to history
+-       this.addToHistory(event.text);
++  public void fireInputEvent() {
++    ListIterator i = listeners.listIterator();
+ 
+-       fireInputEvent();
+-    }
++    // Add text to history
++    this.addToHistory(event.text);
+ 
+-    public void addInputListener(InputListener l)
+-    {
+-       // we use addFirst for the following reasons...  generally input fields will have two listeners
+-       // the client itself will be listening and then there is a sort of master listener for all of the scripts.
+-       // the client itself will of course register the listener first
+-       // the master listener for scripts will register its listener second
+-       // by firing listeners in a last in first fired manner the scripts will get a chance to halt the processing
+-       // of the input event.   These kinds of things can be tough to keep track of so that is why I write this
+-       // comment.
+-
+-       listeners.addFirst(l);
++    while (i.hasNext()) {
++      InputListener temp = (InputListener) i.next();
++      temp.onInput(event);
+     }
+ 
+-    public void fireInputEvent()
+-    {
+-       ListIterator i = listeners.listIterator();
+-       while (i.hasNext())
+-       {
+-          InputListener temp = (InputListener)i.next();
+-          temp.onInput(event);
+-       }
++    setText("");
++    this.resetIterator(false);
+ 
+-       setText("");
+-       event.reset();
++    event.reset();
++  }
++
++  public String getIndent() {
++    if (indent != null) {
++      return indent.getText();
+     }
+ 
+-    public String getIndent()
+-    {
+-       if (indent != null)
+-       {
+-          return indent.getText();
+-       }
++    return "";
++  }
+ 
+-       return "";
++  public void setIndent(String text) {
++    if (text != null) {
++      indent = new InputBorder(text);
++      setBorder(new CompoundBorder(defaultBorder, indent));
++    } else {
++      setBorder(defaultBorder);
++      indent = null;
+     }
++  }
+ 
+-    public void setIndent(String text)
+-    {
+-       if (text != null)
+-       {
+-          indent = new InputBorder(text);
+-          setBorder(new CompoundBorder(defaultBorder, indent));
+-       }
+-       else
+-       {
+-          setBorder(defaultBorder);
+-          indent = null;
+-       }
++  public void keyTyped(KeyEvent e) {
++    //
++    // deal with problem of windows binging when hitting backspace in an empty buffer
++    //
++    if (e.getKeyChar() == KeyEvent.VK_BACK_SPACE && getText().length() == 0) {
++      e.consume();
+     }
++  }
+ 
+-    public void keyTyped(KeyEvent e)
+-    {
+-       //
+-       // deal with problem of windows binging when hitting backspace in an empty buffer
+-       //
+-       if (e.getKeyChar() == KeyEvent.VK_BACK_SPACE && getText().length() == 0)
+-       {
+-          e.consume();
+-       }
+-    }
++  public String getCurrentText() {
++    return getText();
++  }
+ 
+-    public void keyPressed(KeyEvent e)
+-    {
+-       //
+-       // special built in control codes..
+-       //
+-       if (e.getModifiers() == 2)
+-       {
+-          int caretpos = getCaretPosition() + 1;
+ 
+-          switch (e.getKeyCode())
+-          {
+-             case 75: // control-k color
+-               setText(getText().substring(0, getCaretPosition()) + AttributedString.color + getText().substring(getCaretPosition(), getText().length()));
+-               setCaretPosition(caretpos);
+-               e.consume();
+-               return;
+-             case 85: // control-u underline
+-               setText(getText().substring(0, getCaretPosition()) + AttributedString.underline + getText().substring(getCaretPosition(), getText().length()));
+-               setCaretPosition(caretpos);
+-               e.consume();
+-               return;
+-             case 66: // control-b bold
+-               setText(getText().substring(0, getCaretPosition()) + AttributedString.bold + getText().substring(getCaretPosition(), getText().length()));
+-               setCaretPosition(caretpos);
+-               e.consume();
+-               return;
+-             case 79: // control-o cancel
+-               setText(getText().substring(0, getCaretPosition()) + AttributedString.cancel + getText().substring(getCaretPosition(), getText().length()));
+-               setCaretPosition(caretpos);
+-               e.consume();
+-               return;
+-             case 82: // control-r reverse
+-               setText(getText().substring(0, getCaretPosition()) + AttributedString.reverse + getText().substring(getCaretPosition(),getText().length()));
+-               setCaretPosition(caretpos);
+-               e.consume();
+-               return;
+-             default:
+-          }
+-       }
++  public void keyPressed(KeyEvent e) {
++    //
++    // special built in control codes..
++    //
++    if (e.getModifiers() == 2) {
++      int caretpos = getCaretPosition() + 1;
+ 
+-       if (e.getKeyCode() == KeyEvent.VK_ENTER && e.getModifiers() != 0)
+-       {
+-          this.resetIterator();
+-          event.text = getText();
+-          fireInputEvent();
++      switch (e.getKeyCode()) {
++        case 75: // control-k color
++          setText(getText().substring(0, getCaretPosition()) + AttributedString.color +
++            getText().substring(getCaretPosition(), getText().length()));
++          setCaretPosition(caretpos);
+           e.consume();
+           return;
+-       }
++        case 85: // control-u underline
++          setText(getText().substring(0, getCaretPosition()) + AttributedString.underline +
++            getText().substring(getCaretPosition(), getText().length()));
++          setCaretPosition(caretpos);
++          e.consume();
++          return;
++        case 66: // control-b bold
++          setText(getText().substring(0, getCaretPosition()) + AttributedString.bold +
++            getText().substring(getCaretPosition(), getText().length()));
++          setCaretPosition(caretpos);
++          e.consume();
++          return;
++        case 79: // control-o cancel
++          setText(getText().substring(0, getCaretPosition()) + AttributedString.cancel +
++            getText().substring(getCaretPosition(), getText().length()));
++          setCaretPosition(caretpos);
++          e.consume();
++          return;
++        case 82: // control-r reverse
++          setText(getText().substring(0, getCaretPosition()) + AttributedString.reverse +
++            getText().substring(getCaretPosition(), getText().length()));
++          setCaretPosition(caretpos);
++          e.consume();
++          return;
++        default:
++      }
++    }
+ 
++    if (e.getKeyCode() == KeyEvent.VK_ENTER && e.getModifiers() != 0) {
++      this.resetIterator();
++      event.text = getText();
++      fireInputEvent();
++      e.consume();
++      return;
++    }
+ 
+-       //
+-       // deal with arrow up
+-       //
+-       if (e.getKeyCode() == KeyEvent.VK_UP)
+-       {
+-        
+-            // See if there is an available command in list
+-            if (commandIterator.hasPrevious()) {
+-            
+-                // Store it
+-                String previous = String.valueOf(commandIterator.previous());
+-                
+-                // See if we should skip one forward
+-                if (!previousKeyUpArrow && commandIterator.hasPrevious()) {
+-                    setText(String.valueOf(commandIterator.previous()));
+-                }
+-                
+-                // Set text from history
+-                else {
+-                    setText(previous);
+-                }
+-            
+-            }
+-            else {
+-                e.consume();
+-            }
+-            
+-            // Set flag       
+-            this.previousKeyUpArrow = true;
+-       }
+-                       
++    //
++    // deal with arrow up
++    //
++    if (e.getKeyCode() == KeyEvent.VK_UP) {
+ 
+-       // deal with arrow down
+-       if (e.getKeyCode() == KeyEvent.VK_DOWN)
+-       {
+-            
+-            // This will hold the next item in the list
+-            String next;
++      // See if there is an available command in list
++      if (commandIterator.hasPrevious()) {
+ 
+-            // Check
+-            if (commandIterator.hasNext())
+-            {
++        // Store it
++        String previous = String.valueOf(commandIterator.previous());
+ 
+-                 // Special case check, user pressed up and down from empty
+-                 // command line
+-                 if (commandIterator.hasNext() && 
+-                        commandIterator.nextIndex() + 1 == commandHistory.size() &&
+-                            this.previousKeyUpArrow) 
+-                 {
+-                    // Clear the command textfield and reset iterator
+-                    resetIterator(false);
+-                    this.previousKeyUpArrow = true;                    
+-                    setText("");
+-                 }
+-                 
+-                 // Not a special case
+-                 else 
+-                 {
+-                     // Fetch next item in command history (downwards)
+-                     next = String.valueOf(commandIterator.next());
+-                    
+-                     // Semi-special case, user pressed up then down so
+-                     // we need to skip an item
+-                     if (previousKeyUpArrow && commandIterator.hasNext()) 
+-                     {
+-                         setText(String.valueOf(commandIterator.next()));
+-                     }
+-                     
+-                     // Just set the text
+-                     else 
+-                     {
+-                         setText(next);
+-                     }
+-                     
+-                     // Set flag (user pressed arrow down)
+-                     this.previousKeyUpArrow = false;
+-                 }
+-            }
+-            
+-            // No more items in history, clear the textfield and set flag
+-            else 
+-            {
+-                 setText("");
+-                 next = null;
+-                 this.previousKeyUpArrow = true;
+-            
+-            }
+-            
+-            // I'm not really sure what this is
+-            e.consume();
+-       }
++        // See if we should skip one forward
++        if (!previousKeyUpArrow && commandIterator.hasPrevious()) {
++          setText(String.valueOf(commandIterator.previous()));
++        }
+ 
++        // Set text from history
++        else {
++          setText(previous);
++        }
+ 
+-       // deal with ^K and other built in shortcuts
+-    }
++      } else {
++        e.consume();
++      }
+ 
+-    // Resets to the beginning of the command iterator
+-    private void resetIterator() 
+-    {
+-        this.resetIterator(true);
++      // Set flag
++      this.previousKeyUpArrow = true;
+     }
+ 
+-    // Reset the iterator to beginning (true) or end (false)
+-    private void resetIterator(boolean resetToBeginning) 
+-    {
+-        if (resetToBeginning)
+-        {
+-            
+-            // Reset to beginning
+-            while (this.commandIterator.hasPrevious()) 
+-            {
+-               this.commandIterator.previous();
+-            }
++    // deal with arrow down
++    if (e.getKeyCode() == KeyEvent.VK_DOWN) {
+ 
++      // This will hold the next item in the list
++      String next;
++
++      // Check
++      if (commandIterator.hasNext()) {
++
++        // Special case check, user pressed up and down from empty
++        // command line
++        if (commandIterator.hasNext() &&
++          commandIterator.nextIndex() + 1 == commandHistory.size() &&
++          this.previousKeyUpArrow) {
++          // Clear the command textfield and reset iterator
++          resetIterator(false);
++          this.previousKeyUpArrow = true;
++          setText("");
+         }
+-        
++
++        // Not a special case
+         else {
+-            
+-            // Reset to end
+-            while (this.commandIterator.hasNext()) 
+-            {
+-               this.commandIterator.next();
+-            }
++          // Fetch next item in command history (downwards)
++          next = String.valueOf(commandIterator.next());
+ 
++          // Semi-special case, user pressed up then down so
++          // we need to skip an item
++          if (previousKeyUpArrow && commandIterator.hasNext()) {
++            setText(String.valueOf(commandIterator.next()));
++          }
++
++          // Just set the text
++          else {
++            setText(next);
++          }
++
++          // Set flag (user pressed arrow down)
++          this.previousKeyUpArrow = false;
+         }
+-        
+-        return;
++      }
++
++      // No more items in history, clear the textfield and set flag
++      else {
++        setText("");
++        next = null;
++        this.previousKeyUpArrow = true;
++
++      }
++
++      // I'm not really sure what this is
++      e.consume();
+     }
+ 
++    // deal with ^K and other built in shortcuts
++  }
+ 
+-    private void addToHistory(String text) {
+-       
+-       // Add the text to the command history and remove redundant items
+-       this.commandExistsInHistory(text, true); // Remove if it already exists
+-       this.resetIterator(false);   // Reset to end
+-       this.commandIterator.add(text); // Append to end of list
++  // Resets to the beginning of the command iterator
++  private void resetIterator() {
++    this.resetIterator(true);
++  }
+ 
+-       // Check if the max size of the history has been reached
+-       if (this.commandHistory.size() == (maxCommands + 1)
+-                                                    && (maxCommands > 0)) 
+-       {
++  // Reset the iterator to beginning (true) or end (false)
++  private void resetIterator(boolean resetToBeginning) {
++    if (resetToBeginning) {
+ 
+-           this.resetIterator(); // Reset to beginning
+-           this.commandIterator.remove(); // Remove first item in list
+-           this.resetIterator(false);   // Reset to end
+-       }        
++      // Reset to beginning
++      while (this.commandIterator.hasPrevious()) {
++        this.commandIterator.previous();
++      }
++
++    } else {
++
++      // Reset to end
++      while (this.commandIterator.hasNext()) {
++        this.commandIterator.next();
++      }
++
+     }
++  }
+ 
+ 
+-    // Returns true if the command is found in the history. If the
+-    // parameter <i>delete</i> is true, the command is deleted if found.
+-    // This method offers O(n) performance.
+-    private boolean commandExistsInHistory(String cmd, boolean delete) 
+-    {
++  private void addToHistory(String text) {
+ 
+-        // Reset iterator to beginning
+-        this.resetIterator();
++    // Add the text to the command history and remove redundant items
++    this.commandExistsInHistory(text, true); // Remove if it already exists
++    this.resetIterator(false);   // Reset to end
++    this.commandIterator.add(text); // Append to end of list
+ 
+-        // Iterate through the history from beginning to end
+-        while(this.commandIterator.hasNext()) 
+-        {
+-            if (this.commandIterator.next().equals(cmd)) 
+-            {
++    // Check if the max size of the history has been reached
++    if (this.commandHistory.size() == (maxCommands + 1)
++      && (maxCommands > 0)) {
+ 
+-                // Command was found
+-                if (delete) 
+-                {
++      this.resetIterator(); // Reset to beginning
++      this.commandIterator.remove(); // Remove first item in list
++      this.resetIterator(false);   // Reset to end
++    }
++  }
+ 
+-                    // Remove it
+-                    this.commandIterator.remove();
+-                }
+ 
+-                // Return
+-                return true;
+-            }
++  // Returns true if the command is found in the history. If the
++  // parameter <i>delete</i> is true, the command is deleted if found.
++  // This method offers O(n) performance.
++  private boolean commandExistsInHistory(String cmd, boolean delete) {
++
++    // Reset iterator to beginning
++    this.resetIterator();
++
++    // Iterate through the history from beginning to end
++    while (this.commandIterator.hasNext()) {
++      if (this.commandIterator.next().equals(cmd)) {
++
++        // Command was found
++        if (delete) {
++
++          // Remove it
++          this.commandIterator.remove();
+         }
+ 
+-        // Not found
+-        return false;
++        // Return
++        return true;
++      }
+     }
+ 
+-    public void keyReleased(KeyEvent e)
+-    {
+-    }
++    // Not found
++    return false;
++  }
+ 
+-    public void paint(Graphics g)
+-    {
+-       TextSource.initGraphics(g);
+-       super.paint(g);
+-    }
++  public void keyReleased(KeyEvent e) {
++  }
+ 
+-    protected Document createDefaultModel()
+-    {
+-       return new InputDocument();
+-    }
++  public void paint(Graphics g) {
++    TextSource.initGraphics(g);
++    super.paint(g);
++  }
+ 
+-    class InputDocument extends PlainDocument
+-    {
+-       public void insertString(int offs, String str, AttributeSet a) throws BadLocationException
+-       {
+-           if (str.indexOf('\n') == -1)
+-           {
++  protected Document createDefaultModel() {
++    return new InputDocument();
++  }
++
++  class InputDocument extends PlainDocument {
++    public void insertString(int offs, String str, AttributeSet a) throws BadLocationException {
++      if (str.indexOf('\n') == -1) {
+ //              super.insertString(offs, str, a);
+-              super.insertString(offs, str, a);
+-              return;
+-           }
++        super.insertString(offs, str, a);
++        return;
++      }
+ 
+-           while (str.indexOf('\n') > -1)
+-           {
+-              event.text = str.substring(0, str.indexOf('\n'));
+-              fireInputEvent();
++      while (str.indexOf('\n') > -1) {
++        event.text = str.substring(0, str.indexOf('\n'));
++        // @Serge: multiple lines may appear in the input field due to paste.
++        // First line from the pasted text should be inserted into the
++        // current position and then the whole line should be processed,
++        // otherwise current field text will be lost!
++        if (getCurrentText().length() > 0) {
++          super.insertString(offs, event.text, a);
++          event.text = getCurrentText();
++        }
+ 
+-              if (str.indexOf('\n') == str.length())
+-              {
+-                 return;
+-              }
+-              else
+-              {
+-                 str = str.substring(str.indexOf('\n') + 1, str.length());
+-              }
+-           }
++        fireInputEvent();
+ 
+-           if (str.length() > 0)
+-           {
+-              event.text = str;
+-              fireInputEvent();
+-           }
+-       }
++        if (str.indexOf('\n') == str.length()) {
++          return;
++        } else {
++          str = str.substring(str.indexOf('\n') + 1, str.length());
++        }
++      }
++
++      if (str.length() > 0) {
++        event.text = str;
++        fireInputEvent();
++      }
+     }
++  }
+ }
+
+
+
+From crazycoder at berlios.de  Thu Feb 23 16:29:01 2006
+From: crazycoder at berlios.de (crazycoder at BerliOS)
+Date: Thu, 23 Feb 2006 16:29:01 +0100
+Subject: [Jircii-svn] r77 - in rero: resources/toplevel src/rero/client/output src/rero/config
+Message-ID: <200602231529.k1NFT1bM007055@sheep.berlios.de>
+
+Author: crazycoder
+Date: 2006-02-23 16:28:59 +0100 (Thu, 23 Feb 2006)
+New Revision: 77
+
+Modified:
+   rero/resources/toplevel/whatsnew.txt
+   rero/src/rero/client/output/ChatCapabilities.java
+   rero/src/rero/config/ClientDefaults.java
+Log:
+Implemented automatic word wrapping of long messages
+
+Modified: rero/resources/toplevel/whatsnew.txt
+===================================================================
+--- rero/resources/toplevel/whatsnew.txt	2006-02-22 21:31:54 UTC (rev 76)
++++ rero/resources/toplevel/whatsnew.txt	2006-02-23 15:28:59 UTC (rev 77)
+@@ -27,7 +27,11 @@
+   It's a fix for http://jircii.hick.org/cgi-bin/bitch.cgi/view.html?8150450
+   (Serge)
+ - Fixed pasting of multiple lines deleting current input field text (Serge)
++- Implemented automatic word wrapping of long messages if packet doesn't
++  fit 512 bytes RFC length. For details check this link:
++  http://www.resultspk.net/hackirc/irchks-chp-13-sect-3.html (Serge)
+ 
++
+ Beta    39 release 07.30.05
+ ====
+ - The find feature is now case insensitive (oracel)
+
+Modified: rero/src/rero/client/output/ChatCapabilities.java
+===================================================================
+--- rero/src/rero/client/output/ChatCapabilities.java	2006-02-22 21:31:54 UTC (rev 76)
++++ rero/src/rero/client/output/ChatCapabilities.java	2006-02-23 15:28:59 UTC (rev 77)
+@@ -1,178 +1,252 @@
+ package rero.client.output;
+ 
+-import rero.ircfw.*;
+-import rero.ircfw.data.*;
++import rero.client.Feature;
++import rero.dcc.Chat;
++import rero.dcc.DataDCC;
++import rero.dcc.ProtocolDCC;
++import rero.ircfw.InternalDataList;
++import rero.net.SocketConnection;
++import rero.util.ClientUtils;
+ 
+-import rero.bridges.event.*;
+-import rero.bridges.set.*;
++import java.util.HashMap;
++import java.util.NoSuchElementException;
++import java.util.StringTokenizer;
+ 
+-import rero.client.*;
++public class ChatCapabilities extends Feature {
++  protected SocketConnection sock;
++  protected OutputCapabilities output;
++  protected DataDCC dccData;
+ 
+-import java.util.*;
++  public void init() {
++    sock = getCapabilities().getSocketConnection();
++    output = getCapabilities().getOutputCapabilities();
++    dccData = (DataDCC) getCapabilities().getDataStructure("dcc");
++  }
+ 
+-import rero.dcc.*;
+-import rero.net.*;
++  public void sendMessage(String nickname, String message) {
++    HashMap eventData = new HashMap();
+ 
+-import rero.util.*;
++    if (nickname.charAt(0) == '=') {
++      String dnickname = nickname.substring(1, nickname.length());
++      Chat connection = (Chat) dccData.getSpecificConnection(dnickname, ProtocolDCC.DCC_CHAT);
+ 
+-import rero.client.listeners.*;
++      if (connection == null) {
++        eventData.put("$target", dnickname);
++        eventData.put("$parms", message);
++        eventData.put("$data", dnickname + " " + message);
++        output.fireSetTarget(eventData, nickname, "SEND_CHAT_ERROR");
++        return;
++      }
+ 
+-public class ChatCapabilities extends Feature
+-{
+-   protected SocketConnection    sock;
+-   protected OutputCapabilities  output;
+-   protected DataDCC             dccData;
++      connection.sendln(message);
++    } else {
++      int max = computeMaxMessageLength(nickname);
++      if (message.length() > max) {
++        // split and send as multiple messages
++        String[] messages = wrapMessageToStringsArray(message, max);
++        for (int i = 0; i < messages.length; i++) {
++          String msg = messages[i];
++          sock.println("PRIVMSG " + nickname + " :" + msg);
++        }
++      } else {
++        sock.println("PRIVMSG " + nickname + " :" + message);
++      }
++    }
+ 
+-   public void init()
+-   {
+-      sock    = getCapabilities().getSocketConnection();
+-      output  = getCapabilities().getOutputCapabilities();
+-      dccData = (DataDCC)getCapabilities().getDataStructure("dcc");
+-   }
++    if (nickname.charAt(0) == '=') {
++      eventData.put("$target", nickname.substring(1, nickname.length()));
++      eventData.put("$parms", message);
++      eventData.put("$data", nickname.substring(1, nickname.length()) + " " + message);
+ 
+-   public void sendMessage(String nickname, String message)
+-   {
+-      HashMap eventData = new HashMap();
++      output.fireSetTarget(eventData, nickname, "SEND_CHAT");
++    } else if (ClientUtils.isChannel(nickname)) {
++      eventData.put("$target", nickname);
++      eventData.put("$channel", nickname);
++      eventData.put("$parms", message);
++      eventData.put("$data", nickname + " " + message);
+ 
+-      if (nickname.charAt(0) == '=')
+-      {
+-          String dnickname = nickname.substring(1, nickname.length());
+-          Chat connection = (Chat)dccData.getSpecificConnection(dnickname, ProtocolDCC.DCC_CHAT);
++      output.fireSetTarget(eventData, nickname, output.chooseSet(nickname, "SEND_TEXT", "SEND_TEXT_INACTIVE"));
++    } else {
++      eventData.put("$target", nickname);
++      eventData.put("$parms", message);
++      eventData.put("$data", nickname + " " + message);
+ 
+-          if (connection == null)
+-          {
+-              eventData.put("$target", dnickname);
+-              eventData.put("$parms", message);
+-              eventData.put("$data", dnickname  + " " + message);
+-              output.fireSetTarget(eventData, nickname, "SEND_CHAT_ERROR");
+-              return;
+-          }
++      output.fireSetQuery(eventData, nickname, nickname, "SEND_MSG");
++    }
++  }
+ 
+-          connection.sendln(message);
+-      }
+-      else
+-      {
+-          sock.println("PRIVMSG " + nickname + " :" + message);
+-      }
++  private int computeMaxMessageLength(String nickname) {
++    InternalDataList ci = ((InternalDataList) output.getCapabilities().getDataStructure("clientInformation"));
++    String fullAddress = ci.getMyUser().getFullAddress();
++    /* maximum allowed message text */
++    /* :nickname!username at host.com PRIVMSG #channel :text\r\n */
++    int max = 512;
++    max -= 14;  /* :, " PRIVMSG ", " ", :, \r, \n */
++    max -= fullAddress.length();
++    max -= nickname.length();
++    return max;
++  }
+ 
+-      if (nickname.charAt(0) == '=')
+-      {
+-          eventData.put("$target", nickname.substring(1, nickname.length()));
+-          eventData.put("$parms", message);
+-          eventData.put("$data", nickname.substring(1, nickname.length()) + " " + message);
++  public void sendNotice(String target, String message) {
++    sock.println("NOTICE " + target + " :" + message);
+ 
+-          output.fireSetTarget(eventData, nickname, "SEND_CHAT");
+-      }
+-      else if (ClientUtils.isChannel(nickname))
+-      {
+-          eventData.put("$target", nickname);
+-          eventData.put("$channel", nickname);
+-          eventData.put("$parms", message);
+-          eventData.put("$data", nickname + " " + message);
++    HashMap eventData = new HashMap();
+ 
+-          output.fireSetTarget(eventData, nickname, output.chooseSet(nickname, "SEND_TEXT", "SEND_TEXT_INACTIVE"));
+-      }
+-      else
+-      {
+-          eventData.put("$target", nickname);
+-          eventData.put("$parms", message);
+-          eventData.put("$data", nickname + " " + message);
++    eventData.put("$target", target);
++    eventData.put("$parms", message);
++    eventData.put("$data", target + " " + message);
+ 
+-          output.fireSetQuery(eventData, nickname, nickname, "SEND_MSG");
+-      }
+-   }
++    output.fireSetConfused(eventData, target, "notice", "SEND_NOTICE");
++  }
+ 
+-   public void sendNotice(String target, String message)
+-   {
+-       sock.println("NOTICE " + target + " :" + message);
++  public void sendAction(String target, String message) {
++    HashMap eventData = new HashMap();
+ 
+-       HashMap eventData = new HashMap();
++    if (target.charAt(0) == '=') {
++      eventData.put("$target", target.substring(1));
++      eventData.put("$parms", message);
++      eventData.put("$data", target.substring(1) + " " + message);
+ 
+-       eventData.put("$target", target);
+-       eventData.put("$parms", message);
+-       eventData.put("$data", target + " " + message);
++      output.fireSetTarget(eventData, target, output.chooseSet(target, "SEND_ACTION", "SEND_ACTION_INACTIVE"));
++    } else if (ClientUtils.isChannel(target)) {
++      eventData.put("$target", target);
++      eventData.put("$channel", target);
++      eventData.put("$parms", message);
++      eventData.put("$data", target + " " + message);
+ 
+-       output.fireSetConfused(eventData, target, "notice", "SEND_NOTICE");
+-   }
+- 
+-   public void sendAction(String target, String message)
+-   {
+-      HashMap eventData = new HashMap();
++      output.fireSetTarget(eventData, target, output.chooseSet(target, "SEND_ACTION", "SEND_ACTION_INACTIVE"));
++    } else {
++      eventData.put("$target", target);
++      eventData.put("$parms", message);
++      eventData.put("$data", target + " " + message);
+ 
+-      if (target.charAt(0) == '=')
+-      {
+-          eventData.put("$target", target.substring(1));
+-          eventData.put("$parms", message);
+-          eventData.put("$data", target.substring(1) + " " + message);
++      output.fireSetTarget(eventData, target, "SEND_ACTION");
++    }
+ 
+-          output.fireSetTarget(eventData, target, output.chooseSet(target, "SEND_ACTION", "SEND_ACTION_INACTIVE"));
+-      }
+-      else if (ClientUtils.isChannel(target))
+-      {
+-          eventData.put("$target", target);
+-          eventData.put("$channel", target);
+-          eventData.put("$parms", message);
+-          eventData.put("$data", target + " " + message);
++    if (target.charAt(0) == '=') {
++      Chat connection = (Chat) dccData.getSpecificConnection(target.substring(1), ProtocolDCC.DCC_CHAT);
+ 
+-          output.fireSetTarget(eventData, target, output.chooseSet(target, "SEND_ACTION", "SEND_ACTION_INACTIVE"));
++      if (connection == null) {
++        output.fireSetTarget(eventData, target, "SEND_CHAT_ERROR");
++        return;
+       }
+-      else
+-      {
+-          eventData.put("$target", target);
+-          eventData.put("$parms", message);
+-          eventData.put("$data", target + " " + message);
+ 
+-          output.fireSetTarget(eventData, target, "SEND_ACTION");
+-      }
++      connection.sendln((char) 1 + "ACTION " + message + (char) 1);
++    } else {
++      sock.println("PRIVMSG " + target + " :" + (char) 1 + "ACTION " + message + (char) 1);
++    }
++  }
+ 
+-      if (target.charAt(0) == '=')
+-      {
+-          Chat connection = (Chat)dccData.getSpecificConnection(target.substring(1), ProtocolDCC.DCC_CHAT);
++  public void sendRequest(String target, String type, String parms) {
++    HashMap eventData = new HashMap();
+ 
+-          if (connection == null)
+-          {
+-              output.fireSetTarget(eventData, target, "SEND_CHAT_ERROR");
+-              return;
+-          }
++    eventData.put("$target", target);
++    eventData.put("$parms", parms);
++    eventData.put("$type", type);
++    eventData.put("$data", target + " " + type + " " + parms);
+ 
+-          connection.sendln((char)1 + "ACTION " + message + (char)1);
++    if (type.equals("PING") && parms.equals("")) {
++      parms = System.currentTimeMillis() + "";
++    }
++
++    output.fireSetConfused(eventData, target, "reply", "SEND_CTCP");
++
++    if (parms.length() > 0) {
++      sock.println("PRIVMSG " + target + " :" + (char) 1 + type.toUpperCase() + " " + parms + (char) 1);
++    } else {
++      sock.println("PRIVMSG " + target + " :" + (char) 1 + type.toUpperCase() + (char) 1);
++    }
++  }
++
++  public void sendReply(String target, String type, String parms) {
++    sock.println("NOTICE " + target + " :" + (char) 1 + type.toUpperCase() + " " + parms + (char) 1);
++  }
++
++
++  public static String[] wrapMessageToStringsArray(String message, int length) {
++    String s = wrapText(message, "\n", length);
++    return s.split("\n");
++  }
++
++  /**
++   * Takes a block of text which might have long lines in it and wraps the long lines based on the supplied wrapColumn
++   * parameter. It was initially implemented for use by VelocityEmail. If there are tabs in inString, you are going to
++   * get results that are a bit strange, since tabs are a single character but are displayed as 4 or 8 spaces. Remove
++   * the tabs.
++   *
++   * @param inString   Text which is in need of word-wrapping.
++   * @param newline    The characters that define a newline.
++   * @param wrapColumn The column to wrap the words at.
++   * @return The text with all the long lines word-wrapped.
++   */
++  public static String wrapText(String inString, String newline,
++                                int wrapColumn) {
++    StringTokenizer lineTokenizer = new StringTokenizer(
++      inString, newline, true);
++    StringBuffer stringBuffer = new StringBuffer();
++
++    while (lineTokenizer.hasMoreTokens()) {
++      try {
++        String nextLine = lineTokenizer.nextToken();
++
++        if (nextLine.length() > wrapColumn) {
++          // This line is long enough to be wrapped.
++          nextLine = wrapLine(nextLine, newline, wrapColumn);
++        }
++
++        stringBuffer.append(nextLine);
+       }
+-      else
+-      {
+-          sock.println("PRIVMSG " + target + " :" + (char)1 + "ACTION " + message + (char)1);
++      catch (NoSuchElementException nsee) {
++        // thrown by nextToken(), but I don't know why it would
++        break;
+       }
+-   }
++    }
+ 
+-   public void sendRequest(String target, String type, String parms)
+-   {
+-       HashMap eventData = new HashMap();
++    return (stringBuffer.toString());
++  }
+ 
+-       eventData.put("$target", target);
+-       eventData.put("$parms", parms);
+-       eventData.put("$type", type);
+-       eventData.put("$data", target + " " + type + " " + parms); 
++  /**
++   * Wraps a single line of text. Called by wrapText(). I can't think of any good reason for exposing this to the
++   * public, since wrapText should always be used AFAIK.
++   *
++   * @param line       A line which is in need of word-wrapping.
++   * @param newline    The characters that define a newline.
++   * @param wrapColumn The column to wrap the words at.
++   * @return A line with newlines inserted.
++   */
++  protected static String wrapLine(String line, String newline,
++                                   int wrapColumn) {
++    StringBuffer wrappedLine = new StringBuffer();
+ 
+-       if (type.equals("PING") && parms.equals(""))
+-       {
+-          parms = System.currentTimeMillis() + "";
+-       }
++    while (line.length() > wrapColumn) {
++      int spaceToWrapAt = line.lastIndexOf(' ', wrapColumn);
+ 
+-       output.fireSetConfused(eventData, target, "reply", "SEND_CTCP");
++      if (spaceToWrapAt >= 0) {
++        wrappedLine.append(line.substring(0, spaceToWrapAt));
++        wrappedLine.append(newline);
++        line = line.substring(spaceToWrapAt + 1);
++      } else {
++        // if no space found, force wrap at wrapColumn
++        spaceToWrapAt = wrapColumn;
++        wrappedLine.append(line.substring(0, spaceToWrapAt));
++        wrappedLine.append(newline);
++        line = line.substring(spaceToWrapAt);
++      }
++    }
++    // Whatever is left in line is short enough to just pass through,
++    // just like a small small kidney stone
++    wrappedLine.append(line);
+ 
+-       if (parms.length() > 0)
+-       {
+-          sock.println("PRIVMSG " + target + " :" + (char)1 + type.toUpperCase() + " " + parms + (char)1);
+-       }
+-       else
+-       {
+-          sock.println("PRIVMSG " + target + " :" + (char)1 + type.toUpperCase() + (char)1);
+-       }
+-   }
++    return wrappedLine.toString();
++  }
+ 
+-   public void sendReply(String target, String type, String parms)
+-   {
+-       sock.println("NOTICE " + target + " :" + (char)1 + type.toUpperCase() + " " + parms + (char)1);
+-   }
++  /*public static void main(String[] args) {
++    String[] strings = wrapMessageToStringsArray("alpha beta gamma someshit", 6);
++    for (int i = 0; i < strings.length; i++) {
++      String string = strings[i];
++      System.out.println("string = " + string);
++    }
++  }*/
+ }
+ 
+ 
+
+Modified: rero/src/rero/config/ClientDefaults.java
+===================================================================
+--- rero/src/rero/config/ClientDefaults.java	2006-02-22 21:31:54 UTC (rev 76)
++++ rero/src/rero/config/ClientDefaults.java	2006-02-23 15:28:59 UTC (rev 77)
+@@ -78,7 +78,7 @@
+ 
+    public static final boolean update_ial     = true;
+ 
+-   public static final String  version_string = "02.18.06 (alpha)";
++   public static final String  version_string = "02.23.06 (alpha)";
+ 
+    static
+    {
+
+
+

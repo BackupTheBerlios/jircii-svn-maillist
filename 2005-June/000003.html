@@ -1,0 +1,312 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Jircii-svn] r22 - in rero: lib resources/resource resources/toplevel resources/toplevel/docs src/rero/client/functions src/rero/client/script src/rero/config src/rero/dialogs src/rero/ircfw src/text src/text/wrapped
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/jircii-svn/2005-June/index.html" >
+   <LINK REL="made" HREF="mailto:jircii-svn%40lists.berlios.de?Subject=Re%3A%20%5BJircii-svn%5D%20r22%20-%20in%20rero%3A%20lib%20resources/resource%20resources/toplevel%20resources/toplevel/docs%20src/rero/client/functions%20src/rero/client/script%20src/rero/config%20src/rero/dialogs%20src/rero/ircfw%20src/text%20src/text/wrapped&In-Reply-To=%3C200506180114.j5I1EEjF020733%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000044.html">
+   
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Jircii-svn] r22 - in rero: lib resources/resource resources/toplevel resources/toplevel/docs src/rero/client/functions src/rero/client/script src/rero/config src/rero/dialogs src/rero/ircfw src/text src/text/wrapped</H1>
+    <B>Raphael Mudge at BerliOS</B> 
+    <A HREF="mailto:jircii-svn%40lists.berlios.de?Subject=Re%3A%20%5BJircii-svn%5D%20r22%20-%20in%20rero%3A%20lib%20resources/resource%20resources/toplevel%20resources/toplevel/docs%20src/rero/client/functions%20src/rero/client/script%20src/rero/config%20src/rero/dialogs%20src/rero/ircfw%20src/text%20src/text/wrapped&In-Reply-To=%3C200506180114.j5I1EEjF020733%40sheep.berlios.de%3E"
+       TITLE="[Jircii-svn] r22 - in rero: lib resources/resource resources/toplevel resources/toplevel/docs src/rero/client/functions src/rero/client/script src/rero/config src/rero/dialogs src/rero/ircfw src/text src/text/wrapped">rsmudge at sheep.berlios.de
+       </A><BR>
+    <I>Sat Jun 18 03:14:14 CEST 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000044.html">[Jircii-svn] r21 - rero/resources/resource
+</A></li>
+        
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#3">[ date ]</a>
+              <a href="thread.html#3">[ thread ]</a>
+              <a href="subject.html#3">[ subject ]</a>
+              <a href="author.html#3">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: rsmudge
+Date: 2005-06-18 03:13:48 +0200 (Sat, 18 Jun 2005)
+New Revision: 22
+
+Modified:
+   rero/lib/sleep.jar
+   rero/resources/resource/default.irc
+   rero/resources/toplevel/docs/scriptjirc.pdf
+   rero/resources/toplevel/docs/sleeplang.pdf
+   rero/resources/toplevel/readme.txt
+   rero/resources/toplevel/whatsnew.txt
+   rero/src/rero/client/functions/TimerOperators.java
+   rero/src/rero/client/script/ScriptManager.java
+   rero/src/rero/config/ClientDefaults.java
+   rero/src/rero/dialogs/AboutWindow.java
+   rero/src/rero/ircfw/CTCPParser.java
+   rero/src/text/FindDialog.java
+   rero/src/text/wrapped/SelectionSpace.java
+Log:
+Beta 36 Changes:
+- added localip() function for retrieving local ip address used for dccs
+- added getNextPort() for retrieving the next dcc port to be used
+- fixed dcc chat, actions, etc. to preserve leading spaces.
+- resynchronized the sorted users stuff
+- added an overly redunant check to prevent scripts from being loaded twice.
+- implemented a check to ensure timers don't execute closures from unloaded
+  scripts.
+- fixed the find dialog (Ctrl+F) not working in certain look and feels
+- fixed $parms in actions from retaining the word ACTION
+- Upgraded to Sleep 2.0-b9
+- fixed small selection bug
+
+
+Modified: rero/lib/sleep.jar
+===================================================================
+(Binary files differ)
+
+Modified: rero/resources/resource/default.irc
+===================================================================
+--- rero/resources/resource/default.irc	2005-06-13 09:36:45 UTC (rev 21)
++++ rero/resources/resource/default.irc	2005-06-18 01:13:48 UTC (rev 22)
+@@ -759,7 +759,6 @@
+ 
+ set SEND_START
+ {
+-   printf(&quot;Start of send to $nick&quot;);
+    return &quot;\c42$nnn Send to $nick has started&quot;;
+ }
+ 
+
+Modified: rero/resources/toplevel/docs/scriptjirc.pdf
+===================================================================
+(Binary files differ)
+
+Modified: rero/resources/toplevel/docs/sleeplang.pdf
+===================================================================
+(Binary files differ)
+
+Modified: rero/resources/toplevel/readme.txt
+===================================================================
+--- rero/resources/toplevel/readme.txt	2005-06-13 09:36:45 UTC (rev 21)
++++ rero/resources/toplevel/readme.txt	2005-06-18 01:13:48 UTC (rev 22)
+@@ -1,5 +1,5 @@
+  ------- -------------------- ---------   ---------------  ------- ---------
+-jIRCii - Beta (35) 06.11.05 - README
++jIRCii - Beta (36) 06.18.05 - README
+ -  ------------- -------- -   ---------------- --       -    -     -     - - -
+ 
+ The official jIRCii homepage is at: <A HREF="http://jircii.hick.org">http://jircii.hick.org</A>
+
+Modified: rero/resources/toplevel/whatsnew.txt
+===================================================================
+--- rero/resources/toplevel/whatsnew.txt	2005-06-13 09:36:45 UTC (rev 21)
++++ rero/resources/toplevel/whatsnew.txt	2005-06-18 01:13:48 UTC (rev 22)
+@@ -1,3 +1,17 @@
++Beta   36 release 06.18.05
++====
++- added localip() function for retrieving local ip address used for dccs
++- added getNextPort() for retrieving the next dcc port to be used
++- fixed dcc chat, actions, etc. to preserve leading spaces.
++- resynchronized the sorted users stuff
++- added an overly redunant check to prevent scripts from being loaded twice.
++- implemented a check to ensure timers don't execute closures from unloaded
++  scripts.
++- fixed the find dialog (Ctrl+F) not working in certain look and feels
++- fixed $parms in actions from retaining the word ACTION
++- upgraded to Sleep 2.0-b9 (many many cool additions/changes)
++- fixed small selection bug
++
+ Beta   35 Release 06.11.05
+ ====
+ - upgraded scripting library to Sleep 2.0-release candidate bringing 
+
+Modified: rero/src/rero/client/functions/TimerOperators.java
+===================================================================
+--- rero/src/rero/client/functions/TimerOperators.java	2005-06-13 09:36:45 UTC (rev 21)
++++ rero/src/rero/client/functions/TimerOperators.java	2005-06-18 01:13:48 UTC (rev 22)
+@@ -97,6 +97,14 @@
+ 
+       public void timerExecute()
+       {
++         if (si == null || !si.isLoaded())
++         {
++            args = null;
++            si   = null;
++            func = null;
++            return;
++         }
++
+          Stack arg_stack = new Stack();
+          if (args != null)
+             arg_stack.push(args);
+
+Modified: rero/src/rero/client/script/ScriptManager.java
+===================================================================
+--- rero/src/rero/client/script/ScriptManager.java	2005-06-13 09:36:45 UTC (rev 21)
++++ rero/src/rero/client/script/ScriptManager.java	2005-06-18 01:13:48 UTC (rev 22)
+@@ -67,7 +67,12 @@
+       i = load.iterator();
+       while (i.hasNext())
+       {
+-         internalScriptLoad((String)i.next());
++         String tt = (String)i.next();
++         if (!loader.isLoaded(tt))
++         {   
++            internalScriptLoad(tt); // this check is overly redundant, however if a script loads a script while this operation is
++                                    // taking place things will have the potential to break, never any fun
++         }
+       }
+    }
+ 
+
+Modified: rero/src/rero/config/ClientDefaults.java
+===================================================================
+--- rero/src/rero/config/ClientDefaults.java	2005-06-13 09:36:45 UTC (rev 21)
++++ rero/src/rero/config/ClientDefaults.java	2005-06-18 01:13:48 UTC (rev 22)
+@@ -74,7 +74,7 @@
+ 
+    public static final boolean update_ial     = true;
+ 
+-   public static final String  version_string = &quot;06.11.05&quot;;
++   public static final String  version_string = &quot;06.18.05&quot;;
+ 
+    static
+    {
+
+Modified: rero/src/rero/dialogs/AboutWindow.java
+===================================================================
+--- rero/src/rero/dialogs/AboutWindow.java	2005-06-13 09:36:45 UTC (rev 21)
++++ rero/src/rero/dialogs/AboutWindow.java	2005-06-18 01:13:48 UTC (rev 22)
+@@ -217,12 +217,12 @@
+             }
+             else if (buffer.toString().toLowerCase().equals(superEliteEncryption(&quot;jroon&quot;)))
+             {
+-               randomText = textTables[11];
++               randomText = textTables[9];
+                activateEgg();
+             }
+             else if (buffer.toString().toLowerCase().equals(superEliteEncryption(&quot;sybbq&quot;)))
+             {
+-               randomText = textTables[10];
++               randomText = textTables[8];
+                activateEgg();
+             }
+ 
+
+Modified: rero/src/rero/ircfw/CTCPParser.java
+===================================================================
+--- rero/src/rero/ircfw/CTCPParser.java	2005-06-13 09:36:45 UTC (rev 21)
++++ rero/src/rero/ircfw/CTCPParser.java	2005-06-18 01:13:48 UTC (rev 22)
+@@ -19,7 +19,7 @@
+ 
+ public class CTCPParser implements FrameworkConstants
+ {
+-   protected static String ctcpPattern = &quot;\001(\\w++)\\s*(.*)\001&quot;;
++   protected static String ctcpPattern = &quot;\001(\\w++)(\\s*)(.*)\001&quot;;
+ 
+    protected static Pattern isCTCP = Pattern.compile(ctcpPattern);
+ 
+@@ -46,7 +46,7 @@
+        }
+        
+        type       = parser.getParsedString(0); // thank god for regex's this would have taken forever
+-       parameters = parser.getParsedString(1); // to code out before.
++       parameters = parser.getParsedString(2); // to code out before.
+ 
+        parms = type + &quot; &quot; + parameters;
+        data  = target + &quot; &quot; + parms;       
+@@ -55,6 +55,14 @@
+        {
+           event = &quot;ACTION&quot;;
+           data  = target + &quot; &quot; + parameters;       
++
++          String whitespace = parser.getParsedString(1);
++          if (whitespace.length() &gt; 1)
++          {
++             parameters = whitespace.substring(1) + parameters;
++          }
++
++          parms = parameters;
+        }
+ 
+        if (event.equals(&quot;PRIVMSG&quot;))
+
+Modified: rero/src/text/FindDialog.java
+===================================================================
+--- rero/src/text/FindDialog.java	2005-06-13 09:36:45 UTC (rev 21)
++++ rero/src/text/FindDialog.java	2005-06-18 01:13:48 UTC (rev 22)
+@@ -38,12 +38,6 @@
+        search = new JTextField(text, 20);
+        search.addKeyListener(this);
+        search.addActionListener(this);
+-       search.addFocusListener(new FocusAdapter() {
+-           public void focusLost(FocusEvent ev) 
+-           {
+-              search.requestFocus();
+-           }
+-       }); 
+ 
+        JPanel panel = new JPanel();
+        panel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));       
+@@ -142,5 +136,7 @@
+ 
+        next.setEnabled(results.hasNext());
+        prev.setEnabled(results.hasPrevious());
++
++       search.requestFocus();
+    }
+ }
+
+Modified: rero/src/text/wrapped/SelectionSpace.java
+===================================================================
+--- rero/src/text/wrapped/SelectionSpace.java	2005-06-13 09:36:45 UTC (rev 21)
++++ rero/src/text/wrapped/SelectionSpace.java	2005-06-18 01:13:48 UTC (rev 22)
+@@ -67,7 +67,7 @@
+     {
+        pixely -= 5;
+        int height = TextSource.fontMetrics.getHeight() + 2;
+-       return ((pixely) - ((pixely) % height)) / height;
++       return (pixely - (pixely % height)) / height;
+     }
+ 
+     protected int translateToPixel(int lineno)
+@@ -181,7 +181,7 @@
+              start = (int)changed.getY();
+           }
+ 
+-          int end   = translateToPixel(lineEnd + 1) - start;   
++          int end   = translateToPixel(lineEnd + 2) - start;   
+ 
+           if (end &lt; changed.getHeight())
+           {
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000044.html">[Jircii-svn] r21 - rero/resources/resource
+</A></li>
+	
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#3">[ date ]</a>
+              <a href="thread.html#3">[ thread ]</a>
+              <a href="subject.html#3">[ subject ]</a>
+              <a href="author.html#3">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/jircii-svn">More information about the Jircii-svn
+mailing list</a><br>
+</body></html>

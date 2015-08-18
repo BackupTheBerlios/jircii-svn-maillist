@@ -1,0 +1,512 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Jircii-svn] r88 - in rero: . resources/toplevel	resources/toplevel/docs src/rero/gui src/rero/gui/background	src/rero/test src-apple src-apple/jIRCii.app/Contents
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/jircii-svn/2007-March/index.html" >
+   <LINK REL="made" HREF="mailto:jircii-svn%40lists.berlios.de?Subject=Re%3A%20%5BJircii-svn%5D%20r88%20-%20in%20rero%3A%20.%20resources/toplevel%0A%09resources/toplevel/docs%20src/rero/gui%20src/rero/gui/background%0A%09src/rero/test%20src-apple%20src-apple/jIRCii.app/Contents&In-Reply-To=%3C200703241808.l2OI8jqM009932%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000068.html">
+   <LINK REL="Next"  HREF="000070.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Jircii-svn] r88 - in rero: . resources/toplevel	resources/toplevel/docs src/rero/gui src/rero/gui/background	src/rero/test src-apple src-apple/jIRCii.app/Contents</H1>
+    <B>rsmudge at BerliOS</B> 
+    <A HREF="mailto:jircii-svn%40lists.berlios.de?Subject=Re%3A%20%5BJircii-svn%5D%20r88%20-%20in%20rero%3A%20.%20resources/toplevel%0A%09resources/toplevel/docs%20src/rero/gui%20src/rero/gui/background%0A%09src/rero/test%20src-apple%20src-apple/jIRCii.app/Contents&In-Reply-To=%3C200703241808.l2OI8jqM009932%40sheep.berlios.de%3E"
+       TITLE="[Jircii-svn] r88 - in rero: . resources/toplevel	resources/toplevel/docs src/rero/gui src/rero/gui/background	src/rero/test src-apple src-apple/jIRCii.app/Contents">rsmudge at mail.berlios.de
+       </A><BR>
+    <I>Sat Mar 24 19:08:45 CET 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000068.html">[Jircii-svn] r87 - in rero/src/rero: config gui/background
+</A></li>
+        <LI>Next message: <A HREF="000070.html">[Jircii-svn] r89 - in rero: . lib
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#69">[ date ]</a>
+              <a href="thread.html#69">[ thread ]</a>
+              <a href="subject.html#69">[ subject ]</a>
+              <a href="author.html#69">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: rsmudge
+Date: 2007-03-24 19:08:44 +0100 (Sat, 24 Mar 2007)
+New Revision: 88
+
+Modified:
+   rero/build.xml
+   rero/resources/toplevel/docs/jircii.faq
+   rero/resources/toplevel/whatsnew.txt
+   rero/src-apple/Info.plist-modify
+   rero/src-apple/jIRCii.app/Contents/Info.plist
+   rero/src/rero/gui/SessionManager.java
+   rero/src/rero/gui/background/BackgroundProperties.java
+   rero/src/rero/test/QuickConnect.java
+   rero/src/rero/test/WindowTest.java
+Log:
+part of the phear-u-phear-me suite...
+
+
+Modified: rero/build.xml
+===================================================================
+--- rero/build.xml	2007-03-24 01:05:06 UTC (rev 87)
++++ rero/build.xml	2007-03-24 18:08:44 UTC (rev 88)
+@@ -42,7 +42,7 @@
+   &lt;/target&gt;
+ 
+   &lt;target name=&quot;clean&quot; description=&quot;clean up&quot; &gt;
+-    &lt;delete dir=&quot;${build}&quot;/&gt;
++    &lt;delete dir=&quot;${project.build}&quot;/&gt;
+   &lt;/target&gt;
+ 
+   &lt;target name=&quot;docs&quot; description=&quot;generate java documentation&quot;&gt;
+
+Modified: rero/resources/toplevel/docs/jircii.faq
+===================================================================
+--- rero/resources/toplevel/docs/jircii.faq	2007-03-24 01:05:06 UTC (rev 87)
++++ rero/resources/toplevel/docs/jircii.faq	2007-03-24 18:08:44 UTC (rev 88)
+@@ -1,4 +1,4 @@
+-jircii faq - distributed with jircii 07.18.05:
++jircii faq - distributed with jircii 03.24.07:
+ 
+                .sS$$Ss.                           .sS$$Ss. .sS$$Ss.
+                $$$$$$$$                           $$$$$$$$ $$$$$$$$
+@@ -9,7 +9,7 @@
+          $$$$$$ $$$$$$ $$$$$$ $$$$$$ $$$$$$ $$$$$$ $$$$$$   $$$$$$
+          $$$$$$ $$$$$$ $$$$$$ $$$$$$ $$$$$$        $$$$$$   $$$$$$
+   &quot;&quot;&quot;&quot;&quot;&quot; $$$$$$ $$$$$$ $$$$$$        $$$$$$ $$$$$$ $$$$$$   $$$$$$
+-  $$$$$$ $$$$$$ $$$$$$ $$$$$$ 071805 $$$$$$ $$$$$$ $$$$$$   $$$$$$
++  $$$$$$ $$$$$$ $$$$$$ $$$$$$ 032407 $$$$$$ $$$$$$ $$$$$$   $$$$$$
+   $$$$$$ $$$$$$ $$$$$$ $$$$$$        `?$$$$s$$$$P' $$$$$$   $$$$$$
+   `?$$$$s$$$$P'                                        
+ 
+@@ -30,7 +30,7 @@
+  9. What do the faded nicknames in the channel listbox mean?
+ 10. What is a jIRCii theme?
+ 11. How do I copy and paste in jIRCii?
+-12. I can't cut text with Ctrl+X, what's wrong?
++12. How do I cycle channels in the status window?
+ 13. Where does jIRCii store its settings?
+ 14. How do I edit the jIRCii color scheme?
+ 15. How can I change ________ in the default jIRCii script?
+@@ -57,24 +57,25 @@
+ 31. How do I change the statusbar color?
+ 32. How can I set a background image in jIRCii?
+ 33. Can I make jIRCii windows transparent?
++34. How do I strip jIRCii's GUI to only the essentials?
+ 
+-34. Why don't you allow plugins written in Java, C, Python, Visual Basic etc.?
++35. Why don't you allow plugins written in Java, C, Python, Visual Basic etc.?
+ 
+-35. Will you ever charge money for jIRCii?
+-36. Can I get the jIRCii source code?
+-37. Can I use portions of jIRCii's source code in my GPL project?
+-38. What do the release designations (stable, beta) mean?
+-39. How do I embed jIRCii into my website?
++36. Will you ever charge money for jIRCii?
++37. Can I get the jIRCii source code?
++38. Can I use portions of jIRCii's source code in my GPL project?
++39. What do the release designations (stable, beta) mean?
++40. How do I embed jIRCii into my website?
+ 
+-40. What development environment do you use?
+-41. Why write another Java IRC Client?
+-42. What clients did you rip^H^H^H receive inspiration from?
+-43. How long has jIRCii been in development?
+-44. Why don't you wait until you have more changes to do a release?
++41. What development environment do you use?
++42. Why write another Java IRC Client?
++43. What clients did you rip^H^H^H receive inspiration from?
++44. How long has jIRCii been in development?
++45. Why don't you wait until you have more changes to do a release?
+ 
+-45. I disabled my jircii menubar, how do I get it back?
+-46. How do I reset the jIRCii settings?
+-47. My jIRCii window flashes or acts crazy occasionally, what's wrong?
++46. I disabled my jircii menubar, how do I get it back?
++47. How do I reset the jIRCii settings?
++48. My jIRCii window flashes or acts crazy occasionally, what's wrong?
+ 
+ If a question you would like answered is not here then post your question to 
+ the jIRCii Message Board at <A HREF="http://jircii.hick.org/jirc/wwwboard.prl">http://jircii.hick.org/jirc/wwwboard.prl</A>
+@@ -225,19 +226,23 @@
+     paste.  Or you can use the cut, copy, paste keyboard shortcuts specific
+     to your operating system.
+ 
+-12. I can't cut text with Ctrl+X, what's wrong?
++12. How do I cycle channels in the status window?
+ 
+-    Beleive it or not this actually isn't a bug.  jIRCii binds Ctrl+X by
+-    default to switch the current active query in case you are IRC'ing out
+-    of your status window (i.e. all auto /window options turned off).  
++    In the past, jIRCii bound Ctrl+X to do this ala BitchX.  Many Windows 
++    users complained that they could not cut text and rogue contributors
++    removed this feature.  
+ 
+-    This is consistent with the Ctrl+X binding used by BitchX.  If you would
+-    like Ctrl+X to provide the normal service of cutting text, paste the
+-    following into notepad, save it, and load it into jIRCii:
++    To try to ease the pain, Ctrl+Z has been bound to the previous behavior
++    of Ctrl+X.  jIRCii binds Ctrl+Z by default to switch the current active 
++    query in case you are IRC'ing out of your status window (i.e. all auto 
++    /window options turned off).  
+ 
++    If you would like Ctrl+X to provide the service of cycling active channels, 
++    paste the following into notepad, save it, and load it into jIRCii:
++
+     bind Ctrl+X
+     {
+-       cutSelectedText();
++       cycleQuery();
+     }
+ 
+ 13. Where does jIRCii store its settings?
+@@ -581,8 +586,38 @@
+     configurations for your window backgrounds.  This is the only eye candy
+     you'll get so enjoy it.
+ 
+-34. Why don't you allow plugins written in Java, C, Python, Visual Basic etc.?
++34. How do I strip jIRCii's GUI to only the essentials?
+ 
++    Yes, the true power of jIRCii is you can have a GUI client that feels like
++    mIRC or you can strip it down to the bare essentials so you feel like you
++    are irc'ing out of a terminal window.  The choice of which extreme and to
++    which extent is yours.  
++
++    To disable all of the GUI elements in jIRCii:
++    a. Select View-&gt;Options-&gt;Auto /Window
++    b. Disable auto /window for everything (you can reenable this stuff later
++       but ideally, I assume you want to IRC out of one window, correct?)
++    c. Select the &quot;GUI Setup&quot; item from the left hand side tree control.
++    d. Uncheck all items under &quot;Interface Elements&quot;
++    e. Select the &quot;&quot;Switchbar&quot; item from the left hand side tree control.
++    f. Uncheck &quot;Enable Switchbar&quot;
++    g. Click &quot;Ok&quot;.
++
++    Now on some operating systems, upon restarting jIRCii, you will notice
++    a 1 pixel border around the jIRCii window.  If you want to get rid of this
++    (afterall, every pixel is valuable) then type the following in a jIRCii
++    window:
++
++    h. /eval setProperty(&quot;notabs.border&quot;, 0);
++
++    Now comes the final step:
++
++    i. restart jIRCii for everything to take effect.
++
++    Before you know it, you'll be irc'ing console style.  pHEAR!
++
++35. Why don't you allow plugins written in Java, C, Python, Visual Basic etc.?
++
+     Some people have asked me why I use sleep and not some masterpeice of 
+     a language like Python.  Short answer is this:
+ 
+@@ -606,12 +641,12 @@
+ 
+     As for plugins and such.  Why not just modify the source code?
+ 
+-35. Will you ever charge money for jIRCii?
++36. Will you ever charge money for jIRCii?
+ 
+     No.  jIRCii is my gift to the IRC community.  Therefor I can't charge
+     money for the client.  However I may charge for shipping and handling.
+ 
+-36. Can I get the jIRCii source code?
++37. Can I get the jIRCii source code?
+ 
+     Yes!  jIRCii is an open source client.  jIRCii source code and 
+     binaries are released under the artistic license.  
+@@ -635,7 +670,7 @@
+     source project so long as I receive some form of credit for the code
+     I wrote.  If you modify it please note that too.
+ 
+-37. Can I use portions of jIRCii's source code in my GPL project?
++38. Can I use portions of jIRCii's source code in my GPL project?
+ 
+     Short answer, yes.  I grant you permission to use any jIRCii code &quot;I
+     wrote&quot; licensed under the artistic license in your GPL project and to
+@@ -645,7 +680,7 @@
+     of the license feels like a bit of a lock-in to me.  However feel 
+     free to do what you need to do.  :)
+ 
+-38. What do the release designations (stable, beta) mean?
++39. What do the release designations (stable, beta) mean?
+ 
+     No one has asked me this yet. However I'm going to answer because I'm 
+     sure someone is curious. 
+@@ -657,7 +692,7 @@
+     recently released beta. As such stable releases are considered stable 
+     since they've been tested by people other than me. 
+ 
+-39. How do I embed jIRCii into my website?
++40. How do I embed jIRCii into my website?
+ 
+     You can do this by using the jIRCii launch service.  jIRCii launch
+     service provides a way of specifying an irc server and a channel when
+@@ -671,7 +706,7 @@
+     More info about jIRCii launch service can be found at:
+     <A HREF="http://jircii.hick.org/jirc/link.prl">http://jircii.hick.org/jirc/link.prl</A>
+ 
+-40. What development environment do you use?
++41. What development environment do you use?
+ 
+     Don't laugh, I use pico as my text editor.  I should be shot.  Or
+     maybe given an award for writing over 40,000 lines of code in pico.
+@@ -695,11 +730,11 @@
+     10.3.4.  jIRCii development in the past has been done on Linux using
+     the same type of environment and on Windows using editplus.  
+ 
+-41. Why write another Java IRC Client?
++42. Why write another Java IRC Client?
+ 
+     I don't own a TV or a playstation and I needed something to do.
+ 
+-42. What clients did you rip^H^H^H receive inspiration from?
++43. What clients did you rip^H^H^H receive inspiration from?
+ 
+     Years ago back when I was an IRC scripter.  I wrote an addon called
+     mIRCii.  mIRCii was essentially a multi-server addon for mIRC.  You
+@@ -729,7 +764,7 @@
+     mIRC gets points for heavy influence by default.  Since mIRC is the 
+     client most people use.
+ 
+-43. How long has jIRCii been in development?
++44. How long has jIRCii been in development?
+ 
+     I started writing jIRCii when I was in high school.  This was mostly
+     an effort to learn Java.  jIRC was my senior project for my high school
+@@ -784,7 +819,7 @@
+     Short answer:  I've been working on this client for a looong freaking
+     time.  
+ 
+-44. Why don't you wait until you have more changes to do a release?
++45. Why don't you wait until you have more changes to do a release?
+ 
+     Good question.  You may notice the main package jIRCii classes are 
+     stored in is named &quot;rero&quot;.  I named the jIRCii package this because
+@@ -808,7 +843,7 @@
+     then I recommend downloading a released labeled stable and just
+     waiting until the next stable release ignoring betas in between.  
+ 
+-45. I disabled my jircii menubar, how do I get it back?
++46. I disabled my jircii menubar, how do I get it back?
+ 
+     Open up the options dialog using Alt+O.  From there navigate to 
+     &quot;GUI Setup&quot; near the bottom.  Make sure the box &quot;Show menubar&quot; is
+@@ -818,7 +853,7 @@
+     This could be due to a rogue script that got loaded.  The best thing 
+     to do in this case is to reset your jIRCii settings.
+ 
+-46. How do I reset the jIRCii settings?
++47. How do I reset the jIRCii settings?
+ 
+     You should only need to do this if your jIRCii settings become really 
+     messed up.  Symptoms of messed up settings include nothing happening
+@@ -840,7 +875,7 @@
+  
+     Do a file search for .jIRC and delete it.   
+ 
+-47. My jIRCii window flashes or acts crazy occasionally, what's wrong?
++48. My jIRCii window flashes or acts crazy occasionally, what's wrong?
+ 
+     Java uses a lot of video card hardware tricks to enhance performance.
+     Unfortunately buggy video card drivers can cause problems with the
+
+Modified: rero/resources/toplevel/whatsnew.txt
+===================================================================
+--- rero/resources/toplevel/whatsnew.txt	2007-03-24 01:05:06 UTC (rev 87)
++++ rero/resources/toplevel/whatsnew.txt	2007-03-24 18:08:44 UTC (rev 88)
+@@ -1,13 +1,28 @@
+-Beta    41 release 23 Mar 07
++Beta    41 release 24 Mar 07
+ ====
+ - Updated to Sleep 2.1-b14 (is it even released yet?).  Lots of changes.
+-  Scripters (and indirectly users) shall be pleased.  
+   See the full changelog at: <A HREF="http://sleep.hick.org/changelog.html">http://sleep.hick.org/changelog.html</A>
++
++  Highlights include:
++  -- Addition of try/catch blocks and a throw command
++  -- Watch variables to assist with debugging 
++  -- an include function for including external files into a script
++  -- a profiler for seeing where your scripts spend all their time
++  -- assignment ops i.e. +=, *=, /= etc.  
++  -- performance enhancements and several bug fixes!!
++
+ - Fixed a bug where a popup trigger on MacOS X could also trigger a
+   mouse clicked event (causing inadvertant creation of query windows
+   even when you don't want them).
+ - Fixed a bug that caused psuedo transparency image to be recalculated 
+-  with every window resize.  Made psuedo transparency mode incredibly slow.
++  with every window resize.  Resizing with psuedo transparency should feel
++  a little faster now.
++- Disabled apple.awt.showGrowBox property in Info.plist, this stops the 
++  drawing of the OS X grow box in the lower right corner (functionallity it
++  is still there, this just prevents the box itself from obscuring the client)
++- jIRCii Weblaunch/command line options to specify irc URL now allows
++  <A HREF="ircs://">ircs://</A> URLs for connecting to an SSL server.  Port information is allowed
++  as well.
+ 
+ Beta    40 release 12 Oct 06
+ ====
+
+Modified: rero/src/rero/gui/SessionManager.java
+===================================================================
+--- rero/src/rero/gui/SessionManager.java	2007-03-24 01:05:06 UTC (rev 87)
++++ rero/src/rero/gui/SessionManager.java	2007-03-24 18:08:44 UTC (rev 88)
+@@ -115,20 +115,8 @@
+ 
+             if (QuickConnect.IsQuickConnect())
+             {
+-               String ircServer = QuickConnect.GetInformation().getServer();
+-
+                addSession();
+-               ServerData sdata = ServerData.getServerData();
+-               Server stemp = sdata.getServerByName(ircServer);
+-  
+-               if (stemp != null)
+-               {
+-                  getSession(getComponentAt(0)).executeCommand(stemp.getCommand());
+-               }
+-               else
+-               {
+-                  getSession(getComponentAt(0)).executeCommand(&quot;/server &quot; + ircServer + &quot; &quot; + QuickConnect.GetInformation().getPort());
+-               }
++               getSession(getComponentAt(0)).executeCommand(QuickConnect.GetInformation().getConnectCommand());
+             }
+             else if (temp.getList().size() == 0)
+             {
+
+Modified: rero/src/rero/gui/background/BackgroundProperties.java
+===================================================================
+--- rero/src/rero/gui/background/BackgroundProperties.java	2007-03-24 01:05:06 UTC (rev 87)
++++ rero/src/rero/gui/background/BackgroundProperties.java	2007-03-24 18:08:44 UTC (rev 88)
+@@ -96,14 +96,6 @@
+          image          = null;
+          transform      = null;
+       }
+-
+-      /* we still want to redo all of this if we're not relative to the desktop and the style calls for transforming
+-         relative to the window.  after all this function is called when something changes to the window */ 
+-      if (!isRelative &amp;&amp; (bgStyle == BackgroundUtil.STYLE_FILL || bgStyle == BackgroundUtil.STYLE_STRETCHED))
+-      {
+-         image = null;
+-         transform = null;
+-      }
+    }
+ 
+    public Image getImage(Component c)
+
+Modified: rero/src/rero/test/QuickConnect.java
+===================================================================
+--- rero/src/rero/test/QuickConnect.java	2007-03-24 01:05:06 UTC (rev 87)
++++ rero/src/rero/test/QuickConnect.java	2007-03-24 18:08:44 UTC (rev 88)
+@@ -18,6 +18,23 @@
+       info  = _info;
+    }
+ 
++   public String getConnectCommand()
++   {
++      StringBuffer doit = new StringBuffer();
++      doit.append(&quot;/server &quot;);
++
++      if (isSSL())
++      {
++         doit.append(&quot;-ssl &quot;);
++      }
++
++      doit.append(getServer());
++      doit.append(&quot; &quot;);
++      doit.append(getPort());
++
++      return doit.toString();
++   } 
++
+    public static QuickConnect GetInformation() 
+    {
+       return qc;
+@@ -36,6 +53,12 @@
+       return &quot;Guest_&quot; + (System.currentTimeMillis() % 100);
+    }
+ 
++   public boolean isSSL()
++   {
++       System.out.println(info.getScheme());
++       return &quot;ircs&quot;.equals(info.getScheme());
++   }
++
+    public String getPort()
+    {
+       if (info.getPort() &gt; -1)
+
+Modified: rero/src/rero/test/WindowTest.java
+===================================================================
+--- rero/src/rero/test/WindowTest.java	2007-03-24 01:05:06 UTC (rev 87)
++++ rero/src/rero/test/WindowTest.java	2007-03-24 18:08:44 UTC (rev 88)
+@@ -138,7 +138,7 @@
+       //
+       // check for an <A HREF="irc://">irc://</A> specified on the command line...
+       //
+-      if (ARGNO &lt; args.length &amp;&amp; args[ARGNO].indexOf(&quot;<A HREF="irc://">irc://</A>&quot;) &gt; -1)
++      if (ARGNO &lt; args.length &amp;&amp; (args[ARGNO].indexOf(&quot;<A HREF="irc://">irc://</A>&quot;) &gt; -1 || args[ARGNO].indexOf(&quot;<A HREF="ircs://">ircs://</A>&quot;) &gt; -1))
+       {
+          try
+          {
+
+Modified: rero/src-apple/Info.plist-modify
+===================================================================
+--- rero/src-apple/Info.plist-modify	2007-03-24 01:05:06 UTC (rev 87)
++++ rero/src-apple/Info.plist-modify	2007-03-24 18:08:44 UTC (rev 88)
+@@ -41,6 +41,8 @@
+ 			&lt;string&gt;$JAVAROOT/jerk.jar&lt;/string&gt;
+ 		&lt;key&gt;Properties&lt;/key&gt;
+ 		&lt;dict&gt;
++			&lt;key&gt;apple.awt.showGrowBox&lt;/key&gt;
++			&lt;string&gt;false&lt;/string&gt;
+ 			&lt;key&gt;com.apple.smallTabs&lt;/key&gt;
+ 			&lt;string&gt;true&lt;/string&gt;
+ 			&lt;key&gt;com.apple.macos.useScreenMenuBar&lt;/key&gt;
+
+Modified: rero/src-apple/jIRCii.app/Contents/Info.plist
+===================================================================
+--- rero/src-apple/jIRCii.app/Contents/Info.plist	2007-03-24 01:05:06 UTC (rev 87)
++++ rero/src-apple/jIRCii.app/Contents/Info.plist	2007-03-24 18:08:44 UTC (rev 88)
+@@ -41,6 +41,8 @@
+ 			&lt;string&gt;$JAVAROOT/jerk.jar&lt;/string&gt;
+ 		&lt;key&gt;Properties&lt;/key&gt;
+ 		&lt;dict&gt;
++			&lt;key&gt;apple.awt.showGrowBox&lt;/key&gt;
++			&lt;string&gt;false&lt;/string&gt;
+ 			&lt;key&gt;com.apple.smallTabs&lt;/key&gt;
+ 			&lt;string&gt;true&lt;/string&gt;
+ 			&lt;key&gt;com.apple.macos.useScreenMenuBar&lt;/key&gt;
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000068.html">[Jircii-svn] r87 - in rero/src/rero: config gui/background
+</A></li>
+	<LI>Next message: <A HREF="000070.html">[Jircii-svn] r89 - in rero: . lib
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#69">[ date ]</a>
+              <a href="thread.html#69">[ thread ]</a>
+              <a href="subject.html#69">[ subject ]</a>
+              <a href="author.html#69">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/jircii-svn">More information about the Jircii-svn
+mailing list</a><br>
+</body></html>

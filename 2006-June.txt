@@ -1,0 +1,470 @@
+From crazycoder at berlios.de  Mon Jun  5 00:48:56 2006
+From: crazycoder at berlios.de (crazycoder at BerliOS)
+Date: Mon, 5 Jun 2006 00:48:56 +0200
+Subject: [Jircii-svn] r81 - rero/src/rero/client/script
+Message-ID: <200606042248.k54MmuEE008501@sheep.berlios.de>
+
+Author: crazycoder
+Date: 2006-06-05 00:48:53 +0200 (Mon, 05 Jun 2006)
+New Revision: 81
+
+Modified:
+   rero/src/rero/client/script/ScriptManager.java
+Log:
+some tweaks related to charset detection
+
+Modified: rero/src/rero/client/script/ScriptManager.java
+===================================================================
+--- rero/src/rero/client/script/ScriptManager.java	2006-03-18 22:01:02 UTC (rev 80)
++++ rero/src/rero/client/script/ScriptManager.java	2006-06-04 22:48:53 UTC (rev 81)
+@@ -325,15 +325,19 @@
+         Matcher mname = ENCODING_IN_FILE.matcher(name);
+         Matcher mext = ENCODING_IN_EXTENSION.matcher(name);
+ 
+-        // lazy init
+-        if (charsets == null) charsets = Charset.availableCharsets();
+         if (mname.matches()) {
++            // lazy init
++            if (charsets == null) charsets = Charset.availableCharsets();
+             String charset = mname.group(1);
+             if (charsets.containsKey(charset))
+                 return charset;
+         }
+         if (mext.matches()) {
+             String charset = mext.group(1);
++            // skip for .irc files
++            if(charset.equalsIgnoreCase("irc")) return null;
++            // lazy init
++            if (charsets == null) charsets = Charset.availableCharsets();
+             if (charsets.containsKey(charset))
+                 return charset;
+         }
+
+
+
+From crazycoder at berlios.de  Sun Jun 18 22:16:54 2006
+From: crazycoder at berlios.de (crazycoder at BerliOS)
+Date: Sun, 18 Jun 2006 22:16:54 +0200
+Subject: [Jircii-svn] r82 - in rero: resources/resource resources/toplevel src/rero/client/functions src/rero/config src/rero/util
+Message-ID: <200606182016.k5IKGsUg007783@sheep.berlios.de>
+
+Author: crazycoder
+Date: 2006-06-18 22:16:52 +0200 (Sun, 18 Jun 2006)
+New Revision: 82
+
+Modified:
+   rero/resources/resource/default.irc
+   rero/resources/resource/menus.irc
+   rero/resources/toplevel/whatsnew.txt
+   rero/src/rero/client/functions/UtilOperators.java
+   rero/src/rero/config/ClientDefaults.java
+   rero/src/rero/util/ClientUtils.java
+Log:
+formatTime3 function that formats time in seconds to something like "13 days, 23 hours, 8 minutes, 54 seconds" (useful for idle times), default "/whois $1" in menus is changed to "/whois $1 $1" to show idle time for all users
+
+Modified: rero/resources/resource/default.irc
+===================================================================
+--- rero/resources/resource/default.irc	2006-06-04 22:48:53 UTC (rev 81)
++++ rero/resources/resource/default.irc	2006-06-18 20:16:52 UTC (rev 82)
+@@ -374,7 +374,7 @@
+ set REPL_312! { return formatWhois("Server", "\c36 $+ $2 \c33\r(\r $+ $3- $+ \r)\r"); }
+ set REPL_313! { return formatWhois("Ircop", "\c35\b $+ $1 \b\c33 $+ $2-"); }
+ set REPL_314! { return formatWhois("Who Was", "\c35\b $+ $1 \b\r[\r $+ $2 $+ \r@\r $+ $3 $+ \r]\c33:\r $5-"); }
+-set REPL_317! { return formatWhois("Idle", formatTime($2)); }
++set REPL_317! { return formatWhois("Idle", formatTime3($2)); }
+ set REPL_330! { return formatWhois("Register", "\c33 $+ $1 $3- \c35\b $+ $2"); }
+ set REPL_318  { return ""; } # hide END of /WHOIS 
+ set REPL_369  { return ""; } # hide END of /WHOWAS 
+@@ -706,7 +706,7 @@
+ 
+    if ($type eq "CHAT")
+    {
+-     $info = "\c33\bI\bdle\r:\r " . formatTime(getDCCIdleTime($conn) / 1000);
++     $info = "\c33\bI\bdle\r:\r " . formatTime3(getDCCIdleTime($conn) / 1000);
+    }
+    else
+    {
+
+Modified: rero/resources/resource/menus.irc
+===================================================================
+--- rero/resources/resource/menus.irc	2006-06-04 22:48:53 UTC (rev 81)
++++ rero/resources/resource/menus.irc	2006-06-18 20:16:52 UTC (rev 82)
+@@ -383,7 +383,7 @@
+ 
+ menu query
+ {
+-   &addItem("&Whois", "/whois $1");
++   &addItem("&Whois", "/whois $1 $1");
+    ctcpDccMenu();
+ }
+ 
+@@ -397,7 +397,7 @@
+ 
+ menu nicklist
+ {
+-   &addItem("&Whois", "/whois $1");
++   &addItem("&Whois", "/whois $1 $1");
+    &addItem("&Query", "/window $1");
+ 
+    &addSeparator();
+
+Modified: rero/resources/toplevel/whatsnew.txt
+===================================================================
+--- rero/resources/toplevel/whatsnew.txt	2006-06-04 22:48:53 UTC (rev 81)
++++ rero/resources/toplevel/whatsnew.txt	2006-06-18 20:16:52 UTC (rev 82)
+@@ -42,8 +42,12 @@
+   in the nicklist) (Serge)
+ - Whois codes support (671 - Unreal secure connection, 310 - Unreal
+   available for help, 703 - ircd-RU translation scheme) (Serge)
++- formatTime3 function, takes time in seconds, returns something like:
++  "13 days, 23 hours, 8 minutes, 54 seconds". Default script is changed
++  to use this function for idle times (Serge)
++- Default "/whois $1" in menus is changed to "/whois $1 $1" to show idle
++  time for all users (not only users that are on the same server) (Serge)
+ 
+-
+ Beta    39 release 07.30.05
+ ====
+ - The find feature is now case insensitive (oracel)
+
+Modified: rero/src/rero/client/functions/UtilOperators.java
+===================================================================
+--- rero/src/rero/client/functions/UtilOperators.java	2006-06-04 22:48:53 UTC (rev 81)
++++ rero/src/rero/client/functions/UtilOperators.java	2006-06-18 20:16:52 UTC (rev 82)
+@@ -36,10 +36,11 @@
+       script.getScriptEnvironment().getEnvironment().put("&duration",     new duration());
+       script.getScriptEnvironment().getEnvironment().put("&formatTime",     new formatTime());
+       script.getScriptEnvironment().getEnvironment().put("&formatTime2",     new formatTime2());
++      script.getScriptEnvironment().getEnvironment().put("&formatTime3",    new formatTime3());
+       script.getScriptEnvironment().getEnvironment().put("&formatDecimal",  new formatDecimal());
+       script.getScriptEnvironment().getEnvironment().put("&longip",         new longip());
+ 
+-      // time date functions 
++      // time date functions
+       script.getScriptEnvironment().getEnvironment().put("&ctime",          new ctime());
+       script.getScriptEnvironment().getEnvironment().put("&timeDateStamp",  new timeDateStamp());
+       script.getScriptEnvironment().getEnvironment().put("&timeStamp",      new timeStamp());
+@@ -124,11 +125,11 @@
+ 
+              temp.scriptLoaded(si);
+           }
+-          catch (Exception ex)  
+-          {   
++          catch (Exception ex)
++          {
+              si.getScriptEnvironment().flagError(ex.toString());
+           }
+-              
++
+           return SleepUtils.getEmptyScalar();
+        }
+     }
+@@ -212,10 +213,10 @@
+    {
+       public Scalar evaluate(String f, ScriptInstance si, Stack locals)
+       {
+-         if (locals.size() >= 1) 
++         if (locals.size() >= 1)
+          {
+             ClientUtils.generateThemeScript(locals.pop().toString());
+-         } 
++         }
+          else
+          {
+             ClientUtils.generateThemeScript(null);
+@@ -277,6 +278,15 @@
+       }
+    }
+ 
++    private static class formatTime3 implements Function
++    {
++        public Scalar evaluate(String f, ScriptInstance si, Stack locals)
++        {
++            long a = BridgeUtilities.getLong(locals);
++            return SleepUtils.getScalar(ClientUtils.formatTime3(a));
++        }
++    }
++
+    private static class timeDateStamp implements Function
+    {
+       public Scalar evaluate(String f, ScriptInstance si, Stack locals)
+@@ -308,20 +318,20 @@
+    {
+       public Scalar evaluate(String f, ScriptInstance si, Stack locals)
+       {
+-         String message   = "Your answer?"; 
++         String message   = "Your answer?";
+ 
+-         if (!locals.isEmpty()) 
++         if (!locals.isEmpty())
+             message = locals.pop().toString();
+ 
+          String title   = "Input Requested";
+ 
+-         if (!locals.isEmpty()) 
++         if (!locals.isEmpty())
+              title = locals.pop().toString();
+ 
+          String a = JOptionPane.showInputDialog(getCapabilities().getGlobalCapabilities().getFrame(), message, title, JOptionPane.QUESTION_MESSAGE);
+ 
+          if (a == null)
+-             return SleepUtils.getEmptyScalar(); 
++             return SleepUtils.getEmptyScalar();
+ 
+          return SleepUtils.getScalar(a);
+       }
+@@ -341,23 +351,23 @@
+ 
+          chooser.setFileSelectionMode(dirChooser);
+ 
+-         String title = "Select File"; 
++         String title = "Select File";
+ 
+-         if (!locals.isEmpty()) 
++         if (!locals.isEmpty())
+             title = locals.pop().toString();
+ 
+          chooser.setDialogTitle(title);
+ 
+-         if (!locals.isEmpty()) 
++         if (!locals.isEmpty())
+             chooser.setCurrentDirectory(new File(locals.pop().toString()));
+ 
+-         if (!locals.isEmpty()) 
++         if (!locals.isEmpty())
+             chooser.setApproveButtonText(locals.pop().toString());
+ 
+          int returnVal = chooser.showOpenDialog(getCapabilities().getGlobalCapabilities().getFrame());
+ 
+          if (returnVal == JFileChooser.APPROVE_OPTION)
+-             return SleepUtils.getScalar(chooser.getSelectedFile().getAbsolutePath()); 
++             return SleepUtils.getScalar(chooser.getSelectedFile().getAbsolutePath());
+ 
+          return SleepUtils.getEmptyScalar();
+       }
+@@ -397,7 +407,7 @@
+ 
+          if (a < TextSource.colorTable.length && a >= 0)
+             TextSource.colorTable[a] = Color.decode(b);
+-         
++
+          return SleepUtils.getEmptyScalar();
+       }
+    }
+@@ -410,7 +420,7 @@
+ 
+          if (a < TextSource.colorTable.length && a > 0)
+             return SleepUtils.getScalar(TextSource.colorTable[a].getRGB());
+-         
++
+          return SleepUtils.getEmptyScalar();
+       }
+    }
+
+Modified: rero/src/rero/config/ClientDefaults.java
+===================================================================
+--- rero/src/rero/config/ClientDefaults.java	2006-06-04 22:48:53 UTC (rev 81)
++++ rero/src/rero/config/ClientDefaults.java	2006-06-18 20:16:52 UTC (rev 82)
+@@ -78,7 +78,7 @@
+ 
+    public static final boolean update_ial     = true;
+ 
+-   public static final String  version_string = "03.19.06 (alpha)";
++   public static final String  version_string = "06.19.06 (alpha)";
+ 
+    static
+    {
+
+Modified: rero/src/rero/util/ClientUtils.java
+===================================================================
+--- rero/src/rero/util/ClientUtils.java	2006-06-04 22:48:53 UTC (rev 81)
++++ rero/src/rero/util/ClientUtils.java	2006-06-18 20:16:52 UTC (rev 82)
+@@ -58,10 +58,10 @@
+ 
+     public static String tagline()
+     {
+-        String taglines[] = { 
+-            "highly caffeinated", 
+-            "Fat butane, grubbin' on French fries", 
+-            "<JakieChan> butan: java sucks", 
++        String taglines[] = {
++            "highly caffeinated",
++            "Fat butane, grubbin' on French fries",
++            "<JakieChan> butan: java sucks",
+             "Clean. Christian. Comprehensive.",
+         };
+         int r = ctime() % taglines.length;
+@@ -71,7 +71,7 @@
+     public static String formatTime(long seconds)
+     {
+         StringBuffer rv = new StringBuffer();
+- 
++
+         if (seconds < 60)
+         {
+           return seconds + " seconds";
+@@ -93,7 +93,7 @@
+     public static String formatTime2(long secs)
+     {
+         StringBuffer rv = new StringBuffer();
+- 
++
+         int seconds = (int)secs, minutes = 0, hours = 0, days = 0;
+ 
+         days    = seconds / (60 * 60 * 24);
+@@ -126,13 +126,37 @@
+         return rv.toString();
+     }
+ 
++    public static String formatTime3(long secs) {
++        int seconds = (int) secs;
++        int minutes = 0;
++        int hours = 0;
++        int days = 0;
++
++        days = seconds / (60 * 60 * 24);
++        hours = seconds / (60 * 60) % 24;
++        minutes = (seconds / 60) % 60;
++        seconds %= 60;
++
++        StringBuffer buf = new StringBuffer();
++        if (days > 0)
++            buf.append(days).append(days != 1 ? " days, " : " day, ");
++        if (days > 0 || hours > 0)
++            buf.append(hours).append(hours != 1 ? " hours, " : " hour, ");
++        if (hours > 0 || minutes > 0)
++            buf.append(minutes).append(minutes != 1 ? " minutes, " : " minute, ");
++
++        buf.append(seconds).append(seconds != 1 ? " seconds" : " second");
++
++        return buf.toString();
++    }
++
+     public static String formatBytes(long bytes)
+     {
+         if (bytes < 1024)
+         {
+            return bytes + "b";
+         }
+- 
++
+         bytes = bytes / 1024;
+ 
+         if (bytes < 1024)
+@@ -141,14 +165,14 @@
+         }
+ 
+         bytes = bytes / 1024;
+-    
++
+         if (bytes < 1024)
+         {
+            return bytes + "mb";
+         }
+ 
+         bytes = bytes / 1024;
+-  
++
+         return bytes + "GB";
+     }
+ 
+@@ -173,7 +197,7 @@
+ 
+         saved.append("-");
+         saved.append(value.getSize());
+- 
++
+         return saved.toString();
+     }
+ 
+@@ -209,7 +233,7 @@
+            d = h;
+         }
+ 
+-        switch (type) 
++        switch (type)
+         {
+            case 0:  return "*!"+u+"@"+h;
+            case 1:  return "*!*"+u+"@"+h;
+@@ -284,7 +308,7 @@
+ 
+         return rv;
+     }
+-  
++
+     public static HashMap getEventHashMap(String target, String parms)
+     {
+         HashMap temp = new HashMap();
+@@ -340,7 +364,7 @@
+            rv.append(value.toString());
+ 
+            return rv.toString();
+-	} 
++	}
+ 
+     public static String intToDay(int d)
+ 	{
+@@ -412,7 +436,7 @@
+     {
+        Long temp = new Long(System.currentTimeMillis() / 1000);
+        return temp.intValue();
+-    }      
++    }
+ 
+      private static String CP437TABLE = "\u0000\u0001\u0002\u0003\u0004\u0005\u0006\u0007\u0008\u0009\n\u000B\u000C\r\u000E\u000F\u0010\u0011\u0012\u0013\u0014\u0015\u0016\u0017\u0018\u0019\u001A\u001B\u001C\u001D\u001E\u001F\u0020\u0021\"\u0023\u0024\u0025\u0026'\u0028\u0029\u002A\u002B\u002C\u002D\u002E\u002F\u0030\u0031\u0032\u0033\u0034\u0035\u0036\u0037\u0038\u0039\u003A\u003B\u003C\u003D\u003E\u003F\u0040\u0041\u0042\u0043\u0044\u0045\u0046\u0047\u0048\u0049\u004A\u004B\u004C\u004D\u004E\u004F\u0050\u0051\u0052\u0053\u0054\u0055\u0056\u0057\u0058\u0059\u005A\u005B\\\u005D\u005E\u005F\u0060\u0061\u0062\u0063\u0064\u0065\u0066\u0067\u0068\u0069\u006A\u006B\u006C\u006D\u006E\u006F\u0070\u0071\u0072\u0073\u0074\u0075\u0076\u0077\u0078\u0079\u007A\u007B\u007C\u007D\u007E\u007F\u00C7\u00FC\u00E9\u00E2\u00E4\u00E0\u00E5\u00E7\u00EA\u00EB\u00E8\u00EF\u00EE\u00EC\u00C4\u00C5\u00C9\u00E6\u00C6\u00F4\u00F6\u00F2\u00FB\u00F9\u00FF\u00D6\u00DC\u00A2\u00A3\u00A5\u20A7\u0192\u00E1\u!
+ 00ED\u00F3\u00FA\u00F1\u00D1\u00AA\u00BA\u00BF\u2310\u00AC\u00BD\u00BC\u00A1\u00AB\u00BB\u2591\u2592\u2593\u2502\u2524\u2561\u2562\u2556\u2555\u2563\u2551\u2557\u255D\u255C\u255B\u2510\u2514\u2534\u252C\u251C\u2500\u253C\u255E\u255F\u255A\u2554\u2569\u2566\u2560\u2550\u256C\u2567\u2568\u2564\u2565\u2559\u2558\u2552\u2553\u256B\u256A\u2518\u250C\u2588\u2584\u258C\u2590\u2580\u03B1\u00DF\u0393\u03C0\u03A3\u03C3\u00B5\u03C4\u03A6\u0398\u03A9\u03B4\u221E\u03C6\u03B5\u2229\u2261\u00B1\u2265\u2264\u2320\u2321\u00F7\u2248\u00B0\u2219\u00B7\u221A\u207F\u00B2\u25A0 ";
+ 
+@@ -425,7 +449,7 @@
+ 
+            if (value < CP437TABLE.length())
+               temp[x] = CP437TABLE.charAt(value);
+-       }        
++       }
+ 
+        return new String(temp);
+     }
+@@ -481,7 +505,7 @@
+         StringBuffer temp = new StringBuffer();
+ 
+         temp.append("# jIRCii Theme File, scripters feel free to edit this file to export more settings\n");
+-        temp.append("#     by default only color settings are exported.\n\n");    
++        temp.append("#     by default only color settings are exported.\n\n");
+ 
+         temp.append("# some miscellaneous colors\n");
+         temp.append(generateThemeLine("statusbar.color", null));
+@@ -492,7 +516,7 @@
+ 
+         temp.append("\n");
+ 
+-        temp.append("# the actual color map\n");       
++        temp.append("# the actual color map\n");
+ 
+         for (int x = 0; x < 100; x++)
+         {
+@@ -522,7 +546,7 @@
+         }
+ 
+         return (new File(name)).getName();
+-    } 
++    }
+ 
+     private static String generateThemeLine(String var, String comment)
+     {
+@@ -559,12 +583,12 @@
+ 
+         File   cwd;
+         String cwf = null;
+-        
++
+         File temp = getFile(pfile);
+         if (temp.isDirectory())
+         {
+            cwd = temp;
+-           cwf = null; 
++           cwf = null;
+         }
+         else if (temp.getParentFile() != null && temp.getParentFile().isDirectory())
+         {
+
+
+

@@ -1,0 +1,110 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Jircii-svn] r125 - in rero: resources/toplevel src/rero/gui/mdi
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/jircii-svn/2008-August/index.html" >
+   <LINK REL="made" HREF="mailto:jircii-svn%40lists.berlios.de?Subject=Re%3A%20%5BJircii-svn%5D%20r125%20-%20in%20rero%3A%20resources/toplevel%20src/rero/gui/mdi&In-Reply-To=%3C200808062123.m76LNdX9014403%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000092.html">
+   <LINK REL="Next"  HREF="000094.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Jircii-svn] r125 - in rero: resources/toplevel src/rero/gui/mdi</H1>
+    <B>rsmudge at BerliOS</B> 
+    <A HREF="mailto:jircii-svn%40lists.berlios.de?Subject=Re%3A%20%5BJircii-svn%5D%20r125%20-%20in%20rero%3A%20resources/toplevel%20src/rero/gui/mdi&In-Reply-To=%3C200808062123.m76LNdX9014403%40sheep.berlios.de%3E"
+       TITLE="[Jircii-svn] r125 - in rero: resources/toplevel src/rero/gui/mdi">rsmudge at mail.berlios.de
+       </A><BR>
+    <I>Wed Aug  6 23:23:39 CEST 2008</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000092.html">[Jircii-svn] r124 - in rero: resources/toplevel	resources/toplevel/docs src/rero/util
+</A></li>
+        <LI>Next message: <A HREF="000094.html">[Jircii-svn] r126 - in rero: resources/toplevel src/rero/gui/mdi
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#93">[ date ]</a>
+              <a href="thread.html#93">[ thread ]</a>
+              <a href="subject.html#93">[ subject ]</a>
+              <a href="author.html#93">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: rsmudge
+Date: 2008-08-06 23:23:39 +0200 (Wed, 06 Aug 2008)
+New Revision: 125
+
+Modified:
+   rero/resources/toplevel/whatsnew.txt
+   rero/src/rero/gui/mdi/ClientDesktop.java
+Log:
+open MDI windows maximized if active window is maximized
+
+
+Modified: rero/resources/toplevel/whatsnew.txt
+===================================================================
+--- rero/resources/toplevel/whatsnew.txt	2008-08-06 21:14:56 UTC (rev 124)
++++ rero/resources/toplevel/whatsnew.txt	2008-08-06 21:23:39 UTC (rev 125)
+@@ -26,6 +26,8 @@
+ - reworked timer code to prevent concurrent modification exceptions
+   caused by timers making timers or stopping timers during their
+   execution
++- jircii MDI mode now opens windows maximized if the last active window
++  is maximized
+ 
+ Beta    43 release 9 May 08
+ ====
+
+Modified: rero/src/rero/gui/mdi/ClientDesktop.java
+===================================================================
+--- rero/src/rero/gui/mdi/ClientDesktop.java	2008-08-06 21:14:56 UTC (rev 124)
++++ rero/src/rero/gui/mdi/ClientDesktop.java	2008-08-06 21:23:39 UTC (rev 125)
+@@ -124,6 +124,18 @@
+     public void onOpen(ClientWindowEvent ev) 
+     { 
+        StatusWindow temp = getWindowFor(ev.getSource());
++
++       try
++       {
++          /* check if current window is maxed, if it is, maximize the new one */
++          JInternalFrame f = desktop.getSelectedFrame();
++          if (f != null &amp;&amp; f.isMaximum())
++          {
++              ((JInternalFrame)ev.getSource()).setMaximum(true);
++          }
++       }
++       catch (Exception ex) { }
++
+        doActivate(temp);
+     }
+ 
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000092.html">[Jircii-svn] r124 - in rero: resources/toplevel	resources/toplevel/docs src/rero/util
+</A></li>
+	<LI>Next message: <A HREF="000094.html">[Jircii-svn] r126 - in rero: resources/toplevel src/rero/gui/mdi
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#93">[ date ]</a>
+              <a href="thread.html#93">[ thread ]</a>
+              <a href="subject.html#93">[ subject ]</a>
+              <a href="author.html#93">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/jircii-svn">More information about the Jircii-svn
+mailing list</a><br>
+</body></html>

@@ -1,0 +1,186 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Jircii-svn] r31 - rero/src/rero/gui
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/jircii-svn/2005-July/index.html" >
+   <LINK REL="made" HREF="mailto:jircii-svn%40lists.berlios.de?Subject=Re%3A%20%5BJircii-svn%5D%20r31%20-%20rero/src/rero/gui&In-Reply-To=%3C200507161745.j6GHj1uC008944%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000010.html">
+   <LINK REL="Next"  HREF="000012.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Jircii-svn] r31 - rero/src/rero/gui</H1>
+    <B>Serge Baranov at BerliOS</B> 
+    <A HREF="mailto:jircii-svn%40lists.berlios.de?Subject=Re%3A%20%5BJircii-svn%5D%20r31%20-%20rero/src/rero/gui&In-Reply-To=%3C200507161745.j6GHj1uC008944%40sheep.berlios.de%3E"
+       TITLE="[Jircii-svn] r31 - rero/src/rero/gui">crazycoder at berlios.de
+       </A><BR>
+    <I>Sat Jul 16 19:45:01 CEST 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000010.html">[Jircii-svn] r30 - rero/src/rero/gui/windows
+</A></li>
+        <LI>Next message: <A HREF="000012.html">[Jircii-svn] r32 - rero/src/rero/gui/input
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#11">[ date ]</a>
+              <a href="thread.html#11">[ thread ]</a>
+              <a href="subject.html#11">[ subject ]</a>
+              <a href="author.html#11">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: crazycoder
+Date: 2005-07-16 19:45:00 +0200 (Sat, 16 Jul 2005)
+New Revision: 31
+
+Modified:
+   rero/src/rero/gui/ClickableURLHandler.java
+Log:
+More proper URL matching: <A HREF="ftp://">ftp://</A> links are handled now and <A HREF="http://">http://</A> is added before www. style links
+
+Modified: rero/src/rero/gui/ClickableURLHandler.java
+===================================================================
+--- rero/src/rero/gui/ClickableURLHandler.java	2005-07-16 17:24:55 UTC (rev 30)
++++ rero/src/rero/gui/ClickableURLHandler.java	2005-07-16 17:45:00 UTC (rev 31)
+@@ -1,6 +1,7 @@
+ package rero.gui;
+ 
+ import rero.client.output.*;
++
+ import java.util.*;
+ 
+ import rero.ircfw.interfaces.ChatListener;
+@@ -15,65 +16,45 @@
+ 
+ public class ClickableURLHandler extends Feature implements ClickListener
+ {
+-   public void wordClicked(ClickEvent ev)
+-   {
+-      String item = ev.getClickedText().toLowerCase();
++    public void wordClicked(ClickEvent ev)
++    {
++        String item = ev.getClickedText().toLowerCase();
+ 
+-      if (item.length() &gt; 7 &amp;&amp; item.substring(0, 7).equals(&quot;<A HREF="http://">http://</A>&quot;))
+-      {
+-          ClientUtils.openURL(extractURL(ev.getClickedText()));
+-          ev.consume();
+-          ev.acknowledge();
+-      }
+-      else if (item.length() &gt; 10 &amp;&amp; item.substring(0, 8).equals(&quot;(<A HREF="http://">http://</A>&quot;) &amp;&amp; item.charAt(item.length() -1) == ')')
+-      {
+-          ClientUtils.openURL(extractURL(ev.getClickedText()));
+-          ev.consume();
+-          ev.acknowledge();
+-      }
+-      else if (item.length() &gt; 11 &amp;&amp; item.substring(0, 9).equals(&quot;(<A HREF="https://">https://</A>&quot;) &amp;&amp; item.charAt(item.length() -1) == ')')
+-      {
+-          ClientUtils.openURL(extractURL(ev.getClickedText()));
+-          ev.consume();
+-          ev.acknowledge();
+-      }
+-      else if (item.length() &gt; 8 &amp;&amp; item.substring(0, 8).equals(&quot;<A HREF="https://">https://</A>&quot;))
+-      {
+-          ClientUtils.openURL(extractURL(ev.getClickedText()));
+-          ev.consume();
+-          ev.acknowledge();
+-      }
+-      else if (item.length() &gt; 4 &amp;&amp; item.substring(0, 4).equals(&quot;www.&quot;))
+-      {
+-          ClientUtils.openURL(&quot;<A HREF="http://">http://</A>&quot; + extractURL(ev.getClickedText()));
+-          ev.consume();
+-          ev.acknowledge();
+-      }
+-      else if (item.length() &gt; 2 &amp;&amp; ClientUtils.isChannel(item) &amp;&amp; getCapabilities().isConnected() &amp;&amp; !ev.getClickedText().endsWith(&quot;.&quot;))
+-      {
+-          getCapabilities().sendln(&quot;JOIN &quot; + ev.getClickedText());
+-          ev.consume();
+-          ev.acknowledge();
+-      }
+-      else if (item.length() &gt; 2 &amp;&amp; ClientUtils.isChannel(item.substring(1, item.length())) &amp;&amp; getCapabilities().isConnected())
+-      {
+-          getCapabilities().sendln(&quot;JOIN &quot; + ev.getClickedText().substring(1, item.length() - 1));
+-          ev.consume();
+-          ev.acknowledge();
+-      }
+-   }
++        if (item.matches(&quot;^\\(*(http|https|ftp)://.*&quot;))
++        {
++            ClientUtils.openURL(extractURL(ev.getClickedText()));
++            ev.consume();
++            ev.acknowledge();
++        } else if (item.matches(&quot;^www\\..*&quot;))
++        {
++            String location = extractURL(ev.getClickedText());
++            ClientUtils.openURL(&quot;<A HREF="http://">http://</A>&quot; + location);
++            ev.consume();
++            ev.acknowledge();
++        } else if (item.length() &gt; 2 &amp;&amp; ClientUtils.isChannel(item) &amp;&amp; getCapabilities().isConnected() &amp;&amp; !ev.getClickedText().endsWith(&quot;.&quot;))
++        {
++            getCapabilities().sendln(&quot;JOIN &quot; + ev.getClickedText());
++            ev.consume();
++            ev.acknowledge();
++        } else if (item.length() &gt; 2 &amp;&amp; ClientUtils.isChannel(item.substring(1, item.length())) &amp;&amp; getCapabilities().isConnected())
++        {
++            getCapabilities().sendln(&quot;JOIN &quot; + ev.getClickedText().substring(1, item.length() - 1));
++            ev.consume();
++            ev.acknowledge();
++        }
++    }
+ 
+-   private static String extractURL(String url)
+-   {
+-      if (url.charAt(0) == '(')
+-      {
+-         url = url.substring(1, url.length() - 1);
+-      }
++    private static String extractURL(String url)
++    {
++        if (url.charAt(0) == '(')
++        {
++            url = url.substring(1, url.length() - 1);
++        }
+ 
+-      return url;
+-   }
++        return url;
++    }
+ 
+-   public void init()
+-   {
+-   }
++    public void init()
++    {
++    }
+ }
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000010.html">[Jircii-svn] r30 - rero/src/rero/gui/windows
+</A></li>
+	<LI>Next message: <A HREF="000012.html">[Jircii-svn] r32 - rero/src/rero/gui/input
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#11">[ date ]</a>
+              <a href="thread.html#11">[ thread ]</a>
+              <a href="subject.html#11">[ subject ]</a>
+              <a href="author.html#11">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/jircii-svn">More information about the Jircii-svn
+mailing list</a><br>
+</body></html>

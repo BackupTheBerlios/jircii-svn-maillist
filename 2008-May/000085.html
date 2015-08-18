@@ -1,0 +1,112 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Jircii-svn] r111 - in rero: resources/toplevel src/text/wrapped
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/jircii-svn/2008-May/index.html" >
+   <LINK REL="made" HREF="mailto:jircii-svn%40lists.berlios.de?Subject=Re%3A%20%5BJircii-svn%5D%20r111%20-%20in%20rero%3A%20resources/toplevel%20src/text/wrapped&In-Reply-To=%3C200805092200.m49M0Je1013844%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000084.html">
+   <LINK REL="Next"  HREF="000086.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Jircii-svn] r111 - in rero: resources/toplevel src/text/wrapped</H1>
+    <B>rsmudge at BerliOS</B> 
+    <A HREF="mailto:jircii-svn%40lists.berlios.de?Subject=Re%3A%20%5BJircii-svn%5D%20r111%20-%20in%20rero%3A%20resources/toplevel%20src/text/wrapped&In-Reply-To=%3C200805092200.m49M0Je1013844%40sheep.berlios.de%3E"
+       TITLE="[Jircii-svn] r111 - in rero: resources/toplevel src/text/wrapped">rsmudge at mail.berlios.de
+       </A><BR>
+    <I>Sat May 10 00:00:19 CEST 2008</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000084.html">[Jircii-svn] r110 - in rero: lib resources/toplevel	src/rero/client/functions src/rero/dcc
+</A></li>
+        <LI>Next message: <A HREF="000086.html">[Jircii-svn] r113 - rero/resources/toplevel
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#85">[ date ]</a>
+              <a href="thread.html#85">[ thread ]</a>
+              <a href="subject.html#85">[ subject ]</a>
+              <a href="author.html#85">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: rsmudge
+Date: 2008-05-10 00:00:07 +0200 (Sat, 10 May 2008)
+New Revision: 111
+
+Modified:
+   rero/resources/toplevel/whatsnew.txt
+   rero/src/text/wrapped/WrappedContainer.java
+Log:
+la la la ...
+
+
+Modified: rero/resources/toplevel/whatsnew.txt
+===================================================================
+--- rero/resources/toplevel/whatsnew.txt	2008-05-09 21:30:04 UTC (rev 110)
++++ rero/resources/toplevel/whatsnew.txt	2008-05-09 22:00:07 UTC (rev 111)
+@@ -1,4 +1,4 @@
+-Beta    43
++Beta    43 release 9 May 08
+ ====
+ - fixed alpha order of some aliases in the Help -&gt; Commands menu
+ - jIRCii now creates the DCC receive directory if the directory
+@@ -6,11 +6,9 @@
+ - replaced call to skip with in Send.java with skipFully provided by
+   nanaki at gmail.com using Find Bugs <A HREF="http://findbugs.sourceforge.net/">http://findbugs.sourceforge.net/</A>
+ - implemented /kill &lt;nick&gt; &lt;reason&gt; command
+-- updated jIRCii to Sleep 2.1-b23 API compatability (thanks Sleep 
+-  maintainer for breaking Loadable API, oh wait, thats me).
+-- updated scripting engine to Sleep 2.1-b25.  Many changes that will aid
+-  those of you who use jIRCii as a platform for developing apps that 
+-  crunch massive amounts of data.
++- updated scripting engine to Sleep 2.1-b25.  
++- added a check to the word wrapping code to prevent infinite recursion
++  when the window becomes too small.
+ 
+ Beta    42 release 26 Nov 07
+ ====
+
+Modified: rero/src/text/wrapped/WrappedContainer.java
+===================================================================
+--- rero/src/text/wrapped/WrappedContainer.java	2008-05-09 21:30:04 UTC (rev 110)
++++ rero/src/text/wrapped/WrappedContainer.java	2008-05-09 22:00:07 UTC (rev 111)
+@@ -202,6 +202,8 @@
+ 
+    public static AttributedText[] wrap(AttributedString textData, int maxWidth)
+    {
++      if (maxWidth &lt; 100) { return new AttributedText[0]; } 
++
+       TokenizedString tokens  = textData.getTokens();
+  
+       LinkedList data = new LinkedList();
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000084.html">[Jircii-svn] r110 - in rero: lib resources/toplevel	src/rero/client/functions src/rero/dcc
+</A></li>
+	<LI>Next message: <A HREF="000086.html">[Jircii-svn] r113 - rero/resources/toplevel
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#85">[ date ]</a>
+              <a href="thread.html#85">[ thread ]</a>
+              <a href="subject.html#85">[ subject ]</a>
+              <a href="author.html#85">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/jircii-svn">More information about the Jircii-svn
+mailing list</a><br>
+</body></html>

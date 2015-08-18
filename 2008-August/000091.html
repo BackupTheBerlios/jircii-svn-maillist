@@ -1,0 +1,137 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Jircii-svn] r123 - in rero: lib resources/toplevel	resources/toplevel/docs src/rero/dck/items
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/jircii-svn/2008-August/index.html" >
+   <LINK REL="made" HREF="mailto:jircii-svn%40lists.berlios.de?Subject=Re%3A%20%5BJircii-svn%5D%20r123%20-%20in%20rero%3A%20lib%20resources/toplevel%0A%09resources/toplevel/docs%20src/rero/dck/items&In-Reply-To=%3C200808062056.m76KuMa3009916%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000090.html">
+   <LINK REL="Next"  HREF="000092.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Jircii-svn] r123 - in rero: lib resources/toplevel	resources/toplevel/docs src/rero/dck/items</H1>
+    <B>rsmudge at BerliOS</B> 
+    <A HREF="mailto:jircii-svn%40lists.berlios.de?Subject=Re%3A%20%5BJircii-svn%5D%20r123%20-%20in%20rero%3A%20lib%20resources/toplevel%0A%09resources/toplevel/docs%20src/rero/dck/items&In-Reply-To=%3C200808062056.m76KuMa3009916%40sheep.berlios.de%3E"
+       TITLE="[Jircii-svn] r123 - in rero: lib resources/toplevel	resources/toplevel/docs src/rero/dck/items">rsmudge at mail.berlios.de
+       </A><BR>
+    <I>Wed Aug  6 22:56:22 CEST 2008</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000090.html">[Jircii-svn] r122 - in rero/resources/toplevel: . docs
+</A></li>
+        <LI>Next message: <A HREF="000092.html">[Jircii-svn] r124 - in rero: resources/toplevel	resources/toplevel/docs src/rero/util
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#91">[ date ]</a>
+              <a href="thread.html#91">[ thread ]</a>
+              <a href="subject.html#91">[ subject ]</a>
+              <a href="author.html#91">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: rsmudge
+Date: 2008-08-06 22:56:20 +0200 (Wed, 06 Aug 2008)
+New Revision: 123
+
+Modified:
+   rero/lib/sleep.jar
+   rero/resources/toplevel/docs/jirciiscript.html
+   rero/resources/toplevel/whatsnew.txt
+   rero/src/rero/dck/items/ServerList.java
+Log:
+..
+
+
+Modified: rero/lib/sleep.jar
+===================================================================
+(Binary files differ)
+
+Modified: rero/resources/toplevel/docs/jirciiscript.html
+===================================================================
+--- rero/resources/toplevel/docs/jirciiscript.html	2008-08-06 20:16:17 UTC (rev 122)
++++ rero/resources/toplevel/docs/jirciiscript.html	2008-08-06 20:56:20 UTC (rev 123)
+@@ -2298,6 +2298,10 @@
+     &lt;td&gt;name of charset encoding jIRCii uses for text coming from irc server&lt;/td&gt;
+   &lt;/tr&gt;
+   &lt;tr&gt;
++    &lt;td&gt;current.theme&lt;/td&gt;
++    &lt;td&gt;last file to be loaded with /theme&lt;/td&gt;
++  &lt;/tr&gt;    
++  &lt;tr&gt;
+     &lt;td&gt;dcc.exists&lt;/td&gt;
+     &lt;td&gt;0, 1, 2, 3; what to do when a dcc send occurs and the file exists [0 = Ask, 1 = Overwrite, 2 = Resume, 3 = Ignore]&lt;/td&gt;
+   &lt;/tr&gt;
+
+Modified: rero/resources/toplevel/whatsnew.txt
+===================================================================
+--- rero/resources/toplevel/whatsnew.txt	2008-08-06 20:16:17 UTC (rev 122)
++++ rero/resources/toplevel/whatsnew.txt	2008-08-06 20:56:20 UTC (rev 123)
+@@ -19,6 +19,10 @@
+   window (in pixels)
+ - added &amp;strwidth('some string') to get the width of the specified string
+   (in pixels) using the current font metrics
++- trying to connect with no server selected will now bring up a dialog
++  asking user to select a server
++- fixed Sleep bug with sublist used on read-only arrays (this was 
++  breaking /names in some jIRCii scripts)
+ 
+ Beta    43 release 9 May 08
+ ====
+
+Modified: rero/src/rero/dck/items/ServerList.java
+===================================================================
+--- rero/src/rero/dck/items/ServerList.java	2008-08-06 20:16:17 UTC (rev 122)
++++ rero/src/rero/dck/items/ServerList.java	2008-08-06 20:56:20 UTC (rev 123)
+@@ -139,11 +139,17 @@
+             {
+                 SessionManager.getGlobalCapabilities().createNewServer();
+             }
+-            Server       connectToMe = (Server)list.getSelectedValue();
+ 
+-            SessionManager.getGlobalCapabilities().getActiveSession().executeCommand(connectToMe.getCommand());
+-
+-            capabilities.closeDialog();
++            if (list.getSelectedValue() != null)
++            {
++               Server       connectToMe = (Server)list.getSelectedValue();
++               SessionManager.getGlobalCapabilities().getActiveSession().executeCommand(connectToMe.getCommand());
++               capabilities.closeDialog();
++            }
++            else
++            {
++               JOptionPane.showMessageDialog(null, &quot;Please select a server&quot;, &quot;Warning&quot;, JOptionPane.WARNING_MESSAGE);
++            }
+    }
+ 
+    public void setParent(DParent parent)
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000090.html">[Jircii-svn] r122 - in rero/resources/toplevel: . docs
+</A></li>
+	<LI>Next message: <A HREF="000092.html">[Jircii-svn] r124 - in rero: resources/toplevel	resources/toplevel/docs src/rero/util
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#91">[ date ]</a>
+              <a href="thread.html#91">[ thread ]</a>
+              <a href="subject.html#91">[ subject ]</a>
+              <a href="author.html#91">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/jircii-svn">More information about the Jircii-svn
+mailing list</a><br>
+</body></html>

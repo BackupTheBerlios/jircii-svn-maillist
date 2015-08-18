@@ -1,0 +1,19 @@
+From rsmudge at mail.berlios.de  Fri Jul 22 12:59:49 2011
+From: rsmudge at mail.berlios.de (rsmudge at mail.berlios.de)
+Date: Fri, 22 Jul 2011 12:59:49 +0200
+Subject: [Jircii-svn] r135 - /
+Message-ID: <20110722105949.74683480796@sheep.berlios.de>
+
+Author: rsmudge
+Date: 2011-07-22 12:59:48 +0200 (Fri, 22 Jul 2011)
+New Revision: 135
+
+Removed:
+   rero/
+Log:
+This project now lives at http://code.google.com/p/jircii
+
+
+
+
+

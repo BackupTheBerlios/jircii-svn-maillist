@@ -1,0 +1,149 @@
+From rsmudge at mail.berlios.de  Fri Oct 13 04:04:44 2006
+From: rsmudge at mail.berlios.de (rsmudge at BerliOS)
+Date: Fri, 13 Oct 2006 04:04:44 +0200
+Subject: [Jircii-svn] r84 - in rero: . resources/toplevel src/rero/gui/input
+	src/rero/gui/script
+Message-ID: <200610130204.k9D24i73023662@sheep.berlios.de>
+
+Author: rsmudge
+Date: 2006-10-13 04:04:43 +0200 (Fri, 13 Oct 2006)
+New Revision: 84
+
+Modified:
+   rero/build.xml
+   rero/resources/toplevel/whatsnew.txt
+   rero/src/rero/gui/input/InputField.java
+   rero/src/rero/gui/script/WindowOperators.java
+Log:
+fixed a bug that broke setInputText
+
+
+
+Modified: rero/build.xml
+===================================================================
+--- rero/build.xml	2006-10-13 01:21:18 UTC (rev 83)
++++ rero/build.xml	2006-10-13 02:04:43 UTC (rev 84)
+@@ -19,7 +19,7 @@
+            depend="yes"
+            source="1.4"
+            target="1.4"
+-           debug="no"
++           debug="yes"
+            optimize="yes"
+     >
+        <classpath path="./lib/sleep.jar" />
+
+Modified: rero/resources/toplevel/whatsnew.txt
+===================================================================
+--- rero/resources/toplevel/whatsnew.txt	2006-10-13 01:21:18 UTC (rev 83)
++++ rero/resources/toplevel/whatsnew.txt	2006-10-13 02:04:43 UTC (rev 84)
+@@ -60,6 +60,9 @@
+   /debug xdcc.irc +trace or /debug xdcc.irc -trace  (Raffi)
+   scripts can programatically set debug flags, see the sleep docs for more
+   info
++- fixed a bug with on input event breaking setInputText, text is immediately
++  cleared from edit box prior to fireing events.  Typed text is available as
++  $1- within on input though
+ 
+ Beta    39 release 07.30.05
+ ====
+
+Modified: rero/src/rero/gui/input/InputField.java
+===================================================================
+--- rero/src/rero/gui/input/InputField.java	2006-10-13 01:21:18 UTC (rev 83)
++++ rero/src/rero/gui/input/InputField.java	2006-10-13 02:04:43 UTC (rev 84)
+@@ -158,12 +158,13 @@
+     // Add text to history
+     this.addToHistory(event.text);
+ 
++    setText(""); // clear the textbox first, on input will receive the event information 
++
+     while (i.hasNext()) {
+       InputListener temp = (InputListener) i.next();
+       temp.onInput(event);
+     }
+ 
+-    setText("");
+     this.resetIterator(false);
+ 
+     event.reset();
+
+Modified: rero/src/rero/gui/script/WindowOperators.java
+===================================================================
+--- rero/src/rero/gui/script/WindowOperators.java	2006-10-13 01:21:18 UTC (rev 83)
++++ rero/src/rero/gui/script/WindowOperators.java	2006-10-13 02:04:43 UTC (rev 84)
+@@ -332,18 +332,18 @@
+             session.getWindow(window).getInput().setIndent(text);
+          }
+       }
+-      else if (function.equals("&setInputText"))
++      else if (function.equals("&refreshWindow"))
+       {
+-         if (session.getWindow(window) != null)
++         if (session.getWindow(text) != null)
+          {
+-            session.getWindow(window).getInput().setText(text);
++            session.getWindow(text).touch();
+          }
+       }
+-      else if (function.equals("&refreshWindow"))
++      else if (function.equals("&setInputText"))
+       {
+-         if (session.getWindow(text) != null)
++         if (session.getWindow(window) != null)
+          {
+-            session.getWindow(text).touch();
++            session.getWindow(window).getInput().setText(text);
+          }
+       }
+    }
+
+
+
+From rsmudge at mail.berlios.de  Sat Oct 21 00:33:24 2006
+From: rsmudge at mail.berlios.de (rsmudge at BerliOS)
+Date: Sat, 21 Oct 2006 00:33:24 +0200
+Subject: [Jircii-svn] r85 - in rero/src: . rero/util
+Message-ID: <200610202233.k9KMXO5m014476@sheep.berlios.de>
+
+Author: rsmudge
+Date: 2006-10-21 00:33:22 +0200 (Sat, 21 Oct 2006)
+New Revision: 85
+
+Modified:
+   rero/src/count.pl
+   rero/src/rero/util/ClientUtils.java
+Log:
+love the new tagline..
+
+
+
+Modified: rero/src/count.pl
+===================================================================
+--- rero/src/count.pl	2006-10-13 02:04:43 UTC (rev 84)
++++ rero/src/count.pl	2006-10-20 22:33:22 UTC (rev 85)
+@@ -14,7 +14,7 @@
+ 
+ foreach $var (@files)
+ {
+-   $c = `wc --lines $var`;
++   $c = `wc -l $var`;
+    $c = join("", split(/ /, $c));
+    @t = split(/\./, $c);
+    $count += $t[0];
+
+Modified: rero/src/rero/util/ClientUtils.java
+===================================================================
+--- rero/src/rero/util/ClientUtils.java	2006-10-13 02:04:43 UTC (rev 84)
++++ rero/src/rero/util/ClientUtils.java	2006-10-20 22:33:22 UTC (rev 85)
+@@ -63,6 +63,7 @@
+             "Fat butane, grubbin' on French fries",
+             "<JakieChan> butan: java sucks",
+             "Clean. Christian. Comprehensive.",
++            "If idiots could fly, IRC would be an airport"
+         };
+         int r = ctime() % taglines.length;
+         return taglines[r];
+
+
+

@@ -1,0 +1,749 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Jircii-svn] r68 - in rero: resources/toplevel src/rero/client/script
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/jircii-svn/2006-February/index.html" >
+   <LINK REL="made" HREF="mailto:jircii-svn%40lists.berlios.de?Subject=Re%3A%20%5BJircii-svn%5D%20r68%20-%20in%20rero%3A%20resources/toplevel%20src/rero/client/script&In-Reply-To=%3C200602130730.k1D7U3qd024230%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000049.html">
+   <LINK REL="Next"  HREF="000051.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Jircii-svn] r68 - in rero: resources/toplevel src/rero/client/script</H1>
+    <B>crazycoder at BerliOS</B> 
+    <A HREF="mailto:jircii-svn%40lists.berlios.de?Subject=Re%3A%20%5BJircii-svn%5D%20r68%20-%20in%20rero%3A%20resources/toplevel%20src/rero/client/script&In-Reply-To=%3C200602130730.k1D7U3qd024230%40sheep.berlios.de%3E"
+       TITLE="[Jircii-svn] r68 - in rero: resources/toplevel src/rero/client/script">crazycoder at berlios.de
+       </A><BR>
+    <I>Mon Feb 13 08:30:03 CET 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000049.html">[Jircii-svn] r67 - in rero: resources/toplevel src/rero/client/server src/rero/ircfw/data
+</A></li>
+        <LI>Next message: <A HREF="000051.html">[Jircii-svn] r69 - rero/src/rero/client/script
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#50">[ date ]</a>
+              <a href="thread.html#50">[ thread ]</a>
+              <a href="subject.html#50">[ subject ]</a>
+              <a href="author.html#50">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: crazycoder
+Date: 2006-02-13 08:29:50 +0100 (Mon, 13 Feb 2006)
+New Revision: 68
+
+Modified:
+   rero/resources/toplevel/whatsnew.txt
+   rero/src/rero/client/script/ScriptManager.java
+Log:
+Fix for BITCH 8618918
+
+Modified: rero/resources/toplevel/whatsnew.txt
+===================================================================
+--- rero/resources/toplevel/whatsnew.txt	2006-02-13 03:24:40 UTC (rev 67)
++++ rero/resources/toplevel/whatsnew.txt	2006-02-13 07:29:50 UTC (rev 68)
+@@ -5,12 +5,18 @@
+   (oracel)
+ - Support for Unreal IRCD extended whois ('connecting from' &amp; 'using modes')
+   (Serge)
++- Fix for <A HREF="http://jirc.hick.org/cgi-bin/bitch.cgi/view.html?8300256">http://jirc.hick.org/cgi-bin/bitch.cgi/view.html?8300256</A> (Serge)
+ - Fix for <A HREF="http://jirc.hick.org/cgi-bin/bitch.cgi/view.html?7013225">http://jirc.hick.org/cgi-bin/bitch.cgi/view.html?7013225</A> (Serge)
+ - Fix for <A HREF="http://jirc.hick.org/cgi-bin/bitch.cgi/view.html?7056241">http://jirc.hick.org/cgi-bin/bitch.cgi/view.html?7056241</A> (Serge)
+ - Fix for <A HREF="http://jirc.hick.org/cgi-bin/bitch.cgi/view.html?9936279">http://jirc.hick.org/cgi-bin/bitch.cgi/view.html?9936279</A> (Serge)
+ - Fix for <A HREF="http://jirc.hick.org/cgi-bin/bitch.cgi/view.html?3984134">http://jirc.hick.org/cgi-bin/bitch.cgi/view.html?3984134</A> (Serge)
+ - Fix for <A HREF="http://jirc.hick.org/cgi-bin/bitch.cgi/view.html?4487090">http://jirc.hick.org/cgi-bin/bitch.cgi/view.html?4487090</A> (Serge)
+ - Fix for <A HREF="http://jirc.hick.org/cgi-bin/bitch.cgi/view.html?1912086">http://jirc.hick.org/cgi-bin/bitch.cgi/view.html?1912086</A> (Serge)
++- Fix for <A HREF="http://jirc.hick.org/cgi-bin/bitch.cgi/view.html?8618918">http://jirc.hick.org/cgi-bin/bitch.cgi/view.html?8618918</A>
++  If script file name is name.charset.irc or just name.charset, it will be
++  loaded in the specified charset.
++  List of valid charsets: <A HREF="http://www.iana.org/assignments/character-sets">http://www.iana.org/assignments/character-sets</A>
++  (Serge)
+ 
+ Beta    39 release 07.30.05
+ ====
+
+Modified: rero/src/rero/client/script/ScriptManager.java
+===================================================================
+--- rero/src/rero/client/script/ScriptManager.java	2006-02-13 03:24:40 UTC (rev 67)
++++ rero/src/rero/client/script/ScriptManager.java	2006-02-13 07:29:50 UTC (rev 68)
+@@ -1,347 +1,373 @@
+ package rero.client.script;
+ 
+-import rero.client.*;
+-import rero.config.*;
+-import rero.script.*;
++import rero.client.DataStructures;
++import rero.client.Feature;
++import rero.config.ClientDefaults;
++import rero.config.ClientState;
++import rero.config.ClientStateListener;
++import rero.config.StringList;
++import rero.util.ClientUtils;
++import sleep.error.RuntimeWarningWatcher;
++import sleep.error.ScriptWarning;
++import sleep.error.SyntaxError;
++import sleep.error.YourCodeSucksException;
++import sleep.runtime.ScriptInstance;
++import sleep.runtime.ScriptLoader;
+ 
+-import rero.util.*;
+-
+-import sleep.error.*;
+-import sleep.runtime.*;
+-
+-import java.io.*;
++import java.io.File;
++import java.io.IOException;
+ import java.util.*;
++import java.util.regex.Matcher;
++import java.util.regex.Pattern;
++import java.nio.charset.Charset;
+ 
+ public class ScriptManager extends Feature implements ClientStateListener, RuntimeWarningWatcher
+ {
+-   protected ScriptLoader loader;
+-   protected Hashtable    environment; // shared environment...
+-   protected boolean      lock     = false;
++    protected ScriptLoader loader;
++    protected Hashtable environment; // shared environment...
++    protected boolean lock = false;
+ 
+-   private static boolean SILENT   = false;  // for /reload mainly...
++    private static boolean SILENT = false;  // for /reload mainly...
+ 
+-   public void init()
+-   {
+-      loader      = (ScriptLoader)getCapabilities().getDataStructure(DataStructures.ScriptLoader);
+-      environment = (Hashtable)getCapabilities().getDataStructure(DataStructures.SharedEnv);
++    public void init()
++    {
++        loader = (ScriptLoader) getCapabilities().getDataStructure(DataStructures.ScriptLoader);
++        environment = (Hashtable) getCapabilities().getDataStructure(DataStructures.SharedEnv);
+ 
+-      ClientState.getClientState().addClientStateListener(&quot;script.files&quot;, this);
+-   }
++        ClientState.getClientState().addClientStateListener(&quot;script.files&quot;, this);
++    }
+ 
+-   public void storeDataStructures(WeakHashMap data)
+-   {
+-      data.put(DataStructures.ScriptManager, this);
+-   }
++    public void storeDataStructures(WeakHashMap data)
++    {
++        data.put(DataStructures.ScriptManager, this);
++    }
+ 
+-   public void hashScripts()
+-   {
+-      if (lock) 
+-         return;
++    public void hashScripts()
++    {
++        if (lock)
++            return;
+ 
+-      Set unload, load, configured;
++        Set unload, load, configured;
+ 
+-      configured = new LinkedHashSet();
+-      configured.addAll(ClientState.getClientState().getStringList(&quot;script.files&quot;).getList());
++        configured = new LinkedHashSet();
++        configured.addAll(ClientState.getClientState().getStringList(&quot;script.files&quot;).getList());
+ 
+-      load   = loader.getScriptsToLoad(configured);
+-      unload = loader.getScriptsToUnload(configured);
++        load = loader.getScriptsToLoad(configured);
++        unload = loader.getScriptsToUnload(configured);
+ 
+-      load.remove(&quot;menus&quot;);   
+-      load.remove(&quot;default&quot;);
+-      load.remove(&quot;lame&quot;);
++        load.remove(&quot;menus&quot;);
++        load.remove(&quot;default&quot;);
++        load.remove(&quot;lame&quot;);
+ 
+-      unload.remove(&quot;menus&quot;);   
+-      unload.remove(&quot;lame&quot;);   
+-      unload.remove(&quot;default&quot;);
++        unload.remove(&quot;menus&quot;);
++        unload.remove(&quot;lame&quot;);
++        unload.remove(&quot;default&quot;);
+ 
+-      Iterator i = unload.iterator();
+-      while (i.hasNext())
+-      {
+-         String tt = (String)i.next();
+-         loader.unloadScript(tt);
++        Iterator i = unload.iterator();
++        while (i.hasNext()) {
++            String tt = (String) i.next();
++            loader.unloadScript(tt);
+ 
+-         if (ClientState.getClientState().isOption(&quot;script.verboseLoad&quot;, ClientDefaults.script_verboseLoad))
+-         {
+-            getCapabilities().getUserInterface().printStatus(&quot;Successfully unloaded script &quot; + tt);
+-         }
+-      }
++            if (ClientState.getClientState().isOption(&quot;script.verboseLoad&quot;, ClientDefaults.script_verboseLoad)) {
++                getCapabilities().getUserInterface().printStatus(&quot;Successfully unloaded script &quot; + tt);
++            }
++        }
+ 
+-      i = load.iterator();
+-      while (i.hasNext())
+-      {
+-         String tt = (String)i.next();
+-         if (!loader.isLoaded(tt))
+-         {   
+-            internalScriptLoad(tt); // this check is overly redundant, however if a script loads a script while this operation is
+-                                    // taking place things will have the potential to break, never any fun
+-         }
+-      }
+-   }
++        i = load.iterator();
++        while (i.hasNext()) {
++            String tt = (String) i.next();
++            if (!loader.isLoaded(tt)) {
++                internalScriptLoad(tt); // this check is overly redundant, however if a script loads a script while this operation is
++                // taking place things will have the potential to break, never any fun
++            }
++        }
++    }
+ 
+-   public void loadTheme(String filename)
+-   {
+-      filename = ClientUtils.getFile(filename).getAbsolutePath();
++    public void loadTheme(String filename)
++    {
++        filename = ClientUtils.getFile(filename).getAbsolutePath();
+ 
+-      if ((new File(filename)).exists())
+-      {
+-         internalScriptLoad(filename);
+-         loader.unloadScript(filename);
+-      }
+-      else
+-      {
+-         getCapabilities().getUserInterface().printStatus(&quot;Error loading script: &quot; + new File(filename).getAbsolutePath() + &quot; does not exist&quot;);
+-      }
+-   }
++        if ((new File(filename)).exists()) {
++            internalScriptLoad(filename);
++            loader.unloadScript(filename);
++        } else {
++            getCapabilities().getUserInterface().printStatus(&quot;Error loading script: &quot; + new File(filename).getAbsolutePath() + &quot; does not exist&quot;);
++        }
++    }
+ 
+-   public void addScript(String filename)
+-   {
+-      filename = ClientUtils.getFile(filename).getAbsolutePath();
++    public void addScript(String filename)
++    {
++        filename = ClientUtils.getFile(filename).getAbsolutePath();
+ 
+-      if ((new File(filename)).exists())
+-      {
+-         StringList temp = ClientState.getClientState().getStringList(&quot;script.files&quot;);
+-         String     fn   = ClientUtils.getFile(filename).getAbsolutePath();
++        if ((new File(filename)).exists()) {
++            StringList temp = ClientState.getClientState().getStringList(&quot;script.files&quot;);
++            String fn = ClientUtils.getFile(filename).getAbsolutePath();
+ 
+-         if (!temp.getList().contains(fn))
+-         {
+-            temp.add(fn);
+-            temp.save();
+-            ClientState.getClientState().sync();
+-         }
+-         else
+-         {
+-            getCapabilities().getUserInterface().printStatus(&quot;Script file &quot; + fn + &quot; is already loaded.  Grabbing a beer instead&quot;);
+-         }
+-      }
+-      else
+-      {
+-         getCapabilities().getUserInterface().printStatus(&quot;Error loading script: &quot; + new File(filename).getAbsolutePath() + &quot; does not exist&quot;);
+-      }
+-   }
++            if (!temp.getList().contains(fn)) {
++                temp.add(fn);
++                temp.save();
++                ClientState.getClientState().sync();
++            } else {
++                getCapabilities().getUserInterface().printStatus(&quot;Script file &quot; + fn + &quot; is already loaded.  Grabbing a beer instead&quot;);
++            }
++        } else {
++            getCapabilities().getUserInterface().printStatus(&quot;Error loading script: &quot; + new File(filename).getAbsolutePath() + &quot; does not exist&quot;);
++        }
++    }
+ 
+-   public void evalScript(String code)
+-   {
+-      try
+-      {
+-         getCapabilities().getUserInterface().printActive(((ScriptInstance)loader.getScripts().getFirst()).getScriptEnvironment().evaluateExpression(code).toString()); 
+-      }
+-      catch (YourCodeSucksException ex)
+-      {
+-         formatCodeException(&quot;/eval input&quot;, ex);
+-      }
+-   }
++    public void evalScript(String code)
++    {
++        try {
++            getCapabilities().getUserInterface().printActive(((ScriptInstance) loader.getScripts().getFirst()).getScriptEnvironment().evaluateExpression(code).toString());
++        }
++        catch (YourCodeSucksException ex) {
++            formatCodeException(&quot;/eval input&quot;, ex);
++        }
++    }
+ 
+-   public String evalString(String code)
+-   {
+-      try
+-      {
+-         return ((ScriptInstance)loader.getScripts().getFirst()).getScriptEnvironment().evaluateExpression(code).toString(); 
+-      }
+-      catch (YourCodeSucksException ex)
+-      {
+-         formatCodeException(&quot;/eval input&quot;, ex);
+-      }
+-      return code;
+-   }
++    public String evalString(String code)
++    {
++        try {
++            return ((ScriptInstance) loader.getScripts().getFirst()).getScriptEnvironment().evaluateExpression(code).toString();
++        }
++        catch (YourCodeSucksException ex) {
++            formatCodeException(&quot;/eval input&quot;, ex);
++        }
++        return code;
++    }
+ 
+-   public void reloadScript(String filename)
+-   {
+-      boolean flag = true;
++    public void reloadScript(String filename)
++    {
++        boolean flag = true;
+ 
+-      Iterator i = findScripts(filename, ClientState.getClientState().getStringList(&quot;script.files&quot;).getList()).iterator();
+-      while (i.hasNext())
+-      {
+-         flag = false;
++        Iterator i =
++            findScripts(filename, ClientState.getClientState().getStringList(&quot;script.files&quot;).getList()).iterator();
++        while (i.hasNext()) {
++            flag = false;
+ 
+-         String scriptf = (String)i.next();
++            String scriptf = (String) i.next();
+ 
+ //         if (ClientState.getClientState().isOption(&quot;script.verboseLoad&quot;, ClientDefaults.script_verboseLoad))
+ //         {
+ //            getCapabilities().getUserInterface().printStatus(&quot;Attempting to reload script &quot; + scriptf);
+ //         }
+ 
+-         removeScript(scriptf);
+-         addScript(scriptf);
++            removeScript(scriptf);
++            addScript(scriptf);
+ //         loader.unloadScript(scriptf);
+ //         internalScriptLoad(scriptf);        
+-      }
++        }
+ 
+-      if (flag)
+-         getCapabilities().getUserInterface().printStatus(&quot;Error (re)loading script: &quot; + filename + &quot; isn't loaded&quot;);
+-   }
++        if (flag)
++            getCapabilities().getUserInterface().printStatus(&quot;Error (re)loading script: &quot; + filename + &quot; isn't loaded&quot;);
++    }
+ 
+-   private LinkedList findScripts(String filename, LinkedList theList)
+-   {
+-      LinkedList goodBye = new LinkedList();
++    private LinkedList findScripts(String filename, LinkedList theList)
++    {
++        LinkedList goodBye = new LinkedList();
+ 
+-      Iterator i = theList.iterator();
+-      while (i.hasNext())
+-      {
+-         File temp = new File((String)i.next());
+-         if (temp.getName().equals(filename) || temp.getAbsolutePath().equals(filename))
+-         {
+-            goodBye.add(temp.getAbsolutePath());
+-         }
+-      }
++        Iterator i = theList.iterator();
++        while (i.hasNext()) {
++            File temp = new File((String) i.next());
++            if (temp.getName().equals(filename) || temp.getAbsolutePath().equals(filename)) {
++                goodBye.add(temp.getAbsolutePath());
++            }
++        }
+ 
+-      return goodBye;
+-   }
++        return goodBye;
++    }
+ 
+-   public void removeScript(String filename)
+-   {
+-      StringList temp = ClientState.getClientState().getStringList(&quot;script.files&quot;);
+-      Iterator i      = findScripts(filename, temp.getList()).iterator();
++    public void removeScript(String filename)
++    {
++        StringList temp = ClientState.getClientState().getStringList(&quot;script.files&quot;);
++        Iterator i = findScripts(filename, temp.getList()).iterator();
+ 
+-      while (i.hasNext())
+-      {
+-         String remMe = (String)i.next();
+-         temp.remove(remMe);
+-      }
++        while (i.hasNext()) {
++            String remMe = (String) i.next();
++            temp.remove(remMe);
++        }
+ 
+-      temp.save();
+-      ClientState.getClientState().sync(); // this will cause all the script values to be rehashed...
+-   }
++        temp.save();
++        ClientState.getClientState().sync(); // this will cause all the script values to be rehashed...
++    }
+ 
+-   private static boolean lame = true;
++    private static boolean lame = true;
+ 
+-   public void loadLameScripts()
+-   {
+-      try
+-      {
+-         if (lame)
+-         {
+-            ScriptInstance defaults = loader.loadScript(&quot;lame&quot;, ClientState.getClientState().getResourceAsStream(&quot;lame.irc&quot;), environment);
++    public void loadLameScripts()
++    {
++        try {
++            if (lame) {
++                ScriptInstance defaults =
++                    loader.loadScript(&quot;lame&quot;, ClientState.getClientState().getResourceAsStream(&quot;lame.irc&quot;), environment);
+ 
+-            defaults.addWarningWatcher(this);
+-            defaults.runScript();
++                defaults.addWarningWatcher(this);
++                defaults.runScript();
+ 
+-            lame = false;
+-         }
+-      }
+-      catch (Exception ex)
+-      {
++                lame = false;
++            }
++        }
++        catch (Exception ex) {
+ 
+-      }
+-   }
++        }
++    }
+ 
+-   public void loadScripts()
+-   {
+-      //
+-      // do other fun stuff... i.e. script loading and such
+-      //
+- 
+-      try
+-      {
+-         if (ClientState.getClientState().isOption(&quot;load.default&quot;, true))
+-         {
+-            long start = System.currentTimeMillis();
+-            ScriptInstance defaults = loader.loadScript(&quot;default&quot;, ClientState.getClientState().getResourceAsStream(&quot;default.irc&quot;), environment);
++    public void loadScripts()
++    {
++        //
++        // do other fun stuff... i.e. script loading and such
++        //
++
++        try {
++            if (ClientState.getClientState().isOption(&quot;load.default&quot;, true)) {
++                long start = System.currentTimeMillis();
++                ScriptInstance defaults =
++                    loader.loadScript(&quot;default&quot;, ClientState.getClientState().getResourceAsStream(&quot;default.irc&quot;), environment);
+ //            System.out.println(&quot;Default script loaded in: &quot; + (System.currentTimeMillis() - start));
+ 
+-            defaults.addWarningWatcher(this);
+-            defaults.runScript();
+-         }
++                defaults.addWarningWatcher(this);
++                defaults.runScript();
++            }
+ 
+-         if (ClientState.getClientState().isOption(&quot;load.menus&quot;, true))
+-         {
+-            long start = System.currentTimeMillis();
+-            ScriptInstance defaults = loader.loadScript(&quot;menus&quot;, ClientState.getClientState().getResourceAsStream(&quot;menus.irc&quot;), environment);
++            if (ClientState.getClientState().isOption(&quot;load.menus&quot;, true)) {
++                long start = System.currentTimeMillis();
++                ScriptInstance defaults =
++                    loader.loadScript(&quot;menus&quot;, ClientState.getClientState().getResourceAsStream(&quot;menus.irc&quot;), environment);
+ //            System.out.println(&quot;Menu script loaded in: &quot; + (System.currentTimeMillis() - start));
+ 
+-            defaults.addWarningWatcher(this);
+-            defaults.runScript();
+-         }
++                defaults.addWarningWatcher(this);
++                defaults.runScript();
++            }
+ 
+-         if (ClientState.getClientState().isOption(&quot;load.lame&quot;, false))
+-         {
+-            loadLameScripts();
+-         }
+-      }
+-      catch (YourCodeSucksException ex)
+-      {
+-         formatCodeException(&quot;&lt;Internal Scripts&gt;&quot;, ex);
+-      }
+-      catch (IOException ex)
+-      {
+-         ex.printStackTrace();
+-      }
++            if (ClientState.getClientState().isOption(&quot;load.lame&quot;, false)) {
++                loadLameScripts();
++            }
++        }
++        catch (YourCodeSucksException ex) {
++            formatCodeException(&quot;&lt;Internal Scripts&gt;&quot;, ex);
++        }
++        catch (IOException ex) {
++            ex.printStackTrace();
++        }
+ 
+-      Iterator i = ClientState.getClientState().getStringList(&quot;script.files&quot;).getList().iterator();
+-      while (i.hasNext())
+-      {
+-         internalScriptLoad((String)i.next());
+-      }
+-   }
++        Iterator i = ClientState.getClientState().getStringList(&quot;script.files&quot;).getList().iterator();
++        while (i.hasNext()) {
++            internalScriptLoad((String) i.next());
++        }
++    }
+ 
+-   public void propertyChanged(String name, String value)
+-   {
+-       hashScripts(); 
+-   }
++    public void propertyChanged(String name, String value)
++    {
++        hashScripts();
++    }
+ 
+-   private void internalScriptLoad(String scriptFile)
+-   {
+-      try
+-      {   
+-         ScriptInstance scripti = loader.loadScript(scriptFile, environment);
+-         scripti.addWarningWatcher(this);
++    private void internalScriptLoad(String scriptFile)
++    {
++        try {
++            String charset = guessCharsetFromFileName(scriptFile);
+ 
+-         if (ClientState.getClientState().isOption(&quot;script.verboseLoad&quot;, ClientDefaults.script_verboseLoad))
+-         {
+-            getCapabilities().getUserInterface().printStatus(&quot;Successfully loaded script &quot; + new File(scriptFile).getName());
+-         }
++            // keep old conversion mode
++            boolean charsetConversions = loader.isCharsetConversions();
++            String oldcharset = loader.getCharset();
+ 
+-         scripti.runScript();
+-      }
+-      catch (YourCodeSucksException ex)
+-      {
+-         formatCodeException(scriptFile, ex);
++            // set charset to use when loading script
++            if (charset != null) {
++                loader.setCharsetConversion(true);
++                loader.setCharset(charset);
++            }
+ 
+-         lock = true;
+-         removeScript(scriptFile);
+-         lock = false;
+-      }
+-      catch (IOException ex2)
+-      {
+-         getCapabilities().getUserInterface().printStatus(&quot;Error loading &quot;+(new File(scriptFile)).getName()+&quot;: &quot; + ex2.getMessage());
+-      }      
+-      catch (Exception ex3)
+-      {
+-         getCapabilities().getUserInterface().printStatus(&quot;Error loading &quot;+(new File(scriptFile)).getName()+&quot;: &quot; + ex3.getMessage() + &quot; &lt;-- could be a sleep bug, please report :)&quot;);
+-         ex3.printStackTrace();
+-      }
+-   }
++            ScriptInstance scripti = loader.loadScript(scriptFile, environment);
+ 
+-   public void processScriptWarning(ScriptWarning warn)
+-   {
+-      if (! ClientState.getClientState().isOption(&quot;script.ignoreWarnings&quot;, ClientDefaults.script_ignoreWarnings))
+-      {
+-          String[] temp = warn.getMessage().split(&quot;\n&quot;);
++            // restore previous mode
++            if (charset != null) {
++                loader.setCharsetConversion(charsetConversions);
++                loader.setCharset(oldcharset);
++            }
+ 
+-          String fname = warn.getNameShort();
++            scripti.addWarningWatcher(this);
+ 
+-          getCapabilities().getUserInterface().printStatus(&quot;*** Script Warning: &quot; + temp[0] + &quot; at &quot; + fname + &quot;:&quot; + warn.getLineNumber());
++            if (ClientState.getClientState().isOption(&quot;script.verboseLoad&quot;, ClientDefaults.script_verboseLoad)) {
++                getCapabilities().getUserInterface().printStatus(&quot;Successfully loaded script &quot; + new File(scriptFile).getName());
++            }
+ 
+-          for (int x = 1; x &lt; temp.length; x++)
+-          {
+-             getCapabilities().getUserInterface().printStatus(&quot;     &quot; + temp[x]);
+-          }
+-      }
+-   }
++            scripti.runScript();
++        }
++        catch (YourCodeSucksException ex) {
++            formatCodeException(scriptFile, ex);
+ 
+-   private void formatCodeException(String scriptFile, YourCodeSucksException ex)
+-   {
+-      getCapabilities().getUserInterface().printStatus(&quot;*** &quot; + ex.getErrors().size() + &quot; error(s) loading &quot; + scriptFile);
++            lock = true;
++            removeScript(scriptFile);
++            lock = false;
++        }
++        catch (IOException ex2) {
++            getCapabilities().getUserInterface().printStatus(&quot;Error loading &quot; + (new File(scriptFile)).getName() + &quot;: &quot; + ex2.getMessage());
++        }
++        catch (Exception ex3) {
++            getCapabilities().getUserInterface().printStatus(&quot;Error loading &quot; + (new File(scriptFile)).getName() + &quot;: &quot; + ex3.getMessage() + &quot; &lt;-- could be a sleep bug, please report :)&quot;);
++            ex3.printStackTrace();
++        }
++    }
+ 
+-      Iterator i = ex.getErrors().iterator();
+-      while (i.hasNext())
+-      {
+-         SyntaxError anError = (SyntaxError)i.next();
+-         getCapabilities().getUserInterface().printStatus(&quot;Error: &quot; + anError.getDescription() + &quot; at line &quot; + anError.getLineNumber());
+-         getCapabilities().getUserInterface().printStatus(&quot;       &quot; + anError.getCodeSnippet());
++    private static final Pattern ENCODING_IN_FILE = Pattern.compile(&quot;.*\\.(.*?)\\..*$&quot;);
++    private static final Pattern ENCODING_IN_EXTENSION = Pattern.compile(&quot;.*\\.(.*)$&quot;);
+ 
+-         if (anError.getMarker() != null)
+-            getCapabilities().getUserInterface().printStatus(&quot;       &quot; + anError.getMarker());
+-      }
+-   }
++    /**
++     * Script file name may contain charset, like file.charset.irc, or just file.charset
++     *
++     * @param scriptFile file name
++     * @return valid charset if found in file name, null otherwise
++     */
++    private String guessCharsetFromFileName(String scriptFile)
++    {
++        File f = new File(scriptFile);
++        String name = f.getName();
++
++        Matcher mname = ENCODING_IN_FILE.matcher(name);
++        Matcher mext = ENCODING_IN_EXTENSION.matcher(name);
++
++        if (mname.matches() || mext.matches()) {
++            SortedMap charsets = Charset.availableCharsets();
++
++            if (mname.matches()) {
++                String charset = mname.group(1);
++                if (charsets.containsKey(charset))
++                    return charset;
++            } else {
++                String charset = mext.group(1);
++                if (charsets.containsKey(charset))
++                    return charset;
++            }
++        }
++        return null;
++    }
++
++    public void processScriptWarning(ScriptWarning warn)
++    {
++        if (! ClientState.getClientState().isOption(&quot;script.ignoreWarnings&quot;, ClientDefaults.script_ignoreWarnings)) {
++            String[] temp = warn.getMessage().split(&quot;\n&quot;);
++
++            String fname = warn.getNameShort();
++
++            getCapabilities().getUserInterface().printStatus(&quot;*** Script Warning: &quot; + temp[0] + &quot; at &quot; + fname + &quot;:&quot; + warn.getLineNumber());
++
++            for (int x = 1; x &lt; temp.length; x++) {
++                getCapabilities().getUserInterface().printStatus(&quot;     &quot; + temp[x]);
++            }
++        }
++    }
++
++    private void formatCodeException(String scriptFile, YourCodeSucksException ex)
++    {
++        getCapabilities().getUserInterface().printStatus(&quot;*** &quot; + ex.getErrors().size() + &quot; error(s) loading &quot; + scriptFile);
++
++        Iterator i = ex.getErrors().iterator();
++        while (i.hasNext()) {
++            SyntaxError anError = (SyntaxError) i.next();
++            getCapabilities().getUserInterface().printStatus(&quot;Error: &quot; + anError.getDescription() + &quot; at line &quot; + anError.getLineNumber());
++            getCapabilities().getUserInterface().printStatus(&quot;       &quot; + anError.getCodeSnippet());
++
++            if (anError.getMarker() != null)
++                getCapabilities().getUserInterface().printStatus(&quot;       &quot; + anError.getMarker());
++        }
++    }
+ }
+ 
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000049.html">[Jircii-svn] r67 - in rero: resources/toplevel src/rero/client/server src/rero/ircfw/data
+</A></li>
+	<LI>Next message: <A HREF="000051.html">[Jircii-svn] r69 - rero/src/rero/client/script
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#50">[ date ]</a>
+              <a href="thread.html#50">[ thread ]</a>
+              <a href="subject.html#50">[ subject ]</a>
+              <a href="author.html#50">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/jircii-svn">More information about the Jircii-svn
+mailing list</a><br>
+</body></html>

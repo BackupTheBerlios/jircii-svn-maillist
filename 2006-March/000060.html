@@ -1,0 +1,720 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Jircii-svn] r78 - in rero: resources/resource resources/toplevel src/rero/client/functions src/rero/ircfw
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/jircii-svn/2006-March/index.html" >
+   <LINK REL="made" HREF="mailto:jircii-svn%40lists.berlios.de?Subject=Re%3A%20%5BJircii-svn%5D%20r78%20-%20in%20rero%3A%20resources/resource%20resources/toplevel%20src/rero/client/functions%20src/rero/ircfw&In-Reply-To=%3C200603011647.k21GlgqY011243%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   
+   <LINK REL="Next"  HREF="000061.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Jircii-svn] r78 - in rero: resources/resource resources/toplevel src/rero/client/functions src/rero/ircfw</H1>
+    <B>crazycoder at BerliOS</B> 
+    <A HREF="mailto:jircii-svn%40lists.berlios.de?Subject=Re%3A%20%5BJircii-svn%5D%20r78%20-%20in%20rero%3A%20resources/resource%20resources/toplevel%20src/rero/client/functions%20src/rero/ircfw&In-Reply-To=%3C200603011647.k21GlgqY011243%40sheep.berlios.de%3E"
+       TITLE="[Jircii-svn] r78 - in rero: resources/resource resources/toplevel src/rero/client/functions src/rero/ircfw">crazycoder at berlios.de
+       </A><BR>
+    <I>Wed Mar  1 17:47:42 CET 2006</I>
+    <P><UL>
+        
+        <LI>Next message: <A HREF="000061.html">[Jircii-svn] r79 - rero/src/rero/config
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#60">[ date ]</a>
+              <a href="thread.html#60">[ thread ]</a>
+              <a href="subject.html#60">[ subject ]</a>
+              <a href="author.html#60">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: crazycoder
+Date: 2006-03-01 17:47:40 +0100 (Wed, 01 Mar 2006)
+New Revision: 78
+
+Modified:
+   rero/resources/resource/default.irc
+   rero/resources/toplevel/whatsnew.txt
+   rero/src/rero/client/functions/ChannelOperators.java
+   rero/src/rero/ircfw/UserMode.java
+Log:
+- Fixed modes in nicklist and status bar (all possible channel modes
+  should be correctly supported now, including &amp;, ~, .) (Serge)
+- Fixed &amp;getModeFor returning 2 characters in some cases. According
+  to docs it should always return the highest channel mode user has
+  as a single character (Serge)
+- Added @ &amp;getModeChars function, returns channel mode chars supported
+  by the server (@,%,+,&amp;,~,.) (Serge)
+
+Modified: rero/resources/resource/default.irc
+===================================================================
+--- rero/resources/resource/default.irc	2006-02-23 15:28:59 UTC (rev 77)
++++ rero/resources/resource/default.irc	2006-03-01 16:47:40 UTC (rev 78)
+@@ -88,25 +88,26 @@
+    return formatNick($nick, $channel, $nick);
+ }
+ 
+-sub formatNick
+-{
+-   if ($1 isop $2) 
+-   {
+-      return &quot;\C26@\C29 $+ $3&quot;;
+-   }
+-   else if ($1 ishalfop $2)
+-   {
+-      return &quot;\C28%\C29 $+ $3&quot;;
+-   }
+-   else if ($1 isvoice $2)
+-   {
+-      return &quot;\C27+\C29 $+ $3&quot;;
+-   }
+-   else if ($1 hasmode $2)
+-   {
+-      return &quot;\C26\B&quot; . getModeFor($1, $2) . &quot;\B\C29 $+ $3&quot;;
+-   }
+-   return &quot;\C29 $+ $3&quot;;
++sub formatNick {
++  if (($1 !hasmode $2)) {
++    return &quot;\C29 $+ $3&quot;;
++  }
++
++  $uchar = getModeFor($1, $2);
++
++  if($uchar eq '@') {
++    return &quot;\C26@\C29 $+ $3&quot;;
++  }
++
++  if($uchar eq '%') {
++    return &quot;\C28%\C29 $+ $3&quot;;
++  }
++
++  if($uchar eq '+') {
++    return &quot;\C27+\C29 $+ $3&quot;;
++  }
++
++  return &quot;\C26\B $+ $uchar $+ \B\C29 $+ $3&quot;;
+ }
+ 
+ set CHANNEL_CREATED!
+@@ -499,22 +500,11 @@
+ 
+ set SBAR_LEFT 
+ {
+-  if ($me isop $query) 
+-  {
+-     $ime = &quot;\B@\B $+ $me&quot;;
++  if (($me hasmode $query)) {
++    $ime = &quot;\B&quot; . getModeFor($me, $query) . &quot;\B $+ $me&quot;;
++  } else {
++    $ime = &quot;$me&quot;;
+   }
+-  else if ($me isvoice $query) 
+-  {
+-     $ime = &quot;\B+\B $+ $me&quot;;
+-  }
+-  else if ($me ishalfop $query)
+-  {
+-     $ime = &quot;\B%\B $+ $me&quot;;
+-  }
+-  else
+-  {
+-     $ime = &quot;$me&quot;;
+-  }
+ 
+   if ($me ison $query)
+   {
+
+Modified: rero/resources/toplevel/whatsnew.txt
+===================================================================
+--- rero/resources/toplevel/whatsnew.txt	2006-02-23 15:28:59 UTC (rev 77)
++++ rero/resources/toplevel/whatsnew.txt	2006-03-01 16:47:40 UTC (rev 78)
+@@ -30,8 +30,14 @@
+ - Implemented automatic word wrapping of long messages if packet doesn't
+   fit 512 bytes RFC length. For details check this link:
+   <A HREF="http://www.resultspk.net/hackirc/irchks-chp-13-sect-3.html">http://www.resultspk.net/hackirc/irchks-chp-13-sect-3.html</A> (Serge)
++- Fixed modes in nicklist and status bar (all possible channel modes
++  should be correctly supported now, including &amp;, ~, .) (Serge)
++- Fixed &amp;getModeFor returning 2 characters in some cases. According
++  to docs it should always return the highest channel mode user has
++  as a single character (Serge)
++- Added @ &amp;getModeChars function, returns channel mode chars supported
++  by the server (@,%,+,&amp;,~,.) (Serge)
+ 
+-
+ Beta    39 release 07.30.05
+ ====
+ - The find feature is now case insensitive (oracel)
+
+Modified: rero/src/rero/client/functions/ChannelOperators.java
+===================================================================
+--- rero/src/rero/client/functions/ChannelOperators.java	2006-02-23 15:28:59 UTC (rev 77)
++++ rero/src/rero/client/functions/ChannelOperators.java	2006-03-01 16:47:40 UTC (rev 78)
+@@ -1,205 +1,189 @@
+ package rero.client.functions;
+ 
+-import sleep.engine.*;
+-import sleep.runtime.*;
+-import sleep.interfaces.*;
+-
+-import rero.client.*;
+-import rero.ircfw.data.*;
+-import rero.ircfw.*;
+-
++import rero.client.Feature;
++import rero.ircfw.Channel;
++import rero.ircfw.InternalDataList;
+ import sleep.bridges.BridgeUtilities;
++import sleep.interfaces.Function;
++import sleep.interfaces.Loadable;
++import sleep.interfaces.Predicate;
++import sleep.runtime.Scalar;
++import sleep.runtime.ScriptInstance;
++import sleep.runtime.SleepUtils;
+ 
+-import java.util.*;
++import java.util.ArrayList;
++import java.util.Iterator;
++import java.util.Stack;
+ 
+-public class ChannelOperators extends Feature implements Predicate, Function, Loadable
+-{
+-   protected InternalDataList data;
+- 
+-   public void init()
+-   {
+-      getCapabilities().getScriptCore().addBridge(this);
+-      
+-      data = (InternalDataList)getCapabilities().getDataStructure(&quot;clientInformation&quot;);
+-   }
++public class ChannelOperators extends Feature implements Predicate, Function, Loadable {
++  protected InternalDataList data;
+ 
+-   public boolean scriptLoaded(ScriptInstance script)
+-   {
+-      String[] contents = new String[] { 
+-          &quot;ison&quot;,      /** predicates */
+-          &quot;isop&quot;,
+-          &quot;ishalfop&quot;,
+-          &quot;isvoice&quot;,
+-          &quot;isnormal&quot;,
+-          &quot;ismode&quot;,
+-          &quot;hasmode&quot;,
+-          &quot;&amp;getUsers&quot;,  /** functions that return an array value */
+-          &quot;&amp;getOps&quot;,
+-          &quot;&amp;getHalfOps&quot;,
+-          &quot;&amp;getVoiced&quot;,
+-          &quot;&amp;getNormal&quot;,
+-          &quot;&amp;getTopic&quot;,  /** functions that return a normal scalar value */
+-          &quot;&amp;getKey&quot;,
+-          &quot;&amp;getMode&quot;,
+-          &quot;&amp;getLimit&quot;,
+-          &quot;&amp;getModeFor&quot;
+-      };
++  public void init() {
++    getCapabilities().getScriptCore().addBridge(this);
+ 
+-      for (int x = 0; x &lt; contents.length; x++)
+-      {
+-         script.getScriptEnvironment().getEnvironment().put(contents[x], this);
+-      }       
++    data = (InternalDataList) getCapabilities().getDataStructure(&quot;clientInformation&quot;);
++  }
+ 
+-      return true;
+-   }
++  public boolean scriptLoaded(ScriptInstance script) {
++    String[] contents = new String[]{
++      &quot;ison&quot;,      /** predicates */
++      &quot;isop&quot;,
++      &quot;ishalfop&quot;,
++      &quot;isvoice&quot;,
++      &quot;isnormal&quot;,
++      &quot;ismode&quot;,
++      &quot;hasmode&quot;,
++      &quot;&amp;getUsers&quot;,  /** functions that return an array value */
++      &quot;&amp;getOps&quot;,
++      &quot;&amp;getHalfOps&quot;,
++      &quot;&amp;getVoiced&quot;,
++      &quot;&amp;getNormal&quot;,
++      &quot;&amp;getTopic&quot;,  /** functions that return a normal scalar value */
++      &quot;&amp;getKey&quot;,
++      &quot;&amp;getMode&quot;,
++      &quot;&amp;getLimit&quot;,
++      &quot;&amp;getModeFor&quot;,
++      &quot;&amp;getModeChars&quot;
++    };
+ 
+-   public boolean scriptUnloaded(ScriptInstance script)
+-   {
+-      return true;
+-   }
++    for (int x = 0; x &lt; contents.length; x++) {
++      script.getScriptEnvironment().getEnvironment().put(contents[x], this);
++    }
+ 
+-   public Scalar evaluate(String function, ScriptInstance script, Stack locals)
+-   {
+-      if (function.equals(&quot;&amp;getModeFor&quot;))
+-      {
+-          String  _nick    = BridgeUtilities.getString(locals, &quot;&quot;);
+-          String  _channel = BridgeUtilities.getString(locals, &quot;&quot;);
+-          Channel channel  = data.getChannel(_channel);
+- 
+-          if (data.getUser(_nick) == null)
+-              return SleepUtils.getEmptyScalar();
++    return true;
++  }
+ 
+-          return SleepUtils.getScalar(data.getPrefixInfo().toString(data.getUser(_nick).getModeFor(channel)));
+-      }
++  public boolean scriptUnloaded(ScriptInstance script) {
++    return true;
++  }
+ 
+-      if (locals.size() != 1)
+-      {
+-         return SleepUtils.getEmptyScalar();
++  public Scalar evaluate(String function, ScriptInstance script, Stack locals) {
++    if (function.equals(&quot;&amp;getModeChars&quot;)) {
++      String modes = data.getPrefixInfo().getModes();
++      char[] chars = modes.toCharArray();
++      ArrayList ch = new ArrayList(chars.length);
++      for (int i = 0; i &lt; chars.length; i++) {
++        char mchar = chars[i];
++        ch.add(String.valueOf(mchar));
+       }
++      return SleepUtils.getArrayWrapper(ch);
++    }
+ 
+-      String  _channel = ((Scalar)locals.pop()).getValue().toString();
++    if (function.equals(&quot;&amp;getModeFor&quot;)) {
++      String _nick = BridgeUtilities.getString(locals, &quot;&quot;);
++      String _channel = BridgeUtilities.getString(locals, &quot;&quot;);
+       Channel channel = data.getChannel(_channel);
+-  
+-      if (channel == null)
+-      {
+-         return null;
+-      }
+ 
+-      if (function.equals(&quot;&amp;getTopic&quot;))
+-      {
+-         return SleepUtils.getScalar(channel.getTopic());
+-      }
++      if (data.getUser(_nick) == null)
++        return SleepUtils.getEmptyScalar();
+ 
+-      if (function.equals(&quot;&amp;getMode&quot;))
+-      {
+-         return SleepUtils.getScalar(channel.getMode().toString());
+-      }
++      return SleepUtils.getScalar(data.getPrefixInfo().toString(data.getUser(_nick).getModeFor(channel)));
++    }
+ 
+-      if (function.equals(&quot;&amp;getKey&quot;))
+-      {
+-         return SleepUtils.getScalar(channel.getKey());
+-      }
++    if (locals.size() != 1) {
++      return SleepUtils.getEmptyScalar();
++    }
+ 
+-      if (function.equals(&quot;&amp;getLimit&quot;))
+-      {
+-         return SleepUtils.getScalar(channel.getLimit());
+-      }
++    String _channel = ((Scalar) locals.pop()).getValue().toString();
++    Channel channel = data.getChannel(_channel);
+ 
+-      Stack rv = new Stack();
+-      Iterator i = null;
++    if (channel == null) {
++      return null;
++    }
+ 
+-      if (function.equals(&quot;&amp;getUsers&quot;))
+-      {
+-         return SleepUtils.getArrayWrapper(channel.getAllUsers());
+-      }
++    if (function.equals(&quot;&amp;getTopic&quot;)) {
++      return SleepUtils.getScalar(channel.getTopic());
++    }
+ 
+-      if (function.equals(&quot;&amp;getOps&quot;))
+-      {
+-         return SleepUtils.getArrayWrapper(data.getUsersWithMode(_channel, 'o'));
+-      }
++    if (function.equals(&quot;&amp;getMode&quot;)) {
++      return SleepUtils.getScalar(channel.getMode().toString());
++    }
+ 
+-      if (function.equals(&quot;&amp;getHalfOps&quot;))
+-      {
+-         return SleepUtils.getArrayWrapper(data.getUsersWithMode(_channel, 'h'));
+-      }
++    if (function.equals(&quot;&amp;getKey&quot;)) {
++      return SleepUtils.getScalar(channel.getKey());
++    }
+ 
+-      if (function.equals(&quot;&amp;getVoiced&quot;))
+-      {
+-         return SleepUtils.getArrayWrapper(data.getUsersWithMode(_channel, 'v'));
+-      }
++    if (function.equals(&quot;&amp;getLimit&quot;)) {
++      return SleepUtils.getScalar(channel.getLimit());
++    }
+ 
+-      if (function.equals(&quot;&amp;getNormal&quot;))
+-      {
+-         return SleepUtils.getArrayWrapper(data.getUsersWithMode(_channel, ' '));
+-      }
++    Stack rv = new Stack();
++    Iterator i = null;
+ 
+-      return null;
+-   }
++    if (function.equals(&quot;&amp;getUsers&quot;)) {
++      return SleepUtils.getArrayWrapper(channel.getAllUsers());
++    }
+ 
+-   public boolean decide(String predicate, ScriptInstance script, Stack terms)
+-   {
+-      if (terms.size() != 2)
+-      {
+-         return false;
+-      }
++    if (function.equals(&quot;&amp;getOps&quot;)) {
++      return SleepUtils.getArrayWrapper(data.getUsersWithMode(_channel, 'o'));
++    }
+ 
+-      String channel = ((Scalar)terms.pop()).getValue().toString();  
+-      String nick    = ((Scalar)terms.pop()).getValue().toString();
+- 
+-      if (data.getChannel(channel) == null)
+-      {
+-         return false;
+-      }
++    if (function.equals(&quot;&amp;getHalfOps&quot;)) {
++      return SleepUtils.getArrayWrapper(data.getUsersWithMode(_channel, 'h'));
++    }
+ 
+-      if (predicate.equals(&quot;ismode&quot;)) 
+-      {
+-         for (int x = 0; x &lt; nick.length(); x++)
+-         {
+-            if (! data.getChannel(channel).getMode().isSet(nick.charAt(x)) )
+-            {
+-               return false;
+-            }
+-         }
+-         return true;
+-      }
++    if (function.equals(&quot;&amp;getVoiced&quot;)) {
++      return SleepUtils.getArrayWrapper(data.getUsersWithMode(_channel, 'v'));
++    }
+ 
+-      if (!data.isUser(nick))
+-      {
+-         return false;
+-      }
++    if (function.equals(&quot;&amp;getNormal&quot;)) {
++      return SleepUtils.getArrayWrapper(data.getUsersWithMode(_channel, ' '));
++    }
+ 
+-      if (predicate.equals(&quot;ison&quot;))
+-      {
+-         return data.isOn(data.getUser(nick), data.getChannel(channel));
+-      } 
++    return null;
++  }
+ 
+-      int temp = data.getUser(nick).getModeFor(data.getChannel(channel));
+-     
+-      if (predicate.equals(&quot;isop&quot;))
+-      {
+-         return data.getPrefixInfo().isMode(temp, 'o');
+-      }
++  public boolean decide(String predicate, ScriptInstance script, Stack terms) {
++    if (terms.size() != 2) {
++      return false;
++    }
+ 
+-      if (predicate.equals(&quot;ishalfop&quot;))
+-      {
+-         return data.getPrefixInfo().isMode(temp, 'h');
+-      }
++    String channel = ((Scalar) terms.pop()).getValue().toString();
++    String nick = ((Scalar) terms.pop()).getValue().toString();
+ 
+-      if (predicate.equals(&quot;isvoice&quot;))
+-      {
+-         return data.getPrefixInfo().isMode(temp, 'v');
+-      }
++    if (data.getChannel(channel) == null) {
++      return false;
++    }
+ 
+-      if (predicate.equals(&quot;isnormal&quot;))
+-      {
+-         return temp == 0;
++    if (predicate.equals(&quot;ismode&quot;)) {
++      for (int x = 0; x &lt; nick.length(); x++) {
++        if (! data.getChannel(channel).getMode().isSet(nick.charAt(x))) {
++          return false;
++        }
+       }
++      return true;
++    }
+ 
+-      if (predicate.equals(&quot;hasmode&quot;))
+-      {
+-         return temp != 0;
+-      }
+-
++    if (!data.isUser(nick)) {
+       return false;
+-   }
++    }
++
++    if (predicate.equals(&quot;ison&quot;)) {
++      return data.isOn(data.getUser(nick), data.getChannel(channel));
++    }
++
++    int temp = data.getUser(nick).getModeFor(data.getChannel(channel));
++
++    if (predicate.equals(&quot;isop&quot;)) {
++      return data.getPrefixInfo().isMode(temp, 'o');
++    }
++
++    if (predicate.equals(&quot;ishalfop&quot;)) {
++      return data.getPrefixInfo().isMode(temp, 'h');
++    }
++
++    if (predicate.equals(&quot;isvoice&quot;)) {
++      return data.getPrefixInfo().isMode(temp, 'v');
++    }
++
++    if (predicate.equals(&quot;isnormal&quot;)) {
++      return temp == 0;
++    }
++
++    if (predicate.equals(&quot;hasmode&quot;)) {
++      return temp != 0;
++    }
++
++    return false;
++  }
+ }
+
+Modified: rero/src/rero/ircfw/UserMode.java
+===================================================================
+--- rero/src/rero/ircfw/UserMode.java	2006-02-23 15:28:59 UTC (rev 77)
++++ rero/src/rero/ircfw/UserMode.java	2006-03-01 16:47:40 UTC (rev 78)
+@@ -1,101 +1,96 @@
+ package rero.ircfw;
+ 
+-import java.util.*;
++import java.util.Iterator;
++import java.util.LinkedHashSet;
++import java.util.Set;
+ 
+-/** This class is a mode interpreter for each server.  Basically each server can have channel user prefix modes.
+-    The state of these modes is stored as an int within each User object (associated in a hashmap with the Channel
+-    object as the key).  This class is used to make sense of the integer mode value for a given servers configuration */
+-public class UserMode
+-{
+-   private String modes; // the actual mode characters i.e. ov
+-   private String chars; // the actual display characters i.e. @+ 
++/**
++ * This class is a mode interpreter for each server.  Basically each server can have channel user prefix modes. The
++ * state of these modes is stored as an int within each User object (associated in a hashmap with the Channel object as
++ * the key).  This class is used to make sense of the integer mode value for a given servers configuration
++ */
++public class UserMode {
++  private String modes; // the actual mode characters i.e. ov
++  private String chars; // the actual display characters i.e. @+
+ 
+-   public UserMode(String m, String c)
+-   {
+-      modes = m;
+-      chars = c;
+-   }
++  public UserMode(String m, String c) {
++    modes = m;
++    chars = c;
++  }
+ 
+-   public Set getUsersWithMode(Channel channel, char mode)
+-   {
+-      Set copy = new LinkedHashSet();
+-      Iterator i = channel.getAllUsers().iterator();
+-      while (i.hasNext())
+-      {
+-         User temp = (User)i.next();
+-         int  m    = temp.getModeFor(channel);
+- 
+-         if (isMode(m, mode))
+-         {
+-            copy.add(temp);
+-         }
++  public Set getUsersWithMode(Channel channel, char mode) {
++    Set copy = new LinkedHashSet();
++    Iterator i = channel.getAllUsers().iterator();
++    while (i.hasNext()) {
++      User temp = (User) i.next();
++      int m = temp.getModeFor(channel);
++
++      if (isMode(m, mode)) {
++        copy.add(temp);
+       }
++    }
+ 
+-      return copy;
+-   }
++    return copy;
++  }
+ 
+-   public boolean isPrefixMode(char m)
+-   {
+-      return modes.indexOf(m) &gt; -1;
+-   }
++  public boolean isPrefixMode(char m) {
++    return modes.indexOf(m) &gt; -1;
++  }
+ 
+-   public boolean isPrefixChar(char m)
+-   {
+-       return chars.indexOf(m) &gt; -1;
+-   }
++  public boolean isPrefixChar(char m) {
++    return chars.indexOf(m) &gt; -1;
++  }
+ 
+-   public char getDisplayForMode(char mode)
+-   {
+-      return chars.charAt(modes.indexOf(mode));
+-   }
+-    
+-   public char getModeForDisplay(char display)
+-   {
+-      return modes.charAt(chars.indexOf(display));
+-   }
++  public char getDisplayForMode(char mode) {
++    return chars.charAt(modes.indexOf(mode));
++  }
+ 
+-   public int getValueFor(char mchar)
+-   {
+-      return 1 &lt;&lt; (modes.length() - modes.indexOf(mchar));
+-   }
++  public char getModeForDisplay(char display) {
++    return modes.charAt(chars.indexOf(display));
++  }
+ 
+-   public int setMode(int original, char mchar)
+-   {
+-      int value = getValueFor(mchar);
+-      return original | value;
+-   }
++  public int getValueFor(char mchar) {
++    return 1 &lt;&lt; (modes.length() - modes.indexOf(mchar));
++  }
+ 
+-   public int unsetMode(int original, char mchar)
+-   {
+-      int value = getValueFor(mchar);
+-      return original &amp; ~(value);
+-   }
++  public int setMode(int original, char mchar) {
++    int value = getValueFor(mchar);
++    return original | value;
++  }
+ 
+-   public boolean isMode(int original, char mchar)
+-   {
+-      if (mchar == ' ' &amp;&amp; original == 0)
+-            return true;
++  public int unsetMode(int original, char mchar) {
++    int value = getValueFor(mchar);
++    return original &amp; ~(value);
++  }
+ 
+-      int value = getValueFor(mchar);
+-      return ((original &amp; value) == value);
+-   }
++  public boolean isMode(int original, char mchar) {
++    if (mchar == ' ' &amp;&amp; original == 0)
++      return true;
+ 
+-   public String toString(int original)
+-   {
+-      StringBuffer rv = new StringBuffer();
+-      for (int x = 0; x &lt; modes.length(); x++)
+-      {
+-         if (isMode(original, modes.charAt(x)))
+-         {
+-            rv.append(chars.charAt(x));
+-         }
++    int value = getValueFor(mchar);
++    return ((original &amp; value) == value);
++  }
++
++
++  public String getModes() {
++    return modes;
++  }
++
++  public String getChars() {
++    return chars;
++  }
++
++  public String toString(int original) {
++    for (int x = 0; x &lt; modes.length(); x++) {
++      if (isMode(original, modes.charAt(x))) {
++        return String.valueOf(chars.charAt(x));
+       }
++    }
++    return &quot;&quot;;
++  }
+ 
+-      return rv.toString();
+-   }
++  public String toString() {
++    return &quot;[UCM:(&quot; + modes + &quot;)&quot; + chars + &quot;]&quot;;
++  }
+ 
+-   public String toString()
+-   {
+-      return &quot;[UCM:(&quot;+modes+&quot;)&quot;+chars+&quot;]&quot;;
+-   }
+ }
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	
+	<LI>Next message: <A HREF="000061.html">[Jircii-svn] r79 - rero/src/rero/config
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#60">[ date ]</a>
+              <a href="thread.html#60">[ thread ]</a>
+              <a href="subject.html#60">[ subject ]</a>
+              <a href="author.html#60">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/jircii-svn">More information about the Jircii-svn
+mailing list</a><br>
+</body></html>

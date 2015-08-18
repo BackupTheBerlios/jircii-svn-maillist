@@ -1,0 +1,128 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Jircii-svn] r27 - rero/src/rero/gui/input
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/jircii-svn/2005-July/index.html" >
+   <LINK REL="made" HREF="mailto:jircii-svn%40lists.berlios.de?Subject=Re%3A%20%5BJircii-svn%5D%20r27%20-%20rero/src/rero/gui/input&In-Reply-To=%3C200507161125.j6GBPGtx027231%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000006.html">
+   <LINK REL="Next"  HREF="000008.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Jircii-svn] r27 - rero/src/rero/gui/input</H1>
+    <B>Andreas Ravnestad at BerliOS</B> 
+    <A HREF="mailto:jircii-svn%40lists.berlios.de?Subject=Re%3A%20%5BJircii-svn%5D%20r27%20-%20rero/src/rero/gui/input&In-Reply-To=%3C200507161125.j6GBPGtx027231%40sheep.berlios.de%3E"
+       TITLE="[Jircii-svn] r27 - rero/src/rero/gui/input">oracel at berlios.de
+       </A><BR>
+    <I>Sat Jul 16 13:25:16 CEST 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000006.html">[Jircii-svn] r26 - rero/src/rero/gui/input
+</A></li>
+        <LI>Next message: <A HREF="000008.html">[Jircii-svn] r28 - rero/src/rero/gui/windows
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#7">[ date ]</a>
+              <a href="thread.html#7">[ thread ]</a>
+              <a href="subject.html#7">[ subject ]</a>
+              <a href="author.html#7">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: oracel
+Date: 2005-07-16 13:25:15 +0200 (Sat, 16 Jul 2005)
+New Revision: 27
+
+Modified:
+   rero/src/rero/gui/input/InputField.java
+Log:
+Converted code into *not* using generics.
+
+Modified: rero/src/rero/gui/input/InputField.java
+===================================================================
+--- rero/src/rero/gui/input/InputField.java	2005-07-16 11:08:53 UTC (rev 26)
++++ rero/src/rero/gui/input/InputField.java	2005-07-16 11:25:15 UTC (rev 27)
+@@ -24,11 +24,11 @@
+     // This is the command history for this InputField
+     // WARNING: Do not, under any circumstance, modify this structure.
+     //          This will lead to a ConcurrentModificationException!
+-    private ArrayList&lt;String&gt; commandHistory;
++    private ArrayList commandHistory;
+ 
+     // An iterator for the command history. This is what is actually
+     // used for manipulating the command history.
+-    private ListIterator&lt;String&gt; commandIterator;
++    private ListIterator commandIterator;
+ 
+     // This is the maximum number of commands in the command history.
+     // This should be configurable.
+@@ -102,7 +102,7 @@
+        ClientState.getClientState().addClientStateListener(&quot;ui.font&quot;, this);
+ 
+        // Instantiate the command history -oracel
+-       this.commandHistory = new ArrayList&lt;String&gt;(maxCommands + 1);
++       this.commandHistory = new ArrayList(maxCommands + 1);
+        this.commandIterator = commandHistory.listIterator();
+ 
+     }
+@@ -279,11 +279,11 @@
+             if (commandIterator.hasPrevious()) {
+             
+                 // Store it
+-                String previous = commandIterator.previous();
++                String previous = String.valueOf(commandIterator.previous());
+                 
+                 // See if we should skip one forward
+                 if (!previousKeyUpArrow &amp;&amp; commandIterator.hasPrevious()) {
+-                    setText(commandIterator.previous());
++                    setText(String.valueOf(commandIterator.previous()));
+                 }
+                 
+                 // Set text from history
+@@ -328,13 +328,13 @@
+                  else 
+                  {
+                      // Fetch next item in command history (downwards)
+-                     next = commandIterator.next();
++                     next = String.valueOf(commandIterator.next());
+                     
+                      // Semi-special case, user pressed up then down so
+                      // we need to skip an item
+                      if (previousKeyUpArrow &amp;&amp; commandIterator.hasNext()) 
+                      {
+-                         setText(commandIterator.next());
++                         setText(String.valueOf(commandIterator.next()));
+                      }
+                      
+                      // Just set the text
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000006.html">[Jircii-svn] r26 - rero/src/rero/gui/input
+</A></li>
+	<LI>Next message: <A HREF="000008.html">[Jircii-svn] r28 - rero/src/rero/gui/windows
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#7">[ date ]</a>
+              <a href="thread.html#7">[ thread ]</a>
+              <a href="subject.html#7">[ subject ]</a>
+              <a href="author.html#7">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/jircii-svn">More information about the Jircii-svn
+mailing list</a><br>
+</body></html>

@@ -1,0 +1,95 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Jircii-svn] r81 - rero/src/rero/client/script
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/jircii-svn/2006-June/index.html" >
+   <LINK REL="made" HREF="mailto:jircii-svn%40lists.berlios.de?Subject=Re%3A%20%5BJircii-svn%5D%20r81%20-%20rero/src/rero/client/script&In-Reply-To=%3C200606042248.k54MmuEE008501%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   
+   <LINK REL="Next"  HREF="000064.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Jircii-svn] r81 - rero/src/rero/client/script</H1>
+    <B>crazycoder at BerliOS</B> 
+    <A HREF="mailto:jircii-svn%40lists.berlios.de?Subject=Re%3A%20%5BJircii-svn%5D%20r81%20-%20rero/src/rero/client/script&In-Reply-To=%3C200606042248.k54MmuEE008501%40sheep.berlios.de%3E"
+       TITLE="[Jircii-svn] r81 - rero/src/rero/client/script">crazycoder at berlios.de
+       </A><BR>
+    <I>Mon Jun  5 00:48:56 CEST 2006</I>
+    <P><UL>
+        
+        <LI>Next message: <A HREF="000064.html">[Jircii-svn] r82 - in rero: resources/resource resources/toplevel src/rero/client/functions src/rero/config src/rero/util
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#63">[ date ]</a>
+              <a href="thread.html#63">[ thread ]</a>
+              <a href="subject.html#63">[ subject ]</a>
+              <a href="author.html#63">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: crazycoder
+Date: 2006-06-05 00:48:53 +0200 (Mon, 05 Jun 2006)
+New Revision: 81
+
+Modified:
+   rero/src/rero/client/script/ScriptManager.java
+Log:
+some tweaks related to charset detection
+
+Modified: rero/src/rero/client/script/ScriptManager.java
+===================================================================
+--- rero/src/rero/client/script/ScriptManager.java	2006-03-18 22:01:02 UTC (rev 80)
++++ rero/src/rero/client/script/ScriptManager.java	2006-06-04 22:48:53 UTC (rev 81)
+@@ -325,15 +325,19 @@
+         Matcher mname = ENCODING_IN_FILE.matcher(name);
+         Matcher mext = ENCODING_IN_EXTENSION.matcher(name);
+ 
+-        // lazy init
+-        if (charsets == null) charsets = Charset.availableCharsets();
+         if (mname.matches()) {
++            // lazy init
++            if (charsets == null) charsets = Charset.availableCharsets();
+             String charset = mname.group(1);
+             if (charsets.containsKey(charset))
+                 return charset;
+         }
+         if (mext.matches()) {
+             String charset = mext.group(1);
++            // skip for .irc files
++            if(charset.equalsIgnoreCase(&quot;irc&quot;)) return null;
++            // lazy init
++            if (charsets == null) charsets = Charset.availableCharsets();
+             if (charsets.containsKey(charset))
+                 return charset;
+         }
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	
+	<LI>Next message: <A HREF="000064.html">[Jircii-svn] r82 - in rero: resources/resource resources/toplevel src/rero/client/functions src/rero/config src/rero/util
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#63">[ date ]</a>
+              <a href="thread.html#63">[ thread ]</a>
+              <a href="subject.html#63">[ subject ]</a>
+              <a href="author.html#63">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/jircii-svn">More information about the Jircii-svn
+mailing list</a><br>
+</body></html>

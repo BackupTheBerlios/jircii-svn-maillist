@@ -1,0 +1,199 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Jircii-svn] r25 - in rero: . resources/help resources/toplevel resources/toplevel/docs src/rero/config
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/jircii-svn/2005-July/index.html" >
+   <LINK REL="made" HREF="mailto:jircii-svn%40lists.berlios.de?Subject=Re%3A%20%5BJircii-svn%5D%20r25%20-%20in%20rero%3A%20.%20resources/help%20resources/toplevel%20resources/toplevel/docs%20src/rero/config&In-Reply-To=%3C200507130034.j6D0YmqG028572%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000004.html">
+   <LINK REL="Next"  HREF="000006.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Jircii-svn] r25 - in rero: . resources/help resources/toplevel resources/toplevel/docs src/rero/config</H1>
+    <B>Raphael Mudge at BerliOS</B> 
+    <A HREF="mailto:jircii-svn%40lists.berlios.de?Subject=Re%3A%20%5BJircii-svn%5D%20r25%20-%20in%20rero%3A%20.%20resources/help%20resources/toplevel%20resources/toplevel/docs%20src/rero/config&In-Reply-To=%3C200507130034.j6D0YmqG028572%40sheep.berlios.de%3E"
+       TITLE="[Jircii-svn] r25 - in rero: . resources/help resources/toplevel resources/toplevel/docs src/rero/config">rsmudge at berlios.de
+       </A><BR>
+    <I>Wed Jul 13 02:34:48 CEST 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000004.html">[Jircii-svn] r24 - in rero: . resources/resource src/rero/client/data src/rero/client/dcc src/rero/client/script src/rero/client/server src/rero/config src/rero/dcc src/rero/dialogs src/rero/gui src/rero/gui/sdi src/rero/gui/toolkit src/rero/test src/rero/util
+</A></li>
+        <LI>Next message: <A HREF="000006.html">[Jircii-svn] r26 - rero/src/rero/gui/input
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#5">[ date ]</a>
+              <a href="thread.html#5">[ thread ]</a>
+              <a href="subject.html#5">[ subject ]</a>
+              <a href="author.html#5">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: rsmudge
+Date: 2005-07-13 02:34:32 +0200 (Wed, 13 Jul 2005)
+New Revision: 25
+
+Modified:
+   rero/build.xml
+   rero/resources/help/KB_Shortcuts
+   rero/resources/toplevel/docs/jircii.faq
+   rero/resources/toplevel/docs/scriptjirc.pdf
+   rero/resources/toplevel/docs/sleeplang.pdf
+   rero/resources/toplevel/readme.txt
+   rero/resources/toplevel/whatsnew.txt
+   rero/src/rero/config/ClientDefaults.java
+Log:
+b37 checkin :)
+
+
+Modified: rero/build.xml
+===================================================================
+--- rero/build.xml	2005-07-13 00:09:08 UTC (rev 24)
++++ rero/build.xml	2005-07-13 00:34:32 UTC (rev 25)
+@@ -17,7 +17,7 @@
+            destdir=&quot;${project.build}&quot;
+            nowarn=&quot;yes&quot;
+            depend=&quot;yes&quot;
+-           debug=&quot;yes&quot;
++           debug=&quot;no&quot;
+            optimize=&quot;yes&quot;
+     &gt;
+        &lt;classpath path=&quot;./lib/sleep.jar&quot; /&gt;
+
+Modified: rero/resources/help/KB_Shortcuts
+===================================================================
+--- rero/resources/help/KB_Shortcuts	2005-07-13 00:09:08 UTC (rev 24)
++++ rero/resources/help/KB_Shortcuts	2005-07-13 00:34:32 UTC (rev 25)
+@@ -19,6 +19,10 @@
+ &lt;br&gt;
+ &lt;br&gt;Another popular style of nick completion supported by jIRC is Tab key nick completion.  This is where you type part of a nick and then hit the Tab key.  The last word in the editbox will then be completed to a full nickname.  If the editbox is empty hitting tab will bring up /msg &lt;last person to msg you&gt; in the editbox.  
+ &lt;br&gt;
++&lt;br&gt;&lt;b&gt;Tab File Completion&lt;/b&gt;&lt;/font&gt;
++&lt;br&gt;
++&lt;br&gt;If you are using /dcc send, /send, /load, etc. it is possible to tab complete the filename as well.  Just type the first few characters of the path, hit tab, and jIRCii will expand it for you.  Keep hitting tab to cycle through your options.
++&lt;br&gt;
+ &lt;br&gt;&lt;b&gt;Quickly Edit a Topic&lt;/b&gt;&lt;/font&gt;
+ &lt;br&gt;
+ &lt;br&gt;To quickly edit a channel topic simply type /topic in the editbox and then hit the Tab key.  This will bring the channel topic up in the editbox ready for quick editing.
+
+Modified: rero/resources/toplevel/docs/jircii.faq
+===================================================================
+--- rero/resources/toplevel/docs/jircii.faq	2005-07-13 00:09:08 UTC (rev 24)
++++ rero/resources/toplevel/docs/jircii.faq	2005-07-13 00:34:32 UTC (rev 25)
+@@ -1,4 +1,4 @@
+-jircii faq - distributed with jircii 06.11.05:
++jircii faq - distributed with jircii 07.13.05:
+ 
+                .sS$$Ss.                           .sS$$Ss. .sS$$Ss.
+                $$$$$$$$                           $$$$$$$$ $$$$$$$$
+@@ -9,7 +9,7 @@
+          $$$$$$ $$$$$$ $$$$$$ $$$$$$ $$$$$$ $$$$$$ $$$$$$   $$$$$$
+          $$$$$$ $$$$$$ $$$$$$ $$$$$$ $$$$$$        $$$$$$   $$$$$$
+   &quot;&quot;&quot;&quot;&quot;&quot; $$$$$$ $$$$$$ $$$$$$        $$$$$$ $$$$$$ $$$$$$   $$$$$$
+-  $$$$$$ $$$$$$ $$$$$$ $$$$$$ 061105 $$$$$$ $$$$$$ $$$$$$   $$$$$$
++  $$$$$$ $$$$$$ $$$$$$ $$$$$$ 071305 $$$$$$ $$$$$$ $$$$$$   $$$$$$
+   $$$$$$ $$$$$$ $$$$$$ $$$$$$        `?$$$$s$$$$P' $$$$$$   $$$$$$
+   `?$$$$s$$$$P'                                        
+ 
+
+Modified: rero/resources/toplevel/docs/scriptjirc.pdf
+===================================================================
+(Binary files differ)
+
+Modified: rero/resources/toplevel/docs/sleeplang.pdf
+===================================================================
+(Binary files differ)
+
+Modified: rero/resources/toplevel/readme.txt
+===================================================================
+--- rero/resources/toplevel/readme.txt	2005-07-13 00:09:08 UTC (rev 24)
++++ rero/resources/toplevel/readme.txt	2005-07-13 00:34:32 UTC (rev 25)
+@@ -1,5 +1,5 @@
+  ------- -------------------- ---------   ---------------  ------- ---------
+-jIRCii - Beta (36) 06.18.05 - README
++jIRCii - Beta (37) 07.13.05 - README
+ -  ------------- -------- -   ---------------- --       -    -     -     - - -
+ 
+ The official jIRCii homepage is at: <A HREF="http://jircii.hick.org">http://jircii.hick.org</A>
+
+Modified: rero/resources/toplevel/whatsnew.txt
+===================================================================
+--- rero/resources/toplevel/whatsnew.txt	2005-07-13 00:09:08 UTC (rev 24)
++++ rero/resources/toplevel/whatsnew.txt	2005-07-13 00:34:32 UTC (rev 25)
+@@ -1,3 +1,31 @@
++Beta 37 release 07.13.05
++====
++- fixed resource loading to ensure files in .jIRC have priority over 
++  internal resources
++- updated to Sleep 2.0-b11 (from b9)
++  be aware! the behavior of single quoted strings has changed slightly.
++  '\\' is now \; this breaks fserve.irc and I recommend if you are using 
++  it that you upgrade immediately
++- rename window now does nothing if the new window name already exists...  
++  thanks to serge for the bug report (now about that text selection...)
++- unbroke Alt+1 .. Alt+n for channel switching 
++- made a jIRCii launch service change, altnick is now based on the 
++  specified primary nick iff no altnick exists and a primary nick is 
++  speciifed.  If no primary nick is specified jircii will use the 
++  lamer_nnnn nickname.  
++- made auto reconnect on disconnect an option (under IRC Options dialog)
++- on disconnect initial IRC_RECONNECT message goes to all windows, 
++  subsequent ones only go to the status window
++- fixed a bug where dcc receive was not closing file handle when an error 
++  occured.
++- added ~ expansion for tab based file completion, /dcc send, /send, 
++  /theme, and /load ~ expands to your home directory if it is the first 
++  character...  :)
++- fixed occasional switchbar button disappearing bug as reported by simple
++- added the ability to position the switchbar on the left or right side 
++  of the jIRCii window
++- fixed a startup visual artifact on OS X with the metal L&amp;F
++
+ Beta   36 release 06.18.05
+ ====
+ - added localip() function for retrieving local ip address used for dccs
+
+Modified: rero/src/rero/config/ClientDefaults.java
+===================================================================
+--- rero/src/rero/config/ClientDefaults.java	2005-07-13 00:09:08 UTC (rev 24)
++++ rero/src/rero/config/ClientDefaults.java	2005-07-13 00:34:32 UTC (rev 25)
+@@ -75,7 +75,7 @@
+ 
+    public static final boolean update_ial     = true;
+ 
+-   public static final String  version_string = &quot;06.18.05&quot;;
++   public static final String  version_string = &quot;07.13.05&quot;;
+ 
+    static
+    {
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000004.html">[Jircii-svn] r24 - in rero: . resources/resource src/rero/client/data src/rero/client/dcc src/rero/client/script src/rero/client/server src/rero/config src/rero/dcc src/rero/dialogs src/rero/gui src/rero/gui/sdi src/rero/gui/toolkit src/rero/test src/rero/util
+</A></li>
+	<LI>Next message: <A HREF="000006.html">[Jircii-svn] r26 - rero/src/rero/gui/input
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#5">[ date ]</a>
+              <a href="thread.html#5">[ thread ]</a>
+              <a href="subject.html#5">[ subject ]</a>
+              <a href="author.html#5">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/jircii-svn">More information about the Jircii-svn
+mailing list</a><br>
+</body></html>

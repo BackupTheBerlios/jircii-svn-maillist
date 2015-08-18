@@ -1,0 +1,1515 @@
+From rsmudge at mail.berlios.de  Sun Nov 18 22:43:00 2007
+From: rsmudge at mail.berlios.de (rsmudge at BerliOS)
+Date: Sun, 18 Nov 2007 22:43:00 +0100
+Subject: [Jircii-svn] r97 - in rero: lib src-apple/jIRCii.app/Contents
+Message-ID: <200711182143.lAILh00H021500@sheep.berlios.de>
+
+Author: rsmudge
+Date: 2007-11-18 22:42:50 +0100 (Sun, 18 Nov 2007)
+New Revision: 97
+
+Modified:
+   rero/lib/sleep.jar
+   rero/src-apple/jIRCii.app/Contents/Info.plist
+Log:
+..
+
+
+Modified: rero/lib/sleep.jar
+===================================================================
+(Binary files differ)
+
+Modified: rero/src-apple/jIRCii.app/Contents/Info.plist
+===================================================================
+--- rero/src-apple/jIRCii.app/Contents/Info.plist	2007-03-25 16:28:43 UTC (rev 96)
++++ rero/src-apple/jIRCii.app/Contents/Info.plist	2007-11-18 21:42:50 UTC (rev 97)
+@@ -41,6 +41,8 @@
+ 			<string>$JAVAROOT/jerk.jar</string>
+ 		<key>Properties</key>
+ 		<dict>
++			<key>apple.awt.graphics.UseQuartz</key>
++			<string>true</string>
+ 			<key>apple.awt.showGrowBox</key>
+ 			<string>false</string>
+ 			<key>com.apple.smallTabs</key>
+
+
+
+From rsmudge at mail.berlios.de  Mon Nov 26 01:39:50 2007
+From: rsmudge at mail.berlios.de (rsmudge at BerliOS)
+Date: Mon, 26 Nov 2007 01:39:50 +0100
+Subject: [Jircii-svn] r99 - in rero: . resources/help resources/toplevel
+	resources/toplevel/docs resources/toplevel/docs/css
+	src/rero/client/server
+Message-ID: <200711260039.lAQ0do7U030742@sheep.berlios.de>
+
+Author: rsmudge
+Date: 2007-11-26 01:39:49 +0100 (Mon, 26 Nov 2007)
+New Revision: 99
+
+Modified:
+   rero/readme.txt
+   rero/resources/help/About
+   rero/resources/help/Contributors
+   rero/resources/help/Script_Tutorial
+   rero/resources/help/aliases
+   rero/resources/toplevel/docs/css/print.css
+   rero/resources/toplevel/docs/css/screen.css
+   rero/resources/toplevel/docs/sleeplang.html
+   rero/resources/toplevel/whatsnew.txt
+   rero/src/rero/client/server/ProcessEvents.java
+Log:
+updated stale docs...
+
+
+
+Modified: rero/readme.txt
+===================================================================
+--- rero/readme.txt	2007-11-26 00:12:52 UTC (rev 98)
++++ rero/readme.txt	2007-11-26 00:39:49 UTC (rev 99)
+@@ -19,8 +19,10 @@
+ 
+ To run jIRCii from the command line... 
+ 
+-[raffi at beardsley ~/rero/bin]$ java -classpath .:../lib/sleep.jar:../resources rero.test.WindowTest
++[raffi at beardsley ~/rero]$ java -classpath ./bin:./lib/sleep.jar:./resources rero.test.WindowTest
+ 
++(use the -settings command line option to specify a directory to dump your test settings to)
++
+ To Package jIRCii
+ 
+ [raffi at beardsley ~/rero]$ chmod +x Package.sh
+
+Modified: rero/resources/help/About
+===================================================================
+--- rero/resources/help/About	2007-11-26 00:12:52 UTC (rev 98)
++++ rero/resources/help/About	2007-11-26 00:39:49 UTC (rev 99)
+@@ -13,10 +13,10 @@
+ <br>
+ <br>My name is Raffi, I wrote jIRCii (with some help, see the Contributors section).  If you'd like to get in touch with me feel free to email me.
+ <br>
+-<br>email: <a href="mailto:raffi at hick.org">raffi at hick.org</a>
++<br>email: <a href="mailto:rsmudge at gmail.com">rsmudge at gmail.com</a>
+ <br>www: <a href="http://www.hick.org/~raffi/">http://www.hick.org/~raffi/</a>
+ <br>
+-<br>You can also stop by the jIRCii IRC channel #jircii on irc.freenode.net.
++<br>You can also stop by the jIRCii IRC channel #jircii on EFNet.
+ <br>
+ <br><b>Features</b></font>
+ <br><b>*</b> multiserver support
+
+Modified: rero/resources/help/Contributors
+===================================================================
+--- rero/resources/help/Contributors	2007-11-26 00:12:52 UTC (rev 98)
++++ rero/resources/help/Contributors	2007-11-26 00:39:49 UTC (rev 99)
+@@ -3,6 +3,7 @@
+ <br>jIRCii has been a work in progress for a long time now.  I originally started it as a project to learn java while in high school.  I tinkered with it as a hobby throughout college.  I didn't make that final push to create a release quality product until now though.  Anyways with such a long history as a project there are to many people to thank so I'm going to keep this list short.
+ <br>
+ <br><b>Development Team</b>
++<br>Raphael Mudge (<i>`butane</i>) &lt;-- me :)
+ <br>Serge Baranov (<i>Serge</i>)
+ <br>Andreas Ravnestad (<i>oracel</i>)
+ <br>
+@@ -22,9 +23,6 @@
+ <br><b>Tijiez</b></font>
+ <br>I owe a thanks as well to Tijiez for running the jIRCii mirror site at <a href="http://jircii.leenux.net">http://jircii.leenux.net</a>.  Tijiez has had a huge influence on jIRCii through a series of constant complaints and feature requests.
+ <br>
+-<br><b>www.irchelp.org/</b></font>
+-<br>I'd also like to acknowledge <a href="http://www.irchelp.org">www.irchelp.org</a>.  They run a very informative website full of information for the beginning irc user.  I've used some of there work here in the jIRCii help file.  Hopefully they don't mind :)
+-<br>
+ <br><b>Tjerk Vonck</b></font>
+ <br>I owe a shout out to <a href="http://www.mirc.co.uk">Tjerk Vonck</a> for his excellent servers.ini file.  I wouldn't want to mantain that monster.  jIRCii uses the mIRC servers.ini format for its server list.  Thanks for mantaining that file!
+ <br>
+
+Modified: rero/resources/help/Script_Tutorial
+===================================================================
+--- rero/resources/help/Script_Tutorial	2007-11-26 00:12:52 UTC (rev 98)
++++ rero/resources/help/Script_Tutorial	2007-11-26 00:39:49 UTC (rev 99)
+@@ -122,7 +122,7 @@
+ <br>
+ <br>In the above example Ctrl represents the control key.  The + means both keys have to be pressed at the same time in this case the second key is S.  
+ <br>
+-<br>Numerous shortcut combinations can be made using +.  Ctrl and Alt represent the Control and Alt keys respectively.  Nearly any key combination A-Z, F1-F12, enter, home etc. can be bound.  See the <a href="http://jirc.hick.org/jirc/tutorial.prl?scriptjirc">jIRCii Scripting Reference</a> for more details.
++<br>Numerous shortcut combinations can be made using +.  Ctrl and Alt represent the Control and Alt keys respectively.  Nearly any key combination A-Z, F1-F12, enter, home etc. can be bound.  See the <a href="http://jircii.hick.org/jirc/tutorial.prl?scriptjirc">jIRCii Scripting Reference</a> for more details.
+ <br>
+ <br><center><small>[ <a href="http://www/#toc">contents</a> | <a href="http://www/#part1">1</a> | <a href="http://www/#part2">2</a> | <a href="http://www/#part3">3</a> | <a href="http://www/#part4">4</a> ]</small></center></p>
+ <br>
+@@ -214,13 +214,13 @@
+ <br>
+ <br><b><a name="part4"><font color="#000099" size="+1">4. Where to go from here</font></a></b>
+ <br>
+-<br>This tutorial is merely meant to be a starting point for writing jIRCii scripts.  You now know enough to understand what a basic script is doing.  The next logical step is to learn more about sleep.  Sleep is the scripting language behind jIRCii.  The <a href="http://jirc.hick.org/jirc/tutorial.prl?sleeplang">Sleep Language Reference</a> is a very fast paced reference / tutorial.
++<br>This tutorial is merely meant to be a starting point for writing jIRCii scripts.  You now know enough to understand what a basic script is doing.  The next logical step is to learn more about sleep.  Sleep is the scripting language behind jIRCii.  The <a href="http://sleep.hick.org/documentation.html">Sleep Language Reference</a> is a very fast paced reference / tutorial.
+ <br>
+-<br>Once you have an understanding of Sleep you may want to read the <a href="http://jirc.hick.org/jirc/tutorial.prl?scriptjirc">jIRCii Scripting Reference</a>.  The <a href="http://jirc.hick.org/jirc/tutorial.prl?scriptjirc">jIRCii Scripting Reference</a> covers all of the jIRCii specific stuff in Sleep.. 
++<br>Once you have an understanding of Sleep you may want to read the <a href="http://jircii.hick.org/download/scriptjirc.pdf">jIRCii Scripting Reference</a>.  The <a href="http://jircii.hick.org/download/scriptjirc.pdf">jIRCii Scripting Reference</a> covers all of the jIRCii specific stuff in Sleep.. 
+ <br>
+ <br>After you read these documents you can further your learning by looking at other jIRCii scripts.  Just download a script from the jIRCii homepage, open it in your favorite text editor, and start learning.  
+ <br>
+-<br>Hopefully this helps.  If you would like some one on one assistance stop by the jIRCii IRC Channel #jIRCii on irc.freenode.net.
++<br>Hopefully this helps.  If you would like some one on one assistance stop by the jIRCii IRC Channel #jIRCii on EFNet.
+ <br>
+ <br>Good luck!
+ <br>
+
+Modified: rero/resources/help/aliases
+===================================================================
+--- rero/resources/help/aliases	2007-11-26 00:12:52 UTC (rev 98)
++++ rero/resources/help/aliases	2007-11-26 00:39:49 UTC (rev 99)
+@@ -33,7 +33,7 @@
+ join::/join #jIRC::Joins the specified channel.  If you are already on that channel, jIRC will set the status window query to the specified channel::[#]channel - channel to join/query::+key - channel key
+ k::/k JakieChan you suck!::kicks user from current channel with the specified reason.::nick - user to kick::+reason - specified kick message.
+ kb::/kb JakieChan you suck!::kicks and bans user from current channel with the specified reason.::nick - user to kick::+reason - specified kick message.
+-kick::/kick #jIRC tanto I'll add a timer later!::kicks a user from the specified channel with the specified reason::+channel - channel to kick user from::nick - user to kick::+reason - specified kick message.
++kick::/kick #jIRC tanto I'll add a timer later!::kicks a user from the specified channel with the specified reason::channel - channel to kick user from::nick - user to kick::+reason - specified kick message.
+ l::/l #mIRCscripts::leaves the specifed channel::+#channel - channel to leave.
+ list::/list *mp3*::retrieves a list of channels from the server::+-gui - dump channel list to a window::+filter - wildcard to filter list of channels with.
+ load::/load bitchx.irc::loads a specified sleep script, if no file is specified /load lists the currently loaded scripts.::+file.irc - name of sleep script to load.
+
+Modified: rero/resources/toplevel/docs/css/print.css
+===================================================================
+--- rero/resources/toplevel/docs/css/print.css	2007-11-26 00:12:52 UTC (rev 98)
++++ rero/resources/toplevel/docs/css/print.css	2007-11-26 00:39:49 UTC (rev 99)
+@@ -62,7 +62,7 @@
+    font-family:     Verdana, Arial, Helvetica, sans-serif;
+    font-weight:     bold;
+    text-align:      left;
+-   margin:          1.5em 0 0 0;
++   margin:          0em 0 0 0;
+    padding:         0;
+    page-break-after:  avoid;
+    page-break-inside: avoid;
+
+Modified: rero/resources/toplevel/docs/css/screen.css
+===================================================================
+--- rero/resources/toplevel/docs/css/screen.css	2007-11-26 00:12:52 UTC (rev 98)
++++ rero/resources/toplevel/docs/css/screen.css	2007-11-26 00:39:49 UTC (rev 99)
+@@ -55,7 +55,7 @@
+ h3 {
+    font-weight:     bold;
+    text-align:      left;
+-   margin:          1.5em 0 0 0;
++   margin:          0em 0 0 0;
+    padding:         0;
+ }
+ 
+
+Modified: rero/resources/toplevel/docs/sleeplang.html
+===================================================================
+--- rero/resources/toplevel/docs/sleeplang.html	2007-11-26 00:12:52 UTC (rev 98)
++++ rero/resources/toplevel/docs/sleeplang.html	2007-11-26 00:39:49 UTC (rev 99)
+@@ -226,6 +226,22 @@
+ <var>$decision</var> was then assigned the value "not guilty".  When the subroutine verdict finished executing the local variable
+ <var>$decision</var> went away.  The global variable <var>$decision</var> was not touched.</p>
+ 
++<h3>Scalar Identity</h3>
++
++<p>In general Sleep tries to hide the type of the data you're working with.  You can use strings, numbers, and objects interchangeably 
++in many cases.</p>
++
++<p>Sleep has built-in array and hash (dictionary) data structures for storing scalars.  The concept of scalar identity was invented to
++help with manipulating and querying these data structures.  For example the <code>&amp;addAll</code> function is a way to union two
++arrays together.  Scalars are judged as being equivalent through scalar identity.</p>
++
++<p>If a scalar holds a reference to a value (i.e. a hash, an object, or an array) then the identity of that scalar is the reference 
++itself.  Otherwise the identity is based on the string form of the value.</p>
++
++<p>The <code>=~</code> operator exists for checking if two scalars share the same identity.  Really though you only need to know about
++this concept to understand how the <code>in</code> predicate works and how <code>&amp;addAll</code>, <code>&amp;retainAll</code>, and
++<code>&amp;removeAll</code> work.</p>
++
+ <h2><a name="2">If-Else Statements</a></h2>
+ 
+ <p>If-Else statements let you compare different values and execute a certain part of the script based on the result of the 
+@@ -318,9 +334,21 @@
+   <th>Description</th>
+  </tr>
+  <tr>
++  <td>in</td>
++  <td>true if scalar v1 identity exists in array/generator v2</td>
++ </tr>
++ <tr>
+   <td>is</td>
+   <td>true if scalar object reference v1 equals object reference v2</td>
+  </tr>
++ <tr>  
++  <td>isa</td>
++  <td>true if scalar object reference v1 is an instance of the Class referenced by scalar v2</td>
++ </tr>
++ <tr>  
++  <td>=~</td>
++  <td>true if scalar v1 identity is equal to scalar v2 identity</td>
++ </tr>
+ </table>
+ 
+ <p>One example use of the <code>is</code> comparison is to check if a function really returned
+@@ -348,6 +376,8 @@
+    # the string "test" is not contained in the string "walrus"
+ }</pre>
+ 
++<p>The <code>isa</code> predicate is covered later in the <i>Class Literals</i> subsection of this document.</p>
++
+ <h3>Combining Comparisons</h3>
+ 
+ <p>Comparisons can be combined using the logical operators && for AND and || for OR.  For example:</p>
+@@ -436,6 +466,31 @@
+ <var>$value</var> would be "Calculation took 1 second".  The iff example above checks if <var>$x</var> is greater than 1.  If it 
+ is then "s" is returned.  Otherwise "" is returned.</p>
+ 
++<h3>Assertions</h3>
++
++<p>Now that you know about predicates and conditions, I can introduce assertions.  Assertions are a really basic debugging mechanism.  An assertion is a quick way to check that a condition is true.  If the condition isn't true, the current script will exit with an error message.  The syntax for an assertion is:</p>
++
++<pre>assert <b>comparison</b>;</pre>
++
++<p>Assertions also allow a message to be attached.  The attached message is echoed whenever an assertion fails.</p>
++
++<pre>assert <b>comparison</b> : <b>message</b>;</pre>
++
++<p>Assertions are great for doing a last minute sanity check of some condition.  Can you tell what is wrong with this code snippet?</P>
++
++<pre>sub fact
++{
++   return iff($1 == 0, 1, $1 * fact($1 - 1));
++}</pre>
++
++<p>If someone were to call fact with a negative argument, the script would go into an infinite loop potentially crashing Sleep and/or the app hosting it.  An assertion can provide a quick sanity check to protect against this.</p>
++
++<pre>sub fact
++{
++   assert $1 >= 0 : "invalid arg for fact: $1";
++   return iff($1 == 0, 1, $1 * fact($1 - 1));
++}</pre>
++
+ <h2><a name="3">Loops</a></h2>
+ 
+ <h3>While Loops</h3>
+@@ -730,6 +785,33 @@
+    return $1 * fact($1 - 1)
+ }</pre>
+ 
++<h3>Inline Subroutines</h3>
++
++<p>An inline subroutine is Sleep's solution to the macro.  An inline subroutine executes within the current function context as if it manually
++existed there.  Local and closure variable scopes are shared with the current function.  Any attempt to yield, return, or callcc a value from an 
++inline function will directly affect the parent.</p>
++
++<p>Parameters passed to inline subroutines are numbered from <var>$1</var> ... <var>$n</var>.  <var>$this</var> and friends refer to the current
++function and not the inline function.</p>
++
++<p>Inline functions have utility for abstracting complex callcc, yield, or return behavior.  They are declared with the inline keyword.</p>
++
++<pre>inline printx
++{
++   println("\$x is $x");
++}
++
++sub foo
++{
++   local('$x');
++   $x = 0x31337;
++   printx();
++}</pre>
++
++<p>Inline subroutines do not return values themselves.  Any attempt to use an inline function call in
++an expression will result in <var>$null</var>.  Any attempt to use an inline function call that saves function state (yield, callcc) will result
++in an unusable continuation.</p>
++
+ <h3>Nesting Subroutines</h3>
+ 
+ <p>Everything in sleep is evaluated in a (semi) straight forward manner.  When sleep executes a statement that consists of the 
+@@ -986,7 +1068,7 @@
+ it.</p>
+ 
+ <p>To obtain an @array of all of the keys in a hash you can use the keys() function with the %hash as the parameter.   To remove 
+-a key from a hash you can use remove(%hash, "key").</P>
++a value from a hash you can use remove(%hash, "value").</P>
+ 
+ <p>To remove a key key from a hash simply set the value to $null.</p>
+ 
+@@ -1016,6 +1098,33 @@
+ 
+ <p>The example above prints 'My name is Raphael Mudge, and I like ice cream!!!' three times.</p>
+ 
++<p>Built-in functions that expect a key/value pair will accept either a key/value expression or a string of the form
++"key=value".</p>
++
++<h4>Scalar References</h4>
++
++<p>Many times you may find yourself passing a key/value pair with the same key/value.  This is most often done to move
++a scalar between scopes.  This is very common with fork, lambda, and let.  To save you some typing Sleep has a special
++syntax for specifying a scalar be passed by name as a parameter.  Simply prefix the scalar with a backslash.</p>
++
++<pre>sub foo
++{
++   local('$name');
++   $name = "Raphael";
++   bar(\$name);
++}
++
++bar
++{
++   println("Name is: $name");
++}
++
++foo();</pre>
++
++<p>In the example above <var>$name</var> is local to <code>&amp;foo</code>.  Normally to pass <var>$name</var> into the this
++scope of <code>&amp;bar</code> you would have to use <code>$name => $name</code>.  The scalar reference <code>\$name</code>
++is equivalent to that expression.</p>
++
+ <h3>Multidimensional Hashes/Arrays</h3>
+ 
+ <p>Multidimensional hashes work exactly the same as Sleep arrays.  It is also possible to have an array of hashes, or a hash of 
+@@ -1307,6 +1416,20 @@
+ <p>Calling closef on a process will kill the process.  The above program executes the UNIX command ls -al which lists all of the 
+ files in the current directory with some details.</p>
+ 
++<h4>Quick Execution</h4>
++
++<p>Similar to Perl, Sleep also supports quick execution of a process via a string enclosed in backticks.  Any string enclosed in
++backticks is evaluated (as if it was a parsed literal) and the contents is then executed.  The output of the executed command is
++returned as an array.</p>  
++
++<pre>foreach $file (`ls -1`)
++{
++   # do something with the file...
++}</pre>
++
++<p>Any errors from trying to execute the command are available via <code>&amp;checkError</code>.  If the process returns a non-zero
++value, this will also be available with <code>&amp;checkError</code>.</p>
++
+ <h3>Buffers</h3>
+ 
+ <p>For those times when speed is a necessity Sleep provides the loveable byte buffer.  A buffer is simply
+@@ -1580,6 +1703,29 @@
+ 
+ <p>If the jar filename includes spaces, you can surround it with single or double quotes.</p>
+ 
++<h4>Class Literals</h4>
++
++<p>Sleep has a special literal form for specifying Java classes within scripts.  The hat symbol followed by a string is 
++expanded into the appropriate class using the current list of imports at script compile time.  As an example <code>^String</code>
++expands to the result of <code>[Class forName: "java.lang.String"]</code>.  Class literals can be used to compare scalar types
++against eachother, to specify a desired class in a casting function, and more.</p>
++
++<p>Inner classes are referenced with a dollar sign between the parent class and the inner class name i.e.:
++<code>^Map$Entry</code> references the Entry class that belongs to the Map class.</p>
++
++<p>For example to check if an exception is an IOException before acting on it:</p>
++
++<pre>import java.io.IOException;
++
++$handle = openf("fjosfjs");
++if (checkError($error) && $error isa ^IOException)
++{
++   println("Could not open file: " . [$error getCause]);
++}</pre>
++
++<p>The <code>isa</code> predicate is used to check if the value on the left hand side is an instance of the class on the 
++right hand side.  It is analagous to Java's instanceof predicate.</p>
++
+ <h3><a name="interfaces"></a>Sleep Interfaces</h3>
+ 
+ <p>A neat feature of HOES is how interfaces can be quickly and easily created and passed to Java objects.  A Java interface
+@@ -1622,6 +1768,8 @@
+ only message passed to ActionListener interfaces is the actionPerformed message.  The button_pressed subroutine is passed as a 
+ closure parameter in this line: <code>[$button addActionListener:&button_pressed];</code>.</p>
+ 
++<p>Sleep backed instantiations of Java interfaces can also be created with the <code>&amp;newInstance</code> function.</p>
++
+ <p>Any uncaught exceptions originating from a Sleep script will bubble up to the Java caller of the Sleep interface.</p>
+ 
+ <h3>Scalar Conversions</h3>
+@@ -1847,6 +1995,43 @@
+ evaluate an expression each iteration of a loop where as foreach is iterating over a closure reference.  The difference is
+ pretty much in the implementation, the end result is the same.</p>
+ 
++<h4>The Callcc Command</h4>
++
++<p>Similar to coroutines are continuations.  A paused function object can be thought of as the future stuff to execute (or the
++continuation) of the function.  The callcc command syntactically resembles yield and return except a function parameter is required.</p>
++
++<p>callcc will save the current function state into a object.  The specified function will the be called with the current function continuation
++as a parameter.  Control flow will be moved to the specified function.  callcc can be thought of as a functional-level goto.</p>
++
++<p>The syntax for callcc is:</p>
++
++<p><code>callcc <b>closure</b></code>;</p>
++
++<p>The return value of the specified closure will be the return value of the current function.  The specified closure receives the continuation of 
++the current function as the <var>$1</var> parameter.</p>
++
++<p>The following is a simple example of callcc demonstrating the producer/consumer problem:</p>
++
++<pre>$buffer  = $null;
++
++sub produce {
++   for ($x = 0; $x < 3; $x++) {
++      println("Produce: $x * 3");
++      $buffer = $x * 3;
++      callcc &consume;
++   }
++}
++
++sub consume {
++   println("Consume: $buffer");
++   callcc $1; # resume the calling function
++}
++
++produce();</pre>
++
++<p>Callcc and yield use the same internal mechanisms.  The practical difference between callcc and yield is that callcc expects a function parameter and this
++function parameter is immediately invoked with the saved state of the calling function.</p>
++
+ <h2><a name="11">Function Library</a></h2>
+ 
+ <p>This appendix is a list of the application neutral built-in functions for sleep.  I expect this list to grow as time goes on.  
+@@ -1869,6 +2054,9 @@
+ 
+ <p>Parameters specified as <code>@|&</code> represent that either an @array can be passed or a &generator function.  A generator function is a closure that iterates over a sequence with the yield keyword and returns $null when no values are left to iterate over.</p>
+ 
++<p>A <code>^</code> indicates a literal Class value i.e. <code>^String</code>.  This is used to indicate that a function expects
++a class literal as an argument (or offers one as a return value).</p>
++
+ <p>Note, the $ is not part of the function name.  It is solely shorthand for specifying the return type of the function.</p>
+ 
+ <h3>Array Functions</h3>
+@@ -1896,10 +2084,11 @@
+  </tr>
+  <tr>
+   <td>$</td>
+-  <td>cast(@array, 't', ...)</td>
+-  <td>casts @array into an object scalar representing a native java array of type t where t can be b = byte, c = char, d = 
+-double, f = float, h = short, i = int, l = long, z = boolean, * = any object type.  Arguments ... are optional and used 
+-to represent the dimensions of the array.</td>
++  <td>cast(@array, 't'|^Class, ...)</td>
++  <td>casts @array into an object scalar representing a native java array of type t where t can be b = byte, c = char, d =
++double, f = float, h = short, i = int, l = long, o = java.lang.Object, z = boolean, * = any object type.  Optionally a
++^Class literal can be specified and Sleep will create an array of that type.  Arguments ... are optional and used to
++represent the dimensions of the array.</td>
+  </tr>
+  <tr>
+   <td></td>
+@@ -1918,8 +2107,8 @@
+  </tr>
+  <tr>
+   <td>@</td>
+-  <td>flatten(@array)</td>
+-  <td>returns a copy of a multidimensional(?) @array flattened into a one dimensional array</td>
++  <td>flatten(@|&amp;)</td>
++  <td>returns a copy of a multidimensional(?) @array or &amp;generator flattened into a one dimensional array (only array elements are flattened)</td>
+  </tr>
+  <tr>
+   <td>@</td>
+@@ -1942,7 +2131,7 @@
+   <td>I probably should have learned from python and not added this but here it is anyways.  Applies &amp;closure to first two elements of @array or &generator.  Takes the resulting value and applies it to the next element of @array or &generator, so on and so forth.  Returns one value.</td>
+  </tr>
+  <tr>
+-  <td></td>
++  <td>@</td>
+   <td>remove(@array, $scalar, ...)</td>
+   <td>removes each specified $scalar from @array.  if no parameters are passed the active element in the current foreach loop is removed.</td>
+  </tr>
+@@ -1952,9 +2141,9 @@
+   <td>removes all elements of @b from @a. equivalent to the different of @a and @b</td>
+  </tr>
+  <tr>
+-  <td>$</td>
+-  <td>removeAt(@arrray, index)</td>
+-  <td>removes the element at index from @array.</td>
++  <td></td>
++  <td>removeAt(@arrray, index, ...)</td>
++  <td>removes the elements at the specified indices.</td>
+  </tr>
+  <tr>
+   <td>@</td>
+@@ -2182,6 +2371,11 @@
+  </tr>  
+ 
+  <tr>
++   <td>%</td>
++   <td>add(%hash, key => "value", ...)</td>
++   <td>adds specified key/values to the hash.</td>
++ </tr> 
++ <tr>
+   <td></td>
+   <td>clear(%hash)</td>
+   <td>clears %hash</td>
+@@ -2198,6 +2392,11 @@
+  </tr>
+  <tr>
+   <td>%</td>
++  <td>ohash(blah => "value", ...)</td>
++  <td>instantiates an ordered hash with the specified values.  ordered hashes mantain key insertion order.  keys can be updated without changing order.</td>
++ </tr>
++ <tr>
++  <td>%</td>
+   <td>putAll(%hash, @|&amp;, [@|&amp;])</td>
+   <td>populates the hash with the specified iterators.  If only one iterator is specified then the second argument
+   is assumed to be the same as the first.  The first iterator is iterated over to obtain the keys for the hash
+@@ -2205,10 +2404,20 @@
+  </tr>
+  <tr>
+   <td></td>
+-  <td>remove(%hash, $key, ...)</td>
+-  <td>removes all specified keys from %hash</td>
++  <td>remove(%hash, $value, ...)</td>
++  <td>removes all specified values from %hash</td>
+  </tr>
+  <tr>
++  <td></td>
++  <td>removeAt(%hash, "key", ...)</td>
++  <td>removes the specified keys from the hash.</td>
++ </tr>
++ <tr>
++  <td>$</td>
++  <td>size(%hash)</td>
++  <td>returns the number of elements in %hash</td>
++ </tr>
++ <tr>
+   <td>@</td>
+   <td>values(%hash, $key)</td>
+   <td>returns a flat array of all the values in %hash</td>
+@@ -2264,9 +2473,11 @@
+  </tr>
+  <tr>
+   <td>$</td>
+-  <td>connect("host", port, [timeout], [&amp;closure])</td>
++  <td>connect("host", port, [timeout], [&amp;closure], ...)</td>
+   <td>connects to the specified host:port and returns a $handle.  Check for issues connecting to a host with checkError().  If 
+-     &amp;closure is specified, this call will not block.  &amp;closure will be called when a connection is established.</td>
++     &amp;closure is specified, this call will not block.  &amp;closure will be called when a connection is established.  multiple key value pairs
++can be specified to set parameters of the connection: linger => (the value of SO_LINGER (how long (ms) the socket waits for a TCP reset before
++actually closing.); lport => (the local port number to bind to); laddr => (the local address to bind to)</td>
+  </tr>
+  <tr>
+   <td>$</td>
+@@ -2299,10 +2510,13 @@
+  </tr>
+  <tr>
+   <td>$</td>
+-  <td>listen(port, [timeout], [$host], [&amp;closure])</td>
++  <td>listen(port, [timeout], [$host], [&amp;closure], ...)</td>
+   <td>listens for a connection on the specified port.  Check for listening issues with the checkError() function.  If 
+       &amp;closure is specified, this call will not block.  &amp;closure will be called when a connection is established.  
+-      The specified scalar $host will be set to the name of the host that connects (if successful).</td>
++      The specified scalar $host will be set to the name of the host that connects (if successful).  multiple key value pairs can be specified to
++set parameters of the connection: linger => (the value of SO_LINGER (how long (ms) the socket waits for a TCP reset before actually closing.);
++lport => (the local port number to bind to); laddr => (the local address to bind to); and backlog => (the number of connections to queue while
++waiting for a subsequent call of listen(...) to accept a connection.)</td>
+  </tr>
+  <tr>
+   <td></td>
+@@ -2384,6 +2598,11 @@
+  </tr>
+  <tr>
+   <td>$</td>
++  <td>sizeof('format')</td>
++  <td>using the specified data format string, calculates an estimated size of the data.</td>
++ </tr>
++ <tr>
++  <td>$</td>
+   <td>skip([$handle], n)</td>
+   <td>tells the handle to skip the next n bytes</td>
+  </tr>
+@@ -2568,6 +2787,11 @@
+   <td>returns the rounded positive square root of $scalar</td>
+  </tr>
+  <tr>
++   <td>$</td>
++   <td>srand($scalar)</td>
++   <td>seeds the random number generator with the specified scalar (interpreted as a long)</td>
++ </tr>
++ <tr>
+   <td>$</td>
+   <td>tan($scalar)</td>
+   <td>returns the tangent value of angle $scalar (radians)</td>
+@@ -2622,11 +2846,16 @@
+  </tr>
+  <tr>
+   <td>$</td>
+-  <td>join("string", @array)</td>
+-  <td>joins the elements of @array with "string"</td>
++  <td>lindexOf("string", "substr", [start])</td>
++  <td>returns the last index of "substr" inside of "string" looking backwards from the specified start index.</td>
+  </tr>
+  <tr>
+   <td>$</td>
++  <td>join("string", @|&amp;)</td>
++  <td>joins the elements of @array or &amp;generator with "string"</td>
++ </tr>
++ <tr>
++  <td>$</td>
+   <td>lc("STRING")</td>
+   <td>returns a lowercase version of the specified string</td>
+  </tr>
+@@ -2727,14 +2956,20 @@
+  </tr>
+  <tr>
+   <td>$</td>
+-  <td>casti($scalar, 't')</td>
++  <td>casti($scalar, 't'|^Class)</td>
+   <td>casts $scalar into an object scalar representing a native java value of type t where t can be b = byte, c = char, d = 
+-      double, f = float, h = short, i = int, l = long, z = boolean.</td>
++      double, f = float, h = short, i = int, l = long, o = java.lang.Object, z = boolean.  Optionally a ^Class literal can be
++      specified in place of a type string.</td>
+  </tr>
+  <tr>
+   <td>$</td>
+   <td>debug(level)</td>
+-  <td>explicitly enables the specified debug level for this script: 0 - no debugging; 1 - show only critical errors (default); 2 - show all messages flagged for retrieval with checkError(); 4 - show first time use of non-declared variables; 8 - trace all function calls (collects profiler statistics); 24 - trace only for the purpose of collecting profiler statistics; 34 - "throw" all messages flagged for use with checkError() - this allows use of try/catch to deal with errors.  any of the levels can be |'d together.</td>
++  <td>explicitly enables the specified debug level for this script: 0 - no debugging; 1 - show only critical
++errors (default); 2 - show all messages flagged for retrieval with checkError(); 4 - show first time use of
++non-declared variables; 8 - trace all function calls (collects profiler statistics); 24 - trace only for the
++purpose of collecting profiler statistics; 34 - "throw" all messages flagged for use with checkError() - this
++allows use of try/catch to deal with errors; 64 - trace all logical comparisons.  any of the levels can be |'d 
++together.</td>
+  </tr>
+  <tr>
+   <td>$</td>
+@@ -2743,7 +2978,7 @@
+  </tr>
+  <tr>
+   <td>$</td>
+-  <td>exit()</td>
++  <td>exit(["reason"])</td>
+   <td>causes the currently executing script context to exit.</td>
+  </tr>
+  <tr>
+@@ -2798,6 +3033,11 @@
+   <td>parses the specified string and declares all variables in the string as local variables.</td>
+  </tr>
+  <tr>
++  <td>$</td>
++  <td>newInstance(@|^Interface, &closure)</td>
++  <td>Creates a sleep closure backed instance of the specified java interface class (or classes if an array is used).</td>
++ </tr>
++ <tr>
+   <td>@</td>
+   <td>profile()</td>
+   <td>returns the profiler statistics for the current script environment.  Profile statistics will only be collected if DEBUG_TRACE_CALLS (8) or DEBUG_TRACE_PROFILE_ONLY (24) is set.</td>
+@@ -2814,7 +3054,7 @@
+  </tr>
+  <tr>
+   <td></td>
+-  <td>setField(class|$object, field => value, ...)</td>
++  <td>setField(^class|$object, field => value, ...)</td>
+   <td>sets any number of public/protected fields of the specified class or instance of $object to a corresponding value.</td>
+  </tr>
+  <tr>
+@@ -2837,10 +3077,15 @@
+   <td>this('$x $y')</td>
+   <td>parses the specified string and declares all variables in the string as variables specific to the current closure.</td>
+  </tr>
++ <tr>   
++  <td>$</td>
++  <td>typeOf($scalar)</td>
++  <td>returns the Java ^Class backing the specified scalar.</td>
++ </tr>
+  <tr>
+   <td></td>
+-  <td>use("Loadable class")</td>
+-  <td>loads the specified class into the current script environment.  Classes specified as package.Name are loaded from the Java classpath.  Classes can also be specified as filenames without the .class extension.  The specified class must be a Loadable bridge (i.e. it implements sleep.interfaces.Loadable).</td>
++  <td>use("Loadable"|^Loadable)</td>
++  <td>loads the specified class into the current script environment.  Classes specified as package.Name are loaded from the Java classpath.  Classes can also be specified as filenames without the .class extension.  The specified class must be a Loadable bridge (i.e. it implements sleep.interfaces.Loadable).  Optionally a class literal can be specified as an argument and Sleep will instantiate an instance of that class and install it as a bridge into the current script environment.  This is a safer way to use this function as the class name can be checked at script compile time.</td>
+  </tr>
+  <tr>
+   <td></td>
+
+Modified: rero/resources/toplevel/whatsnew.txt
+===================================================================
+--- rero/resources/toplevel/whatsnew.txt	2007-11-26 00:12:52 UTC (rev 98)
++++ rero/resources/toplevel/whatsnew.txt	2007-11-26 00:39:49 UTC (rev 99)
+@@ -5,7 +5,10 @@
+   renderer.  I don't know why the Sun one is broken.  Sun: what is up?
+ - Upgraded to Sleep 2.1-b20.  Lots of changes.  Again view the changelog:
+   http://sleep.hick.org/changelog.html
++- updated CTCP SOURCE reply and internal help documentation to reflect
++  current information and URLs
+ 
++
+ Beta    41 last minute update 25 Mar 07 :)
+ ====
+ - Small last minute update to unbreak a potential issue with script
+
+Modified: rero/src/rero/client/server/ProcessEvents.java
+===================================================================
+--- rero/src/rero/client/server/ProcessEvents.java	2007-11-26 00:12:52 UTC (rev 98)
++++ rero/src/rero/client/server/ProcessEvents.java	2007-11-26 00:39:49 UTC (rev 99)
+@@ -209,7 +209,7 @@
+          }
+          if (type.equals("SOURCE"))
+          {
+-            getCapabilities().sendln("NOTICE " + nick + " :" + (char)1 + "SOURCE http://jirc.hick.org" + (char)1);
++            getCapabilities().sendln("NOTICE " + nick + " :" + (char)1 + "SOURCE http://jircii.hick.org" + (char)1);
+          }
+          if (type.equals("TIME"))
+          {
+
+
+
+From rsmudge at mail.berlios.de  Mon Nov 26 03:19:55 2007
+From: rsmudge at mail.berlios.de (rsmudge at BerliOS)
+Date: Mon, 26 Nov 2007 03:19:55 +0100
+Subject: [Jircii-svn] r101 - rero/resources/toplevel
+Message-ID: <200711260219.lAQ2Jt2C005600@sheep.berlios.de>
+
+Author: rsmudge
+Date: 2007-11-26 03:19:54 +0100 (Mon, 26 Nov 2007)
+New Revision: 101
+
+Modified:
+   rero/resources/toplevel/whatsnew.txt
+Log:
+..
+
+
+
+Modified: rero/resources/toplevel/whatsnew.txt
+===================================================================
+--- rero/resources/toplevel/whatsnew.txt	2007-11-26 01:07:07 UTC (rev 100)
++++ rero/resources/toplevel/whatsnew.txt	2007-11-26 02:19:54 UTC (rev 101)
+@@ -8,8 +8,7 @@
+ - updated CTCP SOURCE reply and internal help documentation to reflect
+   current information and URLs
+ - added a WALLOPS and SEND_WALLOPS sets; updated the default.irc script to
+-  include these.  per request of drakx
+-- fixed /wallops
++  include these.  also fixed /wallops; per request of drakx
+ 
+ Beta    41 last minute update 25 Mar 07 :)
+ ====
+
+
+
+From rsmudge at mail.berlios.de  Mon Nov 26 05:00:32 2007
+From: rsmudge at mail.berlios.de (rsmudge at BerliOS)
+Date: Mon, 26 Nov 2007 05:00:32 +0100
+Subject: [Jircii-svn] r102 - in rero: resources/toplevel
+	src/rero/bridges/menu src/rero/gui src/rero/script
+Message-ID: <200711260400.lAQ40WD3012213@sheep.berlios.de>
+
+Author: rsmudge
+Date: 2007-11-26 05:00:30 +0100 (Mon, 26 Nov 2007)
+New Revision: 102
+
+Modified:
+   rero/resources/toplevel/whatsnew.txt
+   rero/src/rero/bridges/menu/MenuBridge.java
+   rero/src/rero/bridges/menu/ScriptedMenu.java
+   rero/src/rero/gui/SessionManager.java
+   rero/src/rero/script/ScriptCore.java
+Log:
+..
+
+
+Modified: rero/resources/toplevel/whatsnew.txt
+===================================================================
+--- rero/resources/toplevel/whatsnew.txt	2007-11-26 02:19:54 UTC (rev 101)
++++ rero/resources/toplevel/whatsnew.txt	2007-11-26 04:00:30 UTC (rev 102)
+@@ -9,7 +9,12 @@
+   current information and URLs
+ - added a WALLOPS and SEND_WALLOPS sets; updated the default.irc script to
+   include these.  also fixed /wallops; per request of drakx
++- improved the menubar refresh for server switches by a small factor; 
++  ideally I'd like to eliminate this issue but it will take some code
++  restructuring to do this.  this is mostly an issue on MacOS X where
++  menubar changes take effect immediately (unlike other platforms *ahem*)
+ 
++
+ Beta    41 last minute update 25 Mar 07 :)
+ ====
+ - Small last minute update to unbreak a potential issue with script
+
+Modified: rero/src/rero/bridges/menu/MenuBridge.java
+===================================================================
+--- rero/src/rero/bridges/menu/MenuBridge.java	2007-11-26 02:19:54 UTC (rev 101)
++++ rero/src/rero/bridges/menu/MenuBridge.java	2007-11-26 04:00:30 UTC (rev 102)
+@@ -188,8 +188,6 @@
+ 
+     public void installMenubar(JMenuBar bar)
+     {
+-       bar.removeAll();
+- 
+        Iterator i = menubarMenus.values().iterator();
+        while (i.hasNext())
+        {
+
+Modified: rero/src/rero/bridges/menu/ScriptedMenu.java
+===================================================================
+--- rero/src/rero/bridges/menu/ScriptedMenu.java	2007-11-26 02:19:54 UTC (rev 101)
++++ rero/src/rero/bridges/menu/ScriptedMenu.java	2007-11-26 04:00:30 UTC (rev 102)
+@@ -84,6 +84,6 @@
+ 
+    public void menuCanceled(MenuEvent e) 
+    { 
+-        removeAll();
++       removeAll();
+    }
+ }
+
+Modified: rero/src/rero/gui/SessionManager.java
+===================================================================
+--- rero/src/rero/gui/SessionManager.java	2007-11-26 02:19:54 UTC (rev 101)
++++ rero/src/rero/gui/SessionManager.java	2007-11-26 04:00:30 UTC (rev 102)
+@@ -33,6 +33,9 @@
+    protected PopupManager popups   = null;
+    protected KeyBindings  keyb     = null;
+ 
++   protected String       lastscript = "";
++   protected long         lastref    = 0;
++
+    protected static GlobalCapabilities global; 
+ 
+    public static GlobalCapabilities getGlobalCapabilities()
+@@ -43,23 +46,20 @@
+    public void propertyChanged(String property, String parameter)
+    {
+       bridge = (MenuBridge)getActiveSession().getCapabilities().getDataStructure("menuBridge");
+-      
+-      SwingUtilities.invokeLater(new Runnable()
++      rero.util.ClientUtils.invokeLater(new Runnable()
+       {
+          public void run()
+          {
+             if (ClientState.getClientState().isOption("ui.showbar", ClientDefaults.ui_showbar))
+             {
+-               if (frame.getJMenuBar() == null)
+-                  frame.setJMenuBar(menu);
++               menu = new JMenuBar();
++               bridge.installMenubar(menu);
++               frame.setJMenuBar(menu);
+             }
+             else
+             {
+                frame.setJMenuBar(null);
+             }
+-
+-            bridge.installMenubar(menu);
+-            menu.repaint();
+             frame.validate();
+          }
+       });
+@@ -71,8 +71,9 @@
+ 
+       if (getActiveSession() != null)
+       {
+-         MenuBridge temp = (MenuBridge)getActiveSession().getCapabilities().getDataStructure("menuBridge");
+-         temp.installMenubar(menu);
++         propertyChanged(null, null);
++//         MenuBridge temp = (MenuBridge)getActiveSession().getCapabilities().getDataStructure("menuBridge");
++//         temp.installMenubar(menu);
+          GraphicalToolbar.stateChanged(); // CHEATING!!!!
+ 
+          getActiveSession().getCapabilities().dispatchEvent(switchEventHashMap);
+
+Modified: rero/src/rero/script/ScriptCore.java
+===================================================================
+--- rero/src/rero/script/ScriptCore.java	2007-11-26 02:19:54 UTC (rev 101)
++++ rero/src/rero/script/ScriptCore.java	2007-11-26 04:00:30 UTC (rev 102)
+@@ -144,13 +144,13 @@
+    public boolean scriptLoaded(ScriptInstance si)
+    {
+       si.setScriptVariables(variables);
+-      ClientState.getClientState().fireChange("loaded.scripts", null);
++      ClientState.getClientState().fireChange("loaded.scripts", si.getName());
+       return true;
+    }
+    
+    public boolean scriptUnloaded(ScriptInstance si)
+    {
+-      ClientState.getClientState().fireChange("loaded.scripts", null);
++      ClientState.getClientState().fireChange("loaded.scripts", si.getName());
+       return true;
+    }
+ }
+
+
+
+From rsmudge at mail.berlios.de  Mon Nov 26 06:05:43 2007
+From: rsmudge at mail.berlios.de (rsmudge at BerliOS)
+Date: Mon, 26 Nov 2007 06:05:43 +0100
+Subject: [Jircii-svn] r104 - in rero: . resources/toplevel
+Message-ID: <200711260505.lAQ55hC8014693@sheep.berlios.de>
+
+Author: rsmudge
+Date: 2007-11-26 06:05:42 +0100 (Mon, 26 Nov 2007)
+New Revision: 104
+
+Modified:
+   rero/build.xml
+   rero/resources/toplevel/readme.txt
+Log:
+..
+
+
+Modified: rero/build.xml
+===================================================================
+--- rero/build.xml	2007-11-26 05:01:32 UTC (rev 103)
++++ rero/build.xml	2007-11-26 05:05:42 UTC (rev 104)
+@@ -19,7 +19,7 @@
+            depend="yes"
+            source="1.4"
+            target="1.4"
+-           debug="yes"
++           debug="no"
+            optimize="yes"
+     >
+        <classpath path="./lib/sleep.jar" />
+
+Modified: rero/resources/toplevel/readme.txt
+===================================================================
+--- rero/resources/toplevel/readme.txt	2007-11-26 05:01:32 UTC (rev 103)
++++ rero/resources/toplevel/readme.txt	2007-11-26 05:05:42 UTC (rev 104)
+@@ -1,90 +1,90 @@
+- ------- -------------------- ---------   ---------------  ------- ---------
+-jIRCii - Beta (42) 03.26.07 - README
+--  ------------- -------- -   ---------------- --       -    -     -     - - -
+-
+-The official jIRCii homepage is at: http://jircii.hick.org
+-
+-jIRCii is cross platform.  Any desktop platform with the Java 1.4.2+
+-runtime environment should be able to run jIRCii without any problems.  
+-
+-For help and information about jIRCii run the application and view the 
+-Help menu.  
+-
+-The jIRCii code and binaries are released under the artistic license.  
+-
+-Enjoy.
+-
+-				-- Raffi
+-
+- ------- -------------------- ---------   ---------------  ------- ---------
+-Running and Installation
+--  ------------- -------- -   ---------------- --       -    -     -     - - -
+-
+-1. -   Installation      - -
+-
+-   Unarchive your respective jIRC archive file.   Copy the files where ever
+-   you want them.
+-
+-2. --  Which Java to Use - -
+-
+-   You need to have the Java 1.4.2 (or later) runtime environment.  To 
+-   obtain this just visit http://www.java.com, find the Get Java now 
+-   button and download the appropriate JRE for your operating system.
+- 
+-   You do not need to download the software development kit, just the runtime 
+-   environment.
+-
+-   Note: jIRCii also works with Java 1.5+
+-   
+-3. - - Running jIRCii    --
+-
+-   Once the runtime environment is installed you just need to simply 
+-   launch jIRC.
+-   
+-   To do this from a commandline you can type: java -jar jerk.jar
+-
+-   === Command Line Options ===
+-
+-   jIRC has a -settings command line option.  This is for specifying 
+-   where your settings files are located: 
+-
+-   java -jar jerk.jar -settings c:\mystuff\jirc\
+-
+-   jIRCii also has a -lnf command line option.  This is for specifying the
+-   desired Java look and feel to use with jIRCii:
+-
+-   java -jar jerk.jar -lnf com.sun.java.swing.plaf.motif.MotifLookAndFeel
+-
+-   You can also specify an irc:// URL on the jIRCii command line to specify
+-   a irc server and channel you want jIRCii to join on startup:
+-
+-   java -jar jerk.jar irc://irc.prison.net/jircii
+-
+-   === Windows ===
+-
+-   The Windows distribution of jIRCii comes with a jircii.exe file.  You
+-   can use this to launch jIRCii and pass any of the above command line
+-   arguments to jIRCii.
+-
+-   === Mac OS X ===
+-
+-   If you have the Mac OS X specific archive of jIRCii just double click 
+-
+-   jIRCii.app
+-
+-4.  -- Upgrading       --
+-
+-   If you are upgrading from an older version of jIRCii and you are 
+-   experiencing problems you may want to delete your jIRCii settings.
+-
+-   Your jIRCii settings are located in your home directory under the folder 
+-   ".jIRC".  
+-
+-   On a UNIX system your home directory is typically /home/<your-user-id>
+-   On MacOS X your home directory is typically /Users/<your-user-id>
+-
+-   On Windows your home directory may appear in 
+-   c:\documents and settings\<your-user-id>
+-
+-   Delete the ".jIRC" folder.  jIRCii will then recreate this folder with new
+-   preferences next time you run jIRCii.
++ ------- -------------------- ---------   ---------------  ------- ---------
++jIRCii - Beta (42) 11.26.07 - README
++-  ------------- -------- -   ---------------- --       -    -     -     - - -
++
++The official jIRCii homepage is at: http://jircii.hick.org
++
++jIRCii is cross platform.  Any desktop platform with the Java 1.4.2+
++runtime environment should be able to run jIRCii without any problems.  
++
++For help and information about jIRCii run the application and view the 
++Help menu.  
++
++The jIRCii code and binaries are released under the artistic license.  
++
++Enjoy.
++
++				-- Raffi
++
++ ------- -------------------- ---------   ---------------  ------- ---------
++Running and Installation
++-  ------------- -------- -   ---------------- --       -    -     -     - - -
++
++1. -   Installation      - -
++
++   Unarchive your respective jIRC archive file.   Copy the files where ever
++   you want them.
++
++2. --  Which Java to Use - -
++
++   You need to have the Java 1.4.2 (or later) runtime environment.  To 
++   obtain this just visit http://www.java.com, find the Get Java now 
++   button and download the appropriate JRE for your operating system.
++ 
++   You do not need to download the software development kit, just the runtime 
++   environment.
++
++   Note: jIRCii also works with Java 1.5+
++   
++3. - - Running jIRCii    --
++
++   Once the runtime environment is installed you just need to simply 
++   launch jIRC.
++   
++   To do this from a commandline you can type: java -jar jerk.jar
++
++   === Command Line Options ===
++
++   jIRC has a -settings command line option.  This is for specifying 
++   where your settings files are located: 
++
++   java -jar jerk.jar -settings c:\mystuff\jirc\
++
++   jIRCii also has a -lnf command line option.  This is for specifying the
++   desired Java look and feel to use with jIRCii:
++
++   java -jar jerk.jar -lnf com.sun.java.swing.plaf.motif.MotifLookAndFeel
++
++   You can also specify an irc:// URL on the jIRCii command line to specify
++   a irc server and channel you want jIRCii to join on startup:
++
++   java -jar jerk.jar irc://irc.prison.net/jircii
++
++   === Windows ===
++
++   The Windows distribution of jIRCii comes with a jircii.exe file.  You
++   can use this to launch jIRCii and pass any of the above command line
++   arguments to jIRCii.
++
++   === Mac OS X ===
++
++   If you have the Mac OS X specific archive of jIRCii just double click 
++
++   jIRCii.app
++
++4.  -- Upgrading       --
++
++   If you are upgrading from an older version of jIRCii and you are 
++   experiencing problems you may want to delete your jIRCii settings.
++
++   Your jIRCii settings are located in your home directory under the folder 
++   ".jIRC".  
++
++   On a UNIX system your home directory is typically /home/<your-user-id>
++   On MacOS X your home directory is typically /Users/<your-user-id>
++
++   On Windows your home directory may appear in 
++   c:\documents and settings\<your-user-id>
++
++   Delete the ".jIRC" folder.  jIRCii will then recreate this folder with new
++   preferences next time you run jIRCii.
+
+
+
+From rsmudge at mail.berlios.de  Mon Nov 26 06:39:02 2007
+From: rsmudge at mail.berlios.de (rsmudge at BerliOS)
+Date: Mon, 26 Nov 2007 06:39:02 +0100
+Subject: [Jircii-svn] r105 - in rero: resources/toplevel src/rero/gui
+Message-ID: <200711260539.lAQ5d2oS005913@sheep.berlios.de>
+
+Author: rsmudge
+Date: 2007-11-26 06:39:01 +0100 (Mon, 26 Nov 2007)
+New Revision: 105
+
+Modified:
+   rero/resources/toplevel/readme.txt
+   rero/src/rero/gui/SessionManager.java
+Log:
+..
+
+
+Modified: rero/resources/toplevel/readme.txt
+===================================================================
+--- rero/resources/toplevel/readme.txt	2007-11-26 05:05:42 UTC (rev 104)
++++ rero/resources/toplevel/readme.txt	2007-11-26 05:39:01 UTC (rev 105)
+@@ -1,90 +1,90 @@
+- ------- -------------------- ---------   ---------------  ------- ---------
+-jIRCii - Beta (42) 11.26.07 - README
+--  ------------- -------- -   ---------------- --       -    -     -     - - -
+-
+-The official jIRCii homepage is at: http://jircii.hick.org
+-
+-jIRCii is cross platform.  Any desktop platform with the Java 1.4.2+
+-runtime environment should be able to run jIRCii without any problems.  
+-
+-For help and information about jIRCii run the application and view the 
+-Help menu.  
+-
+-The jIRCii code and binaries are released under the artistic license.  
+-
+-Enjoy.
+-
+-				-- Raffi
+-
+- ------- -------------------- ---------   ---------------  ------- ---------
+-Running and Installation
+--  ------------- -------- -   ---------------- --       -    -     -     - - -
+-
+-1. -   Installation      - -
+-
+-   Unarchive your respective jIRC archive file.   Copy the files where ever
+-   you want them.
+-
+-2. --  Which Java to Use - -
+-
+-   You need to have the Java 1.4.2 (or later) runtime environment.  To 
+-   obtain this just visit http://www.java.com, find the Get Java now 
+-   button and download the appropriate JRE for your operating system.
+- 
+-   You do not need to download the software development kit, just the runtime 
+-   environment.
+-
+-   Note: jIRCii also works with Java 1.5+
+-   
+-3. - - Running jIRCii    --
+-
+-   Once the runtime environment is installed you just need to simply 
+-   launch jIRC.
+-   
+-   To do this from a commandline you can type: java -jar jerk.jar
+-
+-   === Command Line Options ===
+-
+-   jIRC has a -settings command line option.  This is for specifying 
+-   where your settings files are located: 
+-
+-   java -jar jerk.jar -settings c:\mystuff\jirc\
+-
+-   jIRCii also has a -lnf command line option.  This is for specifying the
+-   desired Java look and feel to use with jIRCii:
+-
+-   java -jar jerk.jar -lnf com.sun.java.swing.plaf.motif.MotifLookAndFeel
+-
+-   You can also specify an irc:// URL on the jIRCii command line to specify
+-   a irc server and channel you want jIRCii to join on startup:
+-
+-   java -jar jerk.jar irc://irc.prison.net/jircii
+-
+-   === Windows ===
+-
+-   The Windows distribution of jIRCii comes with a jircii.exe file.  You
+-   can use this to launch jIRCii and pass any of the above command line
+-   arguments to jIRCii.
+-
+-   === Mac OS X ===
+-
+-   If you have the Mac OS X specific archive of jIRCii just double click 
+-
+-   jIRCii.app
+-
+-4.  -- Upgrading       --
+-
+-   If you are upgrading from an older version of jIRCii and you are 
+-   experiencing problems you may want to delete your jIRCii settings.
+-
+-   Your jIRCii settings are located in your home directory under the folder 
+-   ".jIRC".  
+-
+-   On a UNIX system your home directory is typically /home/<your-user-id>
+-   On MacOS X your home directory is typically /Users/<your-user-id>
+-
+-   On Windows your home directory may appear in 
+-   c:\documents and settings\<your-user-id>
+-
+-   Delete the ".jIRC" folder.  jIRCii will then recreate this folder with new
+-   preferences next time you run jIRCii.
++ ------- -------------------- ---------   ---------------  ------- ---------
++jIRCii - Beta (42) 11.26.07 - README
++-  ------------- -------- -   ---------------- --       -    -     -     - - -
++
++The official jIRCii homepage is at: http://jircii.hick.org
++
++jIRCii is cross platform.  Any desktop platform with the Java 1.4.2+
++runtime environment should be able to run jIRCii without any problems.  
++
++For help and information about jIRCii run the application and view the 
++Help menu.  
++
++The jIRCii code and binaries are released under the artistic license.  
++
++Enjoy.
++
++				-- Raffi
++
++ ------- -------------------- ---------   ---------------  ------- ---------
++Running and Installation
++-  ------------- -------- -   ---------------- --       -    -     -     - - -
++
++1. -   Installation      - -
++
++   Unarchive your respective jIRC archive file.   Copy the files where ever
++   you want them.
++
++2. --  Which Java to Use - -
++
++   You need to have the Java 1.4.2 (or later) runtime environment.  To 
++   obtain this just visit http://www.java.com, find the Get Java now 
++   button and download the appropriate JRE for your operating system.
++ 
++   You do not need to download the software development kit, just the runtime 
++   environment.
++
++   Note: jIRCii also works with Java 1.5+
++   
++3. - - Running jIRCii    --
++
++   Once the runtime environment is installed you just need to simply 
++   launch jIRC.
++   
++   To do this from a commandline you can type: java -jar jerk.jar
++
++   === Command Line Options ===
++
++   jIRC has a -settings command line option.  This is for specifying 
++   where your settings files are located: 
++
++   java -jar jerk.jar -settings c:\mystuff\jirc\
++
++   jIRCii also has a -lnf command line option.  This is for specifying the
++   desired Java look and feel to use with jIRCii:
++
++   java -jar jerk.jar -lnf com.sun.java.swing.plaf.motif.MotifLookAndFeel
++
++   You can also specify an irc:// URL on the jIRCii command line to specify
++   a irc server and channel you want jIRCii to join on startup:
++
++   java -jar jerk.jar irc://irc.prison.net/jircii
++
++   === Windows ===
++
++   The Windows distribution of jIRCii comes with a jircii.exe file.  You
++   can use this to launch jIRCii and pass any of the above command line
++   arguments to jIRCii.
++
++   === Mac OS X ===
++
++   If you have the Mac OS X specific archive of jIRCii just double click 
++
++   jIRCii.app
++
++4.  -- Upgrading       --
++
++   If you are upgrading from an older version of jIRCii and you are 
++   experiencing problems you may want to delete your jIRCii settings.
++
++   Your jIRCii settings are located in your home directory under the folder 
++   ".jIRC".  
++
++   On a UNIX system your home directory is typically /home/<your-user-id>
++   On MacOS X your home directory is typically /Users/<your-user-id>
++
++   On Windows your home directory may appear in 
++   c:\documents and settings\<your-user-id>
++
++   Delete the ".jIRC" folder.  jIRCii will then recreate this folder with new
++   preferences next time you run jIRCii.
+
+Modified: rero/src/rero/gui/SessionManager.java
+===================================================================
+--- rero/src/rero/gui/SessionManager.java	2007-11-26 05:05:42 UTC (rev 104)
++++ rero/src/rero/gui/SessionManager.java	2007-11-26 05:39:01 UTC (rev 105)
+@@ -28,7 +28,6 @@
+    protected HashMap      sessions = new HashMap();
+    protected IRCSession   active   = null;
+    protected JFrame       frame    = null;
+-   protected JMenuBar     menu     = null;
+    protected MenuBridge   bridge   = null;
+    protected PopupManager popups   = null;
+    protected KeyBindings  keyb     = null;
+@@ -52,7 +51,7 @@
+          {
+             if (ClientState.getClientState().isOption("ui.showbar", ClientDefaults.ui_showbar))
+             {
+-               menu = new JMenuBar();
++               JMenuBar menu = new JMenuBar();
+                bridge.installMenubar(menu);
+                frame.setJMenuBar(menu);
+             }
+@@ -146,13 +145,11 @@
+          }
+       });
+ 
+-      menu = new JMenuBar();
+-
+       frame = _frame;
+ 
+       if (ClientState.getClientState().isOption("ui.showbar", ClientDefaults.ui_showbar))
+       {
+-         frame.setJMenuBar(menu);
++         frame.setJMenuBar(new JMenuBar());
+       }
+ 
+       if (getMouseListeners().length > 0)
+@@ -205,6 +202,7 @@
+          getComponents()[x].addMouseListener(popups);
+       }  */
+ 
++      propertyChanged(null, null);
+       revalidate();
+ 
+       if (ClientState.getClientState().getString("user.nick", null) == null && !QuickConnect.IsQuickConnect())
+
+
+
+From rsmudge at mail.berlios.de  Mon Nov 26 07:01:01 2007
+From: rsmudge at mail.berlios.de (rsmudge at BerliOS)
+Date: Mon, 26 Nov 2007 07:01:01 +0100
+Subject: [Jircii-svn] r106 - in rero: resources/toplevel src/rero/config
+Message-ID: <200711260601.lAQ6111T028271@sheep.berlios.de>
+
+Author: rsmudge
+Date: 2007-11-26 07:00:59 +0100 (Mon, 26 Nov 2007)
+New Revision: 106
+
+Modified:
+   rero/resources/toplevel/whatsnew.txt
+   rero/src/rero/config/ClientState.java
+Log:
+..
+
+
+Modified: rero/resources/toplevel/whatsnew.txt
+===================================================================
+--- rero/resources/toplevel/whatsnew.txt	2007-11-26 05:39:01 UTC (rev 105)
++++ rero/resources/toplevel/whatsnew.txt	2007-11-26 06:00:59 UTC (rev 106)
+@@ -16,6 +16,9 @@
+ - on disconnect the statusbar now immediately shows nick as <Unknown>
+ - bound Meta+H and Meta+O to open the help and option dialogs
+ - reconnect now uses the last nickname you held; not your default nick
++- fixed a bug with jIRCii's processing of config numerical data--this was
++  causing DCC receives to not work and other weird issues for users who
++  failed to visit the appropriate options dialog.
+ 
+ Beta    41 last minute update 25 Mar 07 :)
+ ====
+
+Modified: rero/src/rero/config/ClientState.java
+===================================================================
+--- rero/src/rero/config/ClientState.java	2007-11-26 05:39:01 UTC (rev 105)
++++ rero/src/rero/config/ClientState.java	2007-11-26 06:00:59 UTC (rev 106)
+@@ -241,12 +241,19 @@
+    {
+       String temp = state.getProperty(key);
+ 
+-      if (temp == null)
++      if (temp == null || temp.length() == 0)
+       {
+          return defaultValue;
+       }
+ 
+-      return Float.parseFloat(temp);
++      try
++      {
++         return Float.parseFloat(temp);
++      }
++      catch (Exception ex)
++      {
++         return defaultValue;
++      }
+    }
+ 
+    public void setFloat(String key, float value)
+@@ -258,12 +265,19 @@
+    {
+       String temp = state.getProperty(key);
+ 
+-      if (temp == null)
++      if (temp == null || temp.length() == 0)
+       {
+          return defaultValue;
+       }
+-
+-      return Integer.parseInt(temp);
++      
++      try
++      {
++         return Integer.parseInt(temp);
++      }
++      catch (Exception ex)
++      {
++         return defaultValue;
++      }
+    }
+ 
+    public void setInteger(String key, int value)
+
+
+
+From rsmudge at mail.berlios.de  Mon Nov 26 08:46:20 2007
+From: rsmudge at mail.berlios.de (rsmudge at BerliOS)
+Date: Mon, 26 Nov 2007 08:46:20 +0100
+Subject: [Jircii-svn] r107 - rero/resources/help
+Message-ID: <200711260746.lAQ7kKAv005316@sheep.berlios.de>
+
+Author: rsmudge
+Date: 2007-11-26 08:46:20 +0100 (Mon, 26 Nov 2007)
+New Revision: 107
+
+Modified:
+   rero/resources/help/aliases
+Log:
+..
+
+
+Modified: rero/resources/help/aliases
+===================================================================
+--- rero/resources/help/aliases	2007-11-26 06:00:59 UTC (rev 106)
++++ rero/resources/help/aliases	2007-11-26 07:46:20 UTC (rev 107)
+@@ -75,8 +75,8 @@
+ voice::/voice tijiez::gives voice (+v) privileges to specified users.  You may specify up to 4 nicks (uses nick completion)::nick - user to give voice to.::+nick... - other users to give voice to.
+ wall::/wall hrm...::write all ops, sends a /notice to all the channel operators (+o) on the current channel.::text - message to send.
+ wallex::/wallex JakieChan I think chan likes men.::write all except - sends a /notice to everyone on the active channel except the specified nicks.::nick1,nick2 - users who do not receive the notice::text - message to send
++wallops::/wallops argh, my server was just owned::writes a message to all irc operators on the server::message - the message to send
+ whois::/whois `butane::looks up information on the specified user from the server.::nick - user to look up information on.
+ wi::/wi `butane::looks up information on the specified user from the server.::nick - user to look up information on.
+-wallops::/wallops argh, my server was just owned::writes a message to all irc operators on the server::message - the message to send
+ window::/window #mIRC::creates a new window for the specified nick/#channel/=nick.::target - target to open a window for.
+ ww::/ww blue-elf_::looks up information on who the specified user was.::nick - user to look up information on.
+
+
+

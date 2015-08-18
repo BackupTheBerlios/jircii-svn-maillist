@@ -1,0 +1,132 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Jircii-svn] r70 - in rero: resources/toplevel src/rero/gui
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/jircii-svn/2006-February/index.html" >
+   <LINK REL="made" HREF="mailto:jircii-svn%40lists.berlios.de?Subject=Re%3A%20%5BJircii-svn%5D%20r70%20-%20in%20rero%3A%20resources/toplevel%20src/rero/gui&In-Reply-To=%3C200602180335.k1I3Z7RC020599%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000051.html">
+   <LINK REL="Next"  HREF="000053.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Jircii-svn] r70 - in rero: resources/toplevel src/rero/gui</H1>
+    <B>crazycoder at BerliOS</B> 
+    <A HREF="mailto:jircii-svn%40lists.berlios.de?Subject=Re%3A%20%5BJircii-svn%5D%20r70%20-%20in%20rero%3A%20resources/toplevel%20src/rero/gui&In-Reply-To=%3C200602180335.k1I3Z7RC020599%40sheep.berlios.de%3E"
+       TITLE="[Jircii-svn] r70 - in rero: resources/toplevel src/rero/gui">crazycoder at berlios.de
+       </A><BR>
+    <I>Sat Feb 18 04:35:07 CET 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000051.html">[Jircii-svn] r69 - rero/src/rero/client/script
+</A></li>
+        <LI>Next message: <A HREF="000053.html">[Jircii-svn] r71 - in rero: resources/toplevel src/rero/config
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#52">[ date ]</a>
+              <a href="thread.html#52">[ thread ]</a>
+              <a href="subject.html#52">[ subject ]</a>
+              <a href="author.html#52">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: crazycoder
+Date: 2006-02-18 04:34:38 +0100 (Sat, 18 Feb 2006)
+New Revision: 70
+
+Modified:
+   rero/resources/toplevel/whatsnew.txt
+   rero/src/rero/gui/ClickableURLHandler.java
+Log:
+Fix for BITCH 4225366
+
+Modified: rero/resources/toplevel/whatsnew.txt
+===================================================================
+--- rero/resources/toplevel/whatsnew.txt	2006-02-13 07:48:12 UTC (rev 69)
++++ rero/resources/toplevel/whatsnew.txt	2006-02-18 03:34:38 UTC (rev 70)
+@@ -17,6 +17,7 @@
+   loaded in the specified charset.
+   List of valid charsets: <A HREF="http://www.iana.org/assignments/character-sets">http://www.iana.org/assignments/character-sets</A>
+   (Serge)
++- Fix for <A HREF="http://jirc.hick.org/cgi-bin/bitch.cgi/view.html?4225366">http://jirc.hick.org/cgi-bin/bitch.cgi/view.html?4225366</A> (Serge)
+ 
+ Beta    39 release 07.30.05
+ ====
+
+Modified: rero/src/rero/gui/ClickableURLHandler.java
+===================================================================
+--- rero/src/rero/gui/ClickableURLHandler.java	2006-02-13 07:48:12 UTC (rev 69)
++++ rero/src/rero/gui/ClickableURLHandler.java	2006-02-18 03:34:38 UTC (rev 70)
+@@ -14,24 +14,27 @@
+ 
+     public void wordClicked(ClickEvent ev)
+     {
+-        String item = ev.getClickedText().toLowerCase();
++        int clickCount = ev.getEvent().getClickCount();
++        if (clickCount == 2) {
++            String item = ev.getClickedText().toLowerCase();
+ 
+-        if (item.matches(&quot;^\\(*(http|https|ftp)://.*&quot;)) {
+-            ClientUtils.openURL(extractURL(ev.getClickedText()));
+-            ev.consume();
+-            ev.acknowledge();
+-        } else if (item.matches(&quot;^www\\..*&quot;)) {
+-            String location = extractURL(ev.getClickedText());
+-            ClientUtils.openURL(&quot;<A HREF="http://">http://</A>&quot; + location);
+-            ev.consume();
+-            ev.acknowledge();
+-        } else {
+-            Matcher m = CHAN_PATTERN.matcher(ev.getClickedText());
+-            if (m.matches()) {
+-                String chan = m.group(1).trim();
+-                getCapabilities().sendln(&quot;JOIN &quot; + chan);
++            if (item.matches(&quot;^\\(*(http|https|ftp)://.*&quot;)) {
++                ClientUtils.openURL(extractURL(ev.getClickedText()));
+                 ev.consume();
+                 ev.acknowledge();
++            } else if (item.matches(&quot;^www\\..*&quot;)) {
++                String location = extractURL(ev.getClickedText());
++                ClientUtils.openURL(&quot;<A HREF="http://">http://</A>&quot; + location);
++                ev.consume();
++                ev.acknowledge();
++            } else {
++                Matcher m = CHAN_PATTERN.matcher(ev.getClickedText());
++                if (m.matches()) {
++                    String chan = m.group(1).trim();
++                    getCapabilities().sendln(&quot;JOIN &quot; + chan);
++                    ev.consume();
++                    ev.acknowledge();
++                }
+             }
+         }
+     }
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000051.html">[Jircii-svn] r69 - rero/src/rero/client/script
+</A></li>
+	<LI>Next message: <A HREF="000053.html">[Jircii-svn] r71 - in rero: resources/toplevel src/rero/config
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#52">[ date ]</a>
+              <a href="thread.html#52">[ thread ]</a>
+              <a href="subject.html#52">[ subject ]</a>
+              <a href="author.html#52">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/jircii-svn">More information about the Jircii-svn
+mailing list</a><br>
+</body></html>

@@ -1,0 +1,826 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Jircii-svn] r86 - in rero: lib resources/toplevel	resources/toplevel/docs src/rero/gui/background	src/rero/gui/windows src/rero/util src/text/list
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/jircii-svn/2007-March/index.html" >
+   <LINK REL="made" HREF="mailto:jircii-svn%40lists.berlios.de?Subject=Re%3A%20%5BJircii-svn%5D%20r86%20-%20in%20rero%3A%20lib%20resources/toplevel%0A%09resources/toplevel/docs%20src/rero/gui/background%0A%09src/rero/gui/windows%20src/rero/util%20src/text/list&In-Reply-To=%3C200703240058.l2O0wsC9001070%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   
+   <LINK REL="Next"  HREF="000068.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Jircii-svn] r86 - in rero: lib resources/toplevel	resources/toplevel/docs src/rero/gui/background	src/rero/gui/windows src/rero/util src/text/list</H1>
+    <B>rsmudge at BerliOS</B> 
+    <A HREF="mailto:jircii-svn%40lists.berlios.de?Subject=Re%3A%20%5BJircii-svn%5D%20r86%20-%20in%20rero%3A%20lib%20resources/toplevel%0A%09resources/toplevel/docs%20src/rero/gui/background%0A%09src/rero/gui/windows%20src/rero/util%20src/text/list&In-Reply-To=%3C200703240058.l2O0wsC9001070%40sheep.berlios.de%3E"
+       TITLE="[Jircii-svn] r86 - in rero: lib resources/toplevel	resources/toplevel/docs src/rero/gui/background	src/rero/gui/windows src/rero/util src/text/list">rsmudge at mail.berlios.de
+       </A><BR>
+    <I>Sat Mar 24 01:58:54 CET 2007</I>
+    <P><UL>
+        
+        <LI>Next message: <A HREF="000068.html">[Jircii-svn] r87 - in rero/src/rero: config gui/background
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#67">[ date ]</a>
+              <a href="thread.html#67">[ thread ]</a>
+              <a href="subject.html#67">[ subject ]</a>
+              <a href="author.html#67">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: rsmudge
+Date: 2007-03-24 01:58:45 +0100 (Sat, 24 Mar 2007)
+New Revision: 86
+
+Modified:
+   rero/lib/sleep.jar
+   rero/resources/toplevel/docs/sleeplang.html
+   rero/resources/toplevel/readme.txt
+   rero/resources/toplevel/whatsnew.txt
+   rero/src/rero/gui/background/BackgroundProperties.java
+   rero/src/rero/gui/windows/ChannelWindow.java
+   rero/src/rero/util/ClientUtils.java
+   rero/src/text/list/ListSelectionSpace.java
+Log:
+ch ch changes...
+
+
+Modified: rero/lib/sleep.jar
+===================================================================
+(Binary files differ)
+
+Modified: rero/resources/toplevel/docs/sleeplang.html
+===================================================================
+--- rero/resources/toplevel/docs/sleeplang.html	2006-10-20 22:33:22 UTC (rev 85)
++++ rero/resources/toplevel/docs/sleeplang.html	2007-03-24 00:58:45 UTC (rev 86)
+@@ -134,7 +134,7 @@
+ 
+ &lt;p&gt;Octal literals can be used as well.  Any number beginning with a 0 is interpreted to be an octal literal. i.e.&lt;/p&gt;
+ 
+-&lt;pre&gt;$oct = 077; # same as $var = 63&lt;/pre&gt;
++&lt;pre&gt;$oct = 077; # same as $oct = 63&lt;/pre&gt;
+ 
+ &lt;p&gt;Another numerical type that sleep supports is called a long.  A long is basically a higher capacity integer.  An integer can 
+ be a number between -2,147,483,648 to +2,147,483,648.  A long can be much bigger than that.&lt;/p&gt;
+@@ -382,6 +382,10 @@
+   &lt;td&gt;is the specified value a scalar array&lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
++  &lt;td&gt;-isfunction&lt;/td&gt;
++  &lt;td&gt;does the specified scalar hold a function&lt;/td&gt;
++ &lt;/tr&gt;
++ &lt;tr&gt;
+   &lt;td&gt;-ishash&lt;/td&gt;
+   &lt;td&gt;is the specified value a scalar hash&lt;/td&gt;
+  &lt;/tr&gt;
+@@ -568,6 +572,16 @@
+    
+ &lt;p&gt;&lt;code&gt;$x--&lt;/code&gt; is equivalent to &lt;code&gt;$x = $x - 1&lt;/code&gt;;&lt;/p&gt;
+ 
++&lt;h3&gt;Assignment Operations&lt;/h3&gt;
++
++&lt;p&gt;Sleep has a special form of the assignment called an assignment operator.  This is essentially
++the combination of an operator and an assignment in one step. i.e.:&lt;/p&gt;
++
++&lt;code&gt;$x += 3;&lt;/code&gt;
++
++&lt;p&gt;The example above is equivalent to &lt;code&gt;$x = $x + 3;&lt;/code&gt;.  The following are valid assignment
++operations: &lt;code&gt;+=&lt;/code&gt;, &lt;code&gt;-=&lt;/code&gt;, &lt;code&gt;*=&lt;/code&gt;, &lt;code&gt;/=&lt;/code&gt;, &lt;code&gt;&amp;=&lt;/code&gt;, &lt;code&gt;|=&lt;/code&gt;, &lt;code&gt;^=&lt;/code&gt;, &lt;code&gt;&lt;&lt;=&lt;/code&gt;, &lt;code&gt;&gt;&gt;=&lt;/code&gt;, and &lt;code&gt;.=&lt;/code&gt;.&lt;/p&gt;
++
+ &lt;h2&gt;&lt;a name=&quot;5&quot;&gt;Subroutines&lt;/a&gt;&lt;/h2&gt;
+ 
+ &lt;p&gt;Subroutines in sleep are basically mini programs.  You can pass arguments to them and they can return values.&lt;/p&gt;
+@@ -608,6 +622,82 @@
+ &lt;p&gt;The return command causes the current subroutine to stop executing and return to where it started.  You can specify a scalar 
+ with return that will be the value of the function call.&lt;/p&gt;
+ 
++&lt;h3&gt;&lt;a name=&quot;throw&quot;&gt;&lt;/a&gt;Throwing Errors&lt;/h3&gt;
++
++&lt;p&gt;Sometimes an error or condition occurs that you don't want to handle in your subroutine but expect someone would
++want to handle it higher up in the call stack.  This type of thing is referred to as an exceptional condition and 
++Sleep has ample support for &quot;exception&quot; handling.&lt;/p&gt;
++
++&lt;p&gt;To notify Sleep that an exception has occured, use the throw command.  The throw command works similiarly to return
++in that it expects you to specify a scalar that will be passed to an exception handler later on.  It is worth noteing
++that if the thrown value evaluates to &lt;var&gt;$null&lt;/var&gt; then it will not be thrown.&lt;/p&gt;
++
++&lt;pre&gt;sub multiplyBy3
++{
++   if (!-isnumber $1)
++   {
++      throw &quot;&amp;multipyBy3( $+ $1 $+ ) requires a number!&quot;;
++   }
++
++   return $1 * 3;
++}&lt;/pre&gt;
++
++&lt;p&gt;The subroutine above checks if its argument is a number or not.  If someone where to call &lt;code&gt;multiplyBy3(&quot;hi&quot;)&lt;/code&gt;
++then this function would throw the string &quot;&amp;multiplyBy3(hi) requires a number!&quot; up the call stack.   This string would
++bubble up through the Sleep call stack.  The first part of the call stack to have a handler to catch the exception will 
++get to handle it.  If there are no error handlers in place then a warning message will be printed: 
++&quot;Warning: Uncaught exception: &amp;multiplyBy3(hi) requires a number! at 5&quot;.  An uncaught exception will cause the 
++current script to stop executing.&lt;/p&gt;
++
++&lt;p&gt;In general, an uncaught exception will be swallowed by Sleep.  There is one special case where this is not true and 
++that is covered under &lt;a href=&quot;#interfaces&quot;&gt;Sleep Interfaces&lt;/a&gt; later in this manual.&lt;/p&gt;
++
++&lt;p&gt;So with all of this in mind, hoes does one catch these exception errors?  The answer is to enclose executing code
++into a try / catch block.&lt;/p&gt;
++
++&lt;pre&gt;try
++{
++   multiplyBy3(&quot;hi&quot;);
++}
++catch $message
++{
++   println(&quot;Failed to multiply by 3: $message&quot;);
++   printAll(getStackTrace());
++}&lt;/pre&gt;
++
++&lt;p&gt;The code above will attempt the multiplyBy3 within the try block.  The catch block immediately following the try
++block will catch any error messages that bubble up while the try block is part of the call stack.  This means that if
++&lt;code&gt;&amp;multiplyBy3&lt;/code&gt; calls a function that calls another function that throws an exception - your catch block will still work
++for catching that message.&lt;/p&gt;
++
++&lt;p&gt;In the example above &lt;var&gt;$message&lt;/var&gt; is specified as the place to dump the exception message to.  When an 
++exception handler is invoked, the variable specified after the catch keyword will be populated with the exception
++message.&lt;/p&gt;
++
++&lt;p&gt;The function &lt;code&gt;&amp;getStackTrace()&lt;/code&gt; is a special function to describe where in your script the thrown message
++originated from and which other functions were executed before leading to the thrown message.&lt;/p&gt;
++
++&lt;h4&gt;&lt;a name=&quot;choice&quot;&gt;&lt;/a&gt;Choice in Error Handling&lt;/h4&gt;
++
++&lt;p&gt;Sleep does not use this mechanism for flagging and reporting errors.  In general errors are made available with 
++&lt;code&gt;&amp;checkError($error)&lt;/code&gt;.  This function will return the last reported error message flagged by Sleep or Java.
++If you prefer to handle these types of errors with the try catch mechanism then you have two options:  
++
++&lt;p&gt;You can throw individual errors yourself.  Simply inserting &lt;code&gt;throw checkError($error);&lt;/code&gt; in certain places
++will cause the error to be thrown if there is one.  If there is no error, &lt;code&gt;&amp;checkError($error)&lt;/code&gt; will
++return &lt;var&gt;$null&lt;/var&gt;.  If this is the case then the throw command will not process it.  If there is an error then
++the throw command will throw it and it will bubble up itself.&lt;/p&gt;
++
++&lt;p&gt;The other option is to enable the Sleep debug option to cause all errors to be thrown.  This option can be enabled
++by calling: &lt;code&gt;debug(34)&lt;/code&gt;.  With this debug option in place anything that would have been available to 
++&lt;code&gt;&amp;checkError()&lt;/code&gt; will be automatically converted into an exception and thrown.&lt;/p&gt;
++
++&lt;p&gt;The &lt;code&gt;&amp;checkError()&lt;/code&gt; mechanism for handling errors is simple, requires little code on your part to
++accomodate, and has support for automatic reporting through Sleep's debug flags.  The try/catch/throw mechanism requires
++writing a little bit more code but the ability to retrieve the full stack trace that created the error condition can
++be valuable for debugging.  Ultimately the choice is yours.  You can handle errors the Sleep &lt;code&gt;&amp;checkError()&lt;/code&gt; 
++way, the Java try/catch way, or somewhere in between.&lt;/p&gt;
++
+ &lt;h3&gt;Arrays and Hashes as Arguments&lt;/h3&gt;
+ 
+ &lt;p&gt;Arrays and Hashes can be passed to subroutines as arguments.&lt;/p&gt;
+@@ -681,6 +771,9 @@
+ &lt;var&gt;@foo[3]&lt;/var&gt; is set to &quot;Michelangelo&quot;.  &lt;var&gt;@foo[3]&lt;/var&gt; is now equivalent to a normal string scalar that has the value 
+ &quot;Michelangelo&quot;.&lt;/p&gt;
+ 
++&lt;p&gt;When referencing an array with the index operator, it is acceptable to use negative indices.  For example to reference the
++last element of &lt;var&gt;@foo&lt;/var&gt; one could use &lt;code&gt;@foo[-1]&lt;/code&gt;.  Many array functions normalize negative indices as well.&lt;/p&gt;
++
+ &lt;p&gt;Arrays can be assigned to each other as well.   As stated in the Scalars section assigning an array to another array just 
+ copies the reference.   Both &lt;var&gt;@array&lt;/var&gt;'s will point to the same data.  A change in one array will affect the other 
+ array.&lt;/p&gt;
+@@ -753,6 +846,29 @@
+ &lt;P&gt;If the value on the right hand side of the = assignment is not an array, then the above will act exactly as if &lt;var&gt;$x&lt;/var&gt;, 
+ &lt;var&gt;$y&lt;/var&gt;, and &lt;var&gt;$z&lt;/var&gt; had been assigned to the specified value individually.&lt;/P&gt;
+ 
++&lt;p&gt;Assignment operations work with tuple assignment as well.  i.e.:&lt;/p&gt;
++
++&lt;code&gt;($x, $y, $z) += 3; # add 3 to $x, $y, and $z&lt;/code&gt;
++
++&lt;p&gt;You can also special a right hand side array with an assignment op.  In this case each value
++of the right hand side array will be applied to the corresponding value within the tuple:&lt;/p&gt;
++
++&lt;code&gt;($x, $y, $z) *= @(2, 3, 4); # $x = $x * 2; $y = $y * 3; etc..&lt;/code&gt;
++
++&lt;h4&gt;Expand Array&lt;/h4&gt;
++
++&lt;p&gt;Assignment operators used in conjunction with tuples have one special case.  This is the
++array expansion case.  When a single array is specified within the tuple then the array values
++are expanded within the tuple as if you had type &lt;code&gt;(@array[0], @array[1], ...)&lt;/code&gt;.  The
++rest of the rules for tuple assignment apply from this point out.  This has some neat implications.
++For example to add two arrays:&lt;/p&gt;
++
++&lt;pre&gt;@a = @(1, 2, 3);
+<A HREF="https://lists.berlios.de/mailman/listinfo/jircii-svn">+ at b</A> = @(4, 5, 6);
++(@a) += @b;&lt;/pre&gt;
++
++&lt;p&gt;The value of &lt;var&gt;@a&lt;/var&gt; is now: @(5, 7, 9).&lt;/p&gt;
++
+ &lt;h3&gt;Sorting&lt;/h3&gt;
+ 
+ &lt;p&gt;Sleep includes functions for sorting arrays.  You can sort arrays numerically (double or int variety), or alphabetically.  To 
+@@ -989,11 +1105,34 @@
+   &lt;td&gt;tab character&lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
++  &lt;td&gt;\u####&lt;/td&gt;
++  &lt;td&gt;16 bit unicode character i.e. &quot;\u0063&quot; is &quot;c&quot;&lt;/td&gt;
++ &lt;/tr&gt;
++ &lt;tr&gt;
++  &lt;td&gt;\x##&lt;/td&gt;
++  &lt;td&gt;8 bit character i.e. &quot;\x6A&quot; is &quot;j&quot;&lt;/td&gt;
++ &lt;/tr&gt;
++ &lt;tr&gt;
+   &lt;td&gt;\\&lt;/td&gt;
+   &lt;td&gt;back slash \ character&lt;/td&gt;
+  &lt;/tr&gt;
+ &lt;/table&gt;
+ 
++&lt;p&gt;Speaking of escapes, parsed literals allow two forms of character literals.  A &lt;code&gt;\x&lt;/code&gt; followed by two hex nibbles specifies one character.  16-bit unicode characters can be specified with &lt;code&gt;\u&lt;/code&gt; followed by four hex nibbles.&lt;/p&gt;
++
++&lt;h3&gt;Normalized Parameters&lt;/h3&gt;
++
++&lt;p&gt;Sleep has many functions for manipulating strings.  These functions work as you would expect.  For example:&lt;/p&gt;
++
++&lt;pre&gt;$x = left(&quot;this is a test&quot;, 4);&lt;/pre&gt;
++
++&lt;p&gt;The left 4 characters of &quot;this is a test&quot; are &quot;this&quot;.  This is all well and good, but we have one other
++trick up our sleeve.  Many of Sleep's string manipulation functions allow a negative index to be specified.  i.e.:&lt;/p&gt;
++
++&lt;pre&gt;$x = left(&quot;this is a test&quot;, -4);&lt;/pre&gt;
++
++&lt;p&gt;When a negative index is specified to a string manipulation function, the negative number will be normalized based on the length of the string.  Normalizing occurs by adding the length of the string to the negative number.  So the function above will return the string &quot;this is a &quot;.&lt;/p&gt;
++
+ &lt;h3&gt;Regular Expressions&lt;/h3&gt;
+ 
+ &lt;p&gt;Sleep includes built-in regular expressions.  Regular expressions are a powerful way to parse strings without having to write 
+@@ -1097,6 +1236,13 @@
+ &lt;p&gt;Remember that sleep is a cross platform scripting language.  As a convention use the / forward slash character as a path 
+ separator so that your scripts will work in a platform neutral way.&lt;/p&gt;
+ 
++&lt;h4&gt;Unicode Support&lt;/h4&gt;
++
++&lt;p&gt;Sleep is unicode friendly.  &amp;println, &amp;print, &amp;readc, &amp;readln, and &amp;read will
++convert read in data using the platforms default charset.  If this is a problem use &amp;readb and
++&amp;writeb to read and write raw bytes from the handle.  To change the charset encoder/decoder for a 
++handle use the &amp;setEncoding function.&lt;/p&gt;
++
+ &lt;h3&gt;Callback Reading&lt;/h3&gt;
+ 
+ &lt;p&gt;Another way of reading data from a scalar object with a handle is to use callback reading.  Callback reading is done with the 
+@@ -1161,6 +1307,56 @@
+ &lt;p&gt;Calling closef on a process will kill the process.  The above program executes the UNIX command ls -al which lists all of the 
+ files in the current directory with some details.&lt;/p&gt;
+ 
++&lt;h3&gt;Buffers&lt;/h3&gt;
++
++&lt;p&gt;For those times when speed is a necessity Sleep provides the loveable byte buffer.  A buffer is simply
++a segment of memory that can be written to (and eventually read from) using Sleep's I/O functions. 
++Buffers are fast.  If there is a need to concatenate lots of data or to manipulate streams of data then
++buffers are a must.&lt;/p&gt;
++
++&lt;p&gt;To allocate a buffer use the allocate function.  Buffers are initially write-only once allocated.&lt;/p&gt;
++
++&lt;pre&gt;$buffer = allocate(1024 * 10); # allocate a 10K buffer&lt;/pre&gt;
++
++&lt;p&gt;Once allocated this buffer can be written just like a file:&lt;/p&gt;
++
++&lt;pre&gt;println($buffer, &quot;this is some text, in the buff!&quot;);
++writeb($buffer, 33);&lt;/pre&gt;
++
++&lt;p&gt;Calling &amp;closef on a write-only buffer will turn it into a read-only buffer.  Once a writeable 
++buffer has been closed, it can then be read from.&lt;/p&gt;
++
++&lt;pre&gt;closef($buffer);
++$string = readln($buffer);
++$byte   = readb($buffer, 1);&lt;/pre&gt;
++
++&lt;p&gt;Calling &amp;closef on a read-only buffer will deallocate the buffer's resources.&lt;/p&gt; 
++
++&lt;b&gt;Example:&lt;/b&gt;
++
++&lt;p&gt;To encrypt a file with a simple XOR scheme:&lt;/p&gt;
++
++&lt;pre&gt;# read the file in
++$input = openf(@ARGV[0]);
++$data = readb($input, lof(@ARGV[0]));
++closef($input);
++
++# encrypt the contents of the file...
++$buffer = allocate(strlen($data));
++
++for ($x = 0; $x &lt; strlen($data); $x++)
++{
++   writeb($buffer, chr(byteAt($data, $x) ^ 0x34));
++} 
++
++closef($buffer); # buffer is readable now..
++$data = readb($buffer, strlen($data));
++
++# write the file out
++$output = openf(&quot;&gt;&quot; . @ARGV[0]);
++writeb($output, $data);
++closef($output);&lt;/pre&gt;
++
+ &lt;h3&gt;Pipes&lt;/h3&gt;
+ 
+ &lt;p&gt;Sometimes it is helpful for a script to execute multiple tasks concurrently.  Each task being executed at the same time by a 
+@@ -1382,8 +1578,10 @@
+ &lt;p&gt;Sleep will try to find the specified jar file (i.e. jdom.jar) using the Sleep classpath.  This value is the
+ sleep.classpath accessible as systemProperties()[&quot;sleep.classpath&quot;].&lt;/p&gt;
+ 
+-&lt;h3&gt;Sleep Interfaces&lt;/h3&gt;
++&lt;p&gt;If the jar filename includes spaces, you can surround it with single or double quotes.&lt;/p&gt;
+ 
++&lt;h3&gt;&lt;a name=&quot;interfaces&quot;&gt;&lt;/a&gt;Sleep Interfaces&lt;/h3&gt;
++
+ &lt;p&gt;A neat feature of HOES is how interfaces can be quickly and easily created and passed to Java objects.  A Java interface
+ defines methods that a Java class should implement to facilitate interacting with certain objects.  &lt;/p&gt;
+ 
+@@ -1424,6 +1622,8 @@
+ only message passed to ActionListener interfaces is the actionPerformed message.  The button_pressed subroutine is passed as a 
+ closure parameter in this line: &lt;code&gt;[$button addActionListener:&amp;button_pressed];&lt;/code&gt;.&lt;/p&gt;
+ 
++&lt;p&gt;Any uncaught exceptions originating from a Sleep script will bubble up to the Java caller of the Sleep interface.&lt;/p&gt;
++
+ &lt;h3&gt;Scalar Conversions&lt;/h3&gt;
+ 
+ &lt;p&gt;Sleep automatically converts scalar data into the appropriate Java types when necessary.  Sleep strings map easily to Java 
+@@ -1455,8 +1655,11 @@
+ 
+ &lt;h3&gt;Catching Exceptions&lt;/h3&gt;
+ 
+-&lt;p&gt;Often times Java API's acessed via HOES can throw an &quot;exception&quot;.  Exceptions are a mechanism used to notify programs that some type of error has occured.  You can check for an exception using the &lt;code&gt;checkError($scalar)&lt;/code&gt; function.&lt;/p&gt;
++&lt;p&gt;Often times Java API's acessed via HOES can throw an &quot;exception&quot;.  Exceptions are a mechanism used to notify programs that some type of error has occured.  You can check for an exception using the &lt;code&gt;checkError($scalar)&lt;/code&gt; function.  The value returned by checkError() will be the actual Exception object.  This object can be used within object expressions.&lt;/p&gt;
+ 
++&lt;p&gt;If you prefer a more Java-esque method of handling exceptions, Sleep does have a &lt;a href=&quot;#throw&quot;&gt;try/catch/throw&lt;/a&gt; mechanism that can
++be utilized.&lt;/p&gt;
++
+ &lt;h2&gt;&lt;a name=&quot;10a&quot;&gt;Sleep Closures&lt;/a&gt;&lt;/h2&gt;
+ 
+ &lt;p&gt;Closely coupled with HOES is the concept of Sleep closures.  A closure in sleep is a block of code that contains its own 
+@@ -1514,6 +1717,22 @@
+ &lt;p&gt;Another special variable available within closures is the &lt;var&gt;$this&lt;/var&gt; variable.  &lt;var&gt;$this&lt;/var&gt; refers to &quot;this&quot; 
+ closure.&lt;/p&gt;
+ 
++&lt;h4&gt;Indexing Closures&lt;/h4&gt;
++
++&lt;p&gt;The index operation applied to a closure obtains a value from the closure's &quot;this&quot; scope.&lt;/p&gt;
++
++&lt;pre&gt;sub life_universe_and_everything
++{
++   this('$answer');
++   $answer = 42;
++}
++
++life_universe_and_everything(); # nothing is available until 
++                                # the function actually executes
++
++println(&quot;What is the meaning of it all? &quot; . &amp;life_universe_and_everything['$answer']);
++&amp;life_universe_and_everything['$question'] = &quot;Unknown?!?&quot;;&lt;/pre&gt;
++
+ &lt;h3&gt;Accumulator Example&lt;/h3&gt;
+ 
+ &lt;p&gt;This first example is a Sleep Accumulator Generator.  An Accumulator Generator is a function that takes a parameter
+@@ -1660,7 +1879,6 @@
+   &lt;th width=&quot;240&quot;&gt;Function&lt;/th&gt;
+   &lt;th&gt;Description&lt;/th&gt;
+  &lt;/tr&gt;  
+-
+  &lt;tr&gt;
+   &lt;td&gt;$&lt;/td&gt;
+   &lt;td&gt;add(@array, $scalar, [index])&lt;/td&gt;
+@@ -1785,6 +2003,11 @@
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td&gt;@&lt;/td&gt;
++  &lt;td&gt;splice(@array, @insert, [n], [m])&lt;/td&gt;
++  &lt;td&gt;removes m characters at position n from @array and splices in the contents of @insert.  @insert can be null.  default value of n is 0; default value of m is the length of @insert.&lt;/td&gt;
++ &lt;/tr&gt;
++ &lt;tr&gt;
++  &lt;td&gt;@&lt;/td&gt;
+   &lt;td&gt;subarray(@array, n, [m])&lt;/td&gt;
+   &lt;td&gt;extracts a subarray of range n-m from @array&lt;/td&gt;
+  &lt;/tr&gt;
+@@ -1904,11 +2127,6 @@
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td&gt;$&lt;/td&gt;
+-  &lt;td&gt;getFilePath(&quot;/path/file&quot;)&lt;/td&gt;
+-  &lt;td&gt;returns the file path extracted from the full path&lt;/td&gt;
+- &lt;/tr&gt;
+- &lt;tr&gt;
+-  &lt;td&gt;$&lt;/td&gt;
+   &lt;td&gt;getFileProper(&quot;path&quot;, &quot;file&quot;, ...)&lt;/td&gt;
+   &lt;td&gt;combines /path and files into an appropriate filename and path for the current platform.&lt;/td&gt;
+  &lt;/tr&gt;
+@@ -1929,8 +2147,8 @@
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td&gt;@&lt;/td&gt;
+-  &lt;td&gt;ls(&quot;directory&quot;)&lt;/td&gt;
+-  &lt;td&gt;gets a list of all the files in the specified directory&lt;/td&gt;
++  &lt;td&gt;ls([&quot;directory&quot;])&lt;/td&gt;
++  &lt;td&gt;gets a list of all the files in the specified directory.  if no directory is specified, the current directory is listed.&lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td&gt;&lt;/td&gt;
+@@ -1979,6 +2197,13 @@
+   &lt;td&gt;returns a sleep string array of all the keys in %hash&lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
++  &lt;td&gt;%&lt;/td&gt;
++  &lt;td&gt;putAll(%hash, @|&amp;, [@|&amp;])&lt;/td&gt;
++  &lt;td&gt;populates the hash with the specified iterators.  If only one iterator is specified then the second argument
++  is assumed to be the same as the first.  The first iterator is iterated over to obtain the keys for the hash
++  and the second iterator is iterated over to obtain the values.&lt;/td&gt;
++ &lt;/tr&gt;
++ &lt;tr&gt;
+   &lt;td&gt;&lt;/td&gt;
+   &lt;td&gt;remove(%hash, $key, ...)&lt;/td&gt;
+   &lt;td&gt;removes all specified keys from %hash&lt;/td&gt;
+@@ -2000,6 +2225,11 @@
+  &lt;/tr&gt;  
+  &lt;tr&gt;
+   &lt;td&gt;$&lt;/td&gt;
++  &lt;td&gt;allocate([initial size])&lt;/td&gt;
++  &lt;td&gt;allocates a writeable memory buffer.  calling closef on the returned buffer turns it into a readable buffer.  calling closef on a readable buffer frees the buffer.&lt;/td&gt;
++ &lt;/tr&gt;
++ &lt;tr&gt;
++  &lt;td&gt;$&lt;/td&gt;
+   &lt;td&gt;available([$handle])&lt;/td&gt;
+   &lt;td&gt;returns the number of bytes available for reading from $handle&lt;/td&gt;
+  &lt;/tr&gt;
+@@ -2040,11 +2270,22 @@
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td&gt;$&lt;/td&gt;
+-  &lt;td&gt;exec(&quot;command&quot;)&lt;/td&gt;
+-  &lt;td&gt;executes the specified command and returns a $handle.  Check for issues executing a process with checkError()&lt;/td&gt;
++  &lt;td&gt;consume($handle, n, [buffer size])&lt;/td&gt;
++  &lt;td&gt;reads and discards up to n bytes from the specified handle.  this is useful for causing data to be read and processed without the expensive conversion process
++      to sleep strings (i.e. when one wants to digest or checksum a file)&lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td&gt;$&lt;/td&gt;
++  &lt;td&gt;exec(&quot;command&quot;, [%env], [&quot;directory&quot;])&lt;/td&gt;
++  &lt;td&gt;executes the specified command and returns a $handle.  Check for issues executing a process with checkError().  If $null is specified for either the environment (%env) or the starting &quot;directory&quot; then the process will inherit the current processes settings.  The &quot;command&quot; string is broken apart by whitespace and each token is interpreted as a separate argument to the process.&lt;/td&gt;
++ &lt;/tr&gt;
++ &lt;tr&gt;
++  &lt;td&gt;$&lt;/td&gt;
++  &lt;td&gt;exec(@command, [%env], [&quot;directory&quot;])&lt;/td&gt;
++  &lt;td&gt;executes the first element of the command array and returns a $handle.  Check for issues executing a process with checkError().  If $null is specified for either the environment (%env) or the starting &quot;directory&quot; then the process will inherit the current processes settings.  Elements 1..n of @command are interpreted as separate arguments to the process regardless of whitespace.&lt;/td&gt;
++ &lt;/tr&gt;
++ &lt;tr&gt;
++  &lt;td&gt;$&lt;/td&gt;
+   &lt;td&gt;fork(&amp;closure, ...)&lt;/td&gt;
+   &lt;td&gt;executes the specified &amp;closure as a new thread in an isolated script environment.  the return value is a $handle
+       that can be used to read/write data from/to the isolated environment.  Within the isolated environment data can be
+@@ -2114,20 +2355,35 @@
+  &lt;tr&gt;
+   &lt;td&gt;$&lt;/td&gt;
+   &lt;td&gt;readb([$handle], n)&lt;/td&gt;
+-  &lt;td&gt;reads n bytes from $handle&lt;/td&gt;
++  &lt;td&gt;reads n bytes from $handle.  If 0 bytes are read &lt;var&gt;$null&lt;/var&gt; will be returned.&lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td&gt;$&lt;/td&gt;
++  &lt;td&gt;readc([$handle])&lt;/td&gt;
++  &lt;td&gt;reads a single character from the specified handle&lt;/td&gt;
++ &lt;/tr&gt;
++ &lt;tr&gt;
++  &lt;td&gt;$&lt;/td&gt;
+   &lt;td&gt;readln([$handle])&lt;/td&gt;
+   &lt;td&gt;reads a single line of text from the specified handle&lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
++  &lt;td&gt;$&lt;/td&gt;
++  &lt;td&gt;readObject([$handle])&lt;/td&gt;
++  &lt;td&gt;reads a serialized scalar back from the specified handle&lt;/td&gt;
++ &lt;/tr&gt;
++ &lt;tr&gt;
+   &lt;td&gt;&lt;/td&gt;
+   &lt;td&gt;reset([$handle])&lt;/td&gt;
+   &lt;td&gt;resets this IO stream back to the last mark&lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td&gt;$&lt;/td&gt;
++  &lt;td&gt;setEncoding($handle, &quot;charset name&quot;)&lt;/td&gt;
++  &lt;td&gt;sets the character set to encode/decode written/read characters with the specified handle.&lt;/td&gt;
++ &lt;/tr&gt;
++ &lt;tr&gt;
++  &lt;td&gt;$&lt;/td&gt;
+   &lt;td&gt;skip([$handle], n)&lt;/td&gt;
+   &lt;td&gt;tells the handle to skip the next n bytes&lt;/td&gt;
+  &lt;/tr&gt;
+@@ -2148,6 +2404,11 @@
+   &lt;td&gt;writeb([$handle], &quot;string&quot;)&lt;/td&gt;
+   &lt;td&gt;writes the byte data of &quot;string&quot; to $handle&lt;/td&gt;
+  &lt;/tr&gt;
++ &lt;tr&gt;
++  &lt;td&gt;$&lt;/td&gt;
++  &lt;td&gt;writeObject([$handle], $scalar, ...)&lt;/td&gt;
++  &lt;td&gt;serializes and writes all of the scalar arguments out to the specified handle&lt;/td&gt;
++ &lt;/tr&gt;
+ &lt;/table&gt;
+ 
+ &lt;p&gt;Note: STDIN/STDOUT will be used by default for any of the IO read/write functions if a $handle is not specified.&lt;/p&gt;
+@@ -2336,6 +2597,11 @@
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td&gt;$&lt;/td&gt;
++  &lt;td&gt;byteAt(&quot;string&quot;, n)&lt;/td&gt;
++  &lt;td&gt;returns the byte (really its an intger) at the n'th position in the string&lt;/td&gt;
++ &lt;/tr&gt;
++ &lt;tr&gt;
++  &lt;td&gt;$&lt;/td&gt;
+   &lt;td&gt;cast(&quot;string&quot;, 't')&lt;/td&gt;
+   &lt;td&gt;casts &quot;string&quot; into an object scalar representing a native java array of type t where t can be b = byte, c = char.&lt;/td&gt;
+  &lt;/tr&gt;
+@@ -2351,8 +2617,8 @@
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td&gt;$&lt;/td&gt;
+-  &lt;td&gt;indexOf(&quot;string&quot;, &quot;substr&quot;)&lt;/td&gt;
+-  &lt;td&gt;returns the index of &quot;substr&quot; inside of &quot;string&quot;&lt;/td&gt;
++  &lt;td&gt;indexOf(&quot;string&quot;, &quot;substr&quot;, [start])&lt;/td&gt;
++  &lt;td&gt;returns the index of &quot;substr&quot; inside of &quot;string&quot; starting at the specified start index.&lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td&gt;$&lt;/td&gt;
+@@ -2452,7 +2718,7 @@
+  &lt;tr&gt;
+   &lt;td&gt;$&lt;/td&gt;
+   &lt;td&gt;checkError([$scalar])&lt;/td&gt;
+-  &lt;td&gt;returns the last error message to occur.  if a $scalar is specified : $scalar is set to the error string.  Once chekError() is called the error message is cleared.  Functions that might flag an error will be documented.&lt;/td&gt;
++  &lt;td&gt;returns the last error message to occur.  if a $scalar is specified : $scalar is set to the error string.  Once chekError() is called the error message is cleared.  Functions that might flag an error will be documented.  Any type of Scalar can be returned by checkError(). i.e. often times the error message might be a Java exception Object.&lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td&gt;$&lt;/td&gt;
+@@ -2468,7 +2734,7 @@
+  &lt;tr&gt;
+   &lt;td&gt;$&lt;/td&gt;
+   &lt;td&gt;debug(level)&lt;/td&gt;
+-  &lt;td&gt;explicitly enables the specified debug level for this script: 0 - no debugging; 1 - show only critical errors (default); 2 - show all warnings; 4 - show first time use of non-declared variables; 8 - trace all function calls.  any of the levels can be |'d together.&lt;/td&gt;
++  &lt;td&gt;explicitly enables the specified debug level for this script: 0 - no debugging; 1 - show only critical errors (default); 2 - show all messages flagged for retrieval with checkError(); 4 - show first time use of non-declared variables; 8 - trace all function calls (collects profiler statistics); 24 - trace only for the purpose of collecting profiler statistics; 34 - &quot;throw&quot; all messages flagged for use with checkError() - this allows use of try/catch to deal with errors.  any of the levels can be |'d together.&lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td&gt;$&lt;/td&gt;
+@@ -2477,6 +2743,11 @@
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td&gt;$&lt;/td&gt;
++  &lt;td&gt;exit()&lt;/td&gt;
++  &lt;td&gt;causes the currently executing script context to exit.&lt;/td&gt;
++ &lt;/tr&gt;
++ &lt;tr&gt;
++  &lt;td&gt;$&lt;/td&gt;
+   &lt;td&gt;expr(&quot;expr&quot;)&lt;/td&gt;
+   &lt;td&gt;parses and evaluates the specified sleep expression code returning the value of the expression.  syntax errors can be obtained with &amp;checkError()&lt;/td&gt;
+  &lt;/tr&gt;
+@@ -2486,21 +2757,52 @@
+   &lt;td&gt;obtains the function handle for the function bound to the specified string&lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
++  &lt;td&gt;@&lt;/td&gt;
++  &lt;td&gt;getStackTrace()&lt;/td&gt;
++  &lt;td&gt;in the context of a catch block (try/catch handlers) this function will return a trace of the Sleep call stack
++      that caused the exceptional condition.  Returns an empty array otherwise.&lt;/td&gt;
++ &lt;/tr&gt;
++ &lt;tr&gt;
+   &lt;td&gt;$&lt;/td&gt;
+   &lt;td&gt;global('$x $y')&lt;/td&gt;
+   &lt;td&gt;parses the specified string and declares all variables in the string as global variables.&lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
++  &lt;td&gt;&lt;/td&gt;
++  &lt;td&gt;include(&quot;/path/to/file.sl&quot;)&lt;/td&gt;
++  &lt;td&gt;compiles and executes the specified script file in the current script context.&lt;/td&gt;
++ &lt;/tr&gt;
++ &lt;tr&gt;
++  &lt;td&gt;&lt;/td&gt;
++  &lt;td&gt;include([&quot;/file.jar&quot;], &quot;/path/to/script.sl&quot;)&lt;/td&gt;
++  &lt;td&gt;compiles and executes the specified script file in the current script context.  this form of the include function looks for script.sl inside of file.jar.&lt;/td&gt;
++ &lt;/tr&gt;
++ &lt;tr&gt;
++  &lt;td&gt;$&lt;/td&gt;
++  &lt;td&gt;invoke(&amp;closure, @args, [&quot;message&quot;], ...)&lt;/td&gt;
++  &lt;td&gt;invokes the specified closure using the specified array for each individual argument.  the message parameter ($0) can be specified as well.  Optional named parameters include &lt;i&gt;message&lt;/i&gt;, &lt;i&gt;$this&lt;/i&gt; which specifies the closure scope to execute with, and &lt;i&gt;parameter&lt;/i&gt; which is a hash of all key/value pairs to pass to the function.&lt;/td&gt;
++ &lt;/tr&gt;
++ &lt;tr&gt; 
+   &lt;td&gt;&amp;&lt;/td&gt;
+   &lt;td&gt;lambda(&amp;closure,&nbsp;$key&nbsp;=&gt;&nbsp;&quot;value&quot;,&nbsp;...)&lt;/td&gt;
+-  &lt;td&gt;copies &amp;closure into a new closure.  The closure environment is initialized with all of the key/value pair arguments.&lt;/td&gt;
++  &lt;td&gt;copies &amp;closure into a new closure.  The closure environment is initialized with all of the key/value pair arguments.  If &lt;var&gt;$this&lt;/var&gt; =&gt; &amp;closure is specified then the resulting closure will share a &lt;var&gt;$this&lt;/var&gt; scope with the specified &amp;closure.&lt;/td&gt;
+  &lt;/tr&gt;
++ &lt;tr&gt; 
++  &lt;td&gt;&amp;&lt;/td&gt;
++  &lt;td&gt;let(&amp;closure,&nbsp;$key&nbsp;=&gt;&nbsp;&quot;value&quot;,&nbsp;...)&lt;/td&gt;
++  &lt;td&gt;The specified closure's environment is updated with all of the key/value pair arguments.  Returns the specified closure.&lt;/td&gt;
++ &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td&gt;&lt;/td&gt;
+   &lt;td&gt;local('$x $y')&lt;/td&gt;
+   &lt;td&gt;parses the specified string and declares all variables in the string as local variables.&lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
++  &lt;td&gt;@&lt;/td&gt;
++  &lt;td&gt;profile()&lt;/td&gt;
++  &lt;td&gt;returns the profiler statistics for the current script environment.  Profile statistics will only be collected if DEBUG_TRACE_CALLS (8) or DEBUG_TRACE_PROFILE_ONLY (24) is set.&lt;/td&gt;
++ &lt;/tr&gt;
++ &lt;tr&gt;
+   &lt;td&gt;&lt;/td&gt;
+   &lt;td&gt;release($semaphore)&lt;/td&gt;
+   &lt;td&gt;increments the count value of the specified semaphore.&lt;/td&gt;
+@@ -2512,8 +2814,8 @@
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td&gt;&lt;/td&gt;
+-  &lt;td&gt;setField(class|$object, &quot;field&quot;, value)&lt;/td&gt;
+-  &lt;td&gt;sets a public/protected field of the specified class or instance of $object to a specified value.&lt;/td&gt;
++  &lt;td&gt;setField(class|$object, field =&gt; value, ...)&lt;/td&gt;
++  &lt;td&gt;sets any number of public/protected fields of the specified class or instance of $object to a corresponding value.&lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td&gt;$&lt;/td&gt;
+@@ -2545,6 +2847,11 @@
+   &lt;td&gt;use(&quot;/path/to/file.jar&quot;, &quot;Loadable&quot;)&lt;/td&gt;
+   &lt;td&gt;loads the specified class into the current script environment.  The sleep.interfaces.Loadable class is loaded from the specified jar file.  Use to import sleep modules and the like.&lt;/td&gt;
+  &lt;/tr&gt;
++ &lt;tr&gt;
++  &lt;td&gt;&lt;/td&gt;
++  &lt;td&gt;watch('$x $y')&lt;/td&gt;
++  &lt;td&gt;A useful debug function for tracking variable changes.  parses the specified string and declares all variables in the string as &quot;watch&quot; variables.  Any attempt to update the container *referenced* by a watch variable will print out a warning.&lt;/td&gt;
++ &lt;/tr&gt;
+ &lt;/table&gt;
+ 
+ &lt;h2&gt;&lt;a name=&quot;12&quot;&gt;Appendix A - System Properties&lt;/a&gt;&lt;/h2&gt;
+@@ -3289,6 +3596,11 @@
+   &lt;td&gt;mark this point in the IO stream (for reads only)&lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
++  &lt;td&gt;o&lt;/td&gt;
++  &lt;td&gt;variable&lt;/td&gt;
++  &lt;td&gt;sleep scalar object (used to serialize/deserialize scalars)&lt;/td&gt;
++ &lt;/tr&gt;
++ &lt;tr&gt;
+   &lt;td&gt;R&lt;/td&gt;
+   &lt;td&gt;0&lt;/td&gt;
+   &lt;td&gt;reset this stream to the last mark point (reads only)&lt;/td&gt;
+
+Modified: rero/resources/toplevel/readme.txt
+===================================================================
+--- rero/resources/toplevel/readme.txt	2006-10-20 22:33:22 UTC (rev 85)
++++ rero/resources/toplevel/readme.txt	2007-03-24 00:58:45 UTC (rev 86)
+@@ -1,5 +1,5 @@
+  ------- -------------------- ---------   ---------------  ------- ---------
+-jIRCii - Beta (40) 10.12.06 - README
++jIRCii - Beta (41) 03.23.07 - README
+ -  ------------- -------- -   ---------------- --       -    -     -     - - -
+ 
+ The official jIRCii homepage is at: <A HREF="http://jircii.hick.org">http://jircii.hick.org</A>
+
+Modified: rero/resources/toplevel/whatsnew.txt
+===================================================================
+--- rero/resources/toplevel/whatsnew.txt	2006-10-20 22:33:22 UTC (rev 85)
++++ rero/resources/toplevel/whatsnew.txt	2007-03-24 00:58:45 UTC (rev 86)
+@@ -1,3 +1,14 @@
++Beta    41 release 23 Mar 07
++====
++- Updated to Sleep 2.1-b14 (is it even released yet?).  Lots of changes.
++  Scripters (and indirectly users) shall be pleased.  
++  See the full changelog at: <A HREF="http://sleep.hick.org/changelog.html">http://sleep.hick.org/changelog.html</A>
++- Fixed a bug where a popup trigger on MacOS X could also trigger a
++  mouse clicked event (causing inadvertant creation of query windows
++  even when you don't want them).
++- Fixed a bug that caused psuedo transparency image to be recalculated 
++  with every window resize.  Made psuedo transparency mode incredibly slow.
++
+ Beta    40 release 12 Oct 06
+ ====
+ - Improved find dialog slightly, if there's any previous search text in
+
+Modified: rero/src/rero/gui/background/BackgroundProperties.java
+===================================================================
+--- rero/src/rero/gui/background/BackgroundProperties.java	2006-10-20 22:33:22 UTC (rev 85)
++++ rero/src/rero/gui/background/BackgroundProperties.java	2007-03-24 00:58:45 UTC (rev 86)
+@@ -15,6 +15,8 @@
+    protected Image image;
+    protected Image transform;
+ 
++   protected String name;
++
+    protected Color bgColor; 
+    protected float bgTint;
+ 
+@@ -70,14 +72,30 @@
+ 
+    public void init(Color defaultColor, int defaultType, int defaultStyle, float defaultTint)
+    {
+-      image          = null;
+-      transform      = null;
+-      bgType         = ClientState.getClientState().getInteger(type + &quot;.bgtype&quot;  , defaultType);
+-      bgColor        = ClientState.getClientState().getColor(  type + &quot;.color&quot;   , defaultColor);
+-      bgTint         = ClientState.getClientState().getFloat(  type + &quot;.tint&quot;    , defaultTint);
+-      bgStyle        = ClientState.getClientState().getInteger(type + &quot;.bgstyle&quot; , defaultStyle);
++      int _bgType, _bgStyle;
++      Color _bgColor;
++      float _bgTint;
++      boolean _isRelative;
++      String _name;
+ 
+-      isRelative     = ClientState.getClientState().isOption(  type + &quot;.relative&quot;, false);
++      _name           = ClientState.getClientState().getString(type + &quot;.image&quot;, &quot;background.jpg&quot;);
++      _bgType         = ClientState.getClientState().getInteger(type + &quot;.bgtype&quot;  , defaultType);
++      _bgColor        = ClientState.getClientState().getColor(  type + &quot;.color&quot;   , defaultColor);
++      _bgTint         = ClientState.getClientState().getFloat(  type + &quot;.tint&quot;    , defaultTint);
++      _bgStyle        = ClientState.getClientState().getInteger(type + &quot;.bgstyle&quot; , defaultStyle);
++      _isRelative     = ClientState.getClientState().isOption(  type + &quot;.relative&quot;, false);
++
++      if (!_name.equals(name) || bgColor == null || bgType != _bgType || !bgColor.equals(_bgColor) || bgTint != _bgTint || bgStyle != _bgStyle || isRelative != _isRelative)
++      {
++         name           = _name;
++         bgType         = _bgType;
++         bgColor        = _bgColor;
++         bgTint         = _bgTint;
++         bgStyle        = _bgStyle;
++         isRelative     = _isRelative;
++         image          = null;
++         transform      = null;
++      }
+    }
+ 
+    public Image getImage(Component c)
+
+Modified: rero/src/rero/gui/windows/ChannelWindow.java
+===================================================================
+--- rero/src/rero/gui/windows/ChannelWindow.java	2006-10-20 22:33:22 UTC (rev 85)
++++ rero/src/rero/gui/windows/ChannelWindow.java	2007-03-24 00:58:45 UTC (rev 86)
+@@ -69,7 +69,7 @@
+ 
+           public void mouseClicked(MouseEvent ev)
+           {
+-             if (ev.getClickCount() &gt;= 2)
++             if (ev.getClickCount() &gt;= 2 &amp;&amp; !ev.isPopupTrigger() &amp;&amp; (ev.getButton() &amp; MouseEvent.BUTTON3) != MouseEvent.BUTTON3)
+              {
+                 fireClickEvent(ev);
+              }
+
+Modified: rero/src/rero/util/ClientUtils.java
+===================================================================
+--- rero/src/rero/util/ClientUtils.java	2006-10-20 22:33:22 UTC (rev 85)
++++ rero/src/rero/util/ClientUtils.java	2007-03-24 00:58:45 UTC (rev 86)
+@@ -61,9 +61,9 @@
+         String taglines[] = {
+             &quot;highly caffeinated&quot;,
+             &quot;Fat butane, grubbin' on French fries&quot;,
+-            &quot;&lt;JakieChan&gt; butan: java sucks&quot;,
+             &quot;Clean. Christian. Comprehensive.&quot;,
+-            &quot;If idiots could fly, IRC would be an airport&quot;
++            &quot;If idiots could fly, IRC would be an airport&quot;,
++            &quot;I'm a *p0rn* star&quot;
+         };
+         int r = ctime() % taglines.length;
+         return taglines[r];
+
+Modified: rero/src/text/list/ListSelectionSpace.java
+===================================================================
+--- rero/src/text/list/ListSelectionSpace.java	2006-10-20 22:33:22 UTC (rev 85)
++++ rero/src/text/list/ListSelectionSpace.java	2007-03-24 00:58:45 UTC (rev 86)
+@@ -62,9 +62,10 @@
+ 
+     public void mousePressed(MouseEvent ev)
+     {
+-        if (ev.getButton() == MouseEvent.BUTTON1 &amp;&amp; !(ev.isShiftDown() &amp;&amp; ev.isControlDown()) )
++        if (ev.getButton() == MouseEvent.BUTTON1 &amp;&amp; !ev.isPopupTrigger() &amp;&amp; !(ev.isShiftDown() &amp;&amp; ev.isControlDown()) )
+         {
+-           if ((ev.getModifiers() &amp; MouseEvent.CTRL_MASK) == MouseEvent.CTRL_MASK)
++           if ((ev.getModifiers() &amp; MouseEvent.CTRL_MASK) == MouseEvent.CTRL_MASK ||
++               (ev.getModifiers() &amp; MouseEvent.ALT_MASK) == MouseEvent.ALT_MASK)
+            {
+               ListElement temp = data.getElementAtLocation(ev.getY());
+ 
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	
+	<LI>Next message: <A HREF="000068.html">[Jircii-svn] r87 - in rero/src/rero: config gui/background
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#67">[ date ]</a>
+              <a href="thread.html#67">[ thread ]</a>
+              <a href="subject.html#67">[ subject ]</a>
+              <a href="author.html#67">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/jircii-svn">More information about the Jircii-svn
+mailing list</a><br>
+</body></html>

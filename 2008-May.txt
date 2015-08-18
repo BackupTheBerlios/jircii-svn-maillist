@@ -1,0 +1,192 @@
+From rsmudge at mail.berlios.de  Fri May  9 23:30:06 2008
+From: rsmudge at mail.berlios.de (rsmudge at BerliOS)
+Date: Fri, 9 May 2008 23:30:06 +0200
+Subject: [Jircii-svn] r110 - in rero: lib resources/toplevel
+	src/rero/client/functions src/rero/dcc
+Message-ID: <200805092130.m49LU6XX011945@sheep.berlios.de>
+
+Author: rsmudge
+Date: 2008-05-09 23:30:04 +0200 (Fri, 09 May 2008)
+New Revision: 110
+
+Modified:
+   rero/lib/sleep.jar
+   rero/resources/toplevel/whatsnew.txt
+   rero/src/rero/client/functions/UtilOperators.java
+   rero/src/rero/dcc/Receive.java
+Log:
+upgrade to Sleep 2.1-b25
+
+
+Modified: rero/lib/sleep.jar
+===================================================================
+(Binary files differ)
+
+Modified: rero/resources/toplevel/whatsnew.txt
+===================================================================
+--- rero/resources/toplevel/whatsnew.txt	2008-04-22 00:36:19 UTC (rev 109)
++++ rero/resources/toplevel/whatsnew.txt	2008-05-09 21:30:04 UTC (rev 110)
+@@ -8,7 +8,7 @@
+ - implemented /kill <nick> <reason> command
+ - updated jIRCii to Sleep 2.1-b23 API compatability (thanks Sleep 
+   maintainer for breaking Loadable API, oh wait, thats me).
+-- updated scripting engine to Sleep 2.1-b23.  Many changes that will aid
++- updated scripting engine to Sleep 2.1-b25.  Many changes that will aid
+   those of you who use jIRCii as a platform for developing apps that 
+   crunch massive amounts of data.
+ 
+
+Modified: rero/src/rero/client/functions/UtilOperators.java
+===================================================================
+--- rero/src/rero/client/functions/UtilOperators.java	2008-04-22 00:36:19 UTC (rev 109)
++++ rero/src/rero/client/functions/UtilOperators.java	2008-05-09 21:30:04 UTC (rev 110)
+@@ -85,12 +85,12 @@
+ 
+           if (l.size() == 2)
+           {
+-             parent    = BridgeUtilities.getFile(l);
++             parent    = BridgeUtilities.getFile(l, si);
+              className = BridgeUtilities.getString(l, "");
+           }
+           else
+           {
+-             File a    = BridgeUtilities.getFile(l);
++             File a    = BridgeUtilities.getFile(l, si);
+              parent    = a.getParentFile();
+              className = a.getName();
+           }
+
+Modified: rero/src/rero/dcc/Receive.java
+===================================================================
+--- rero/src/rero/dcc/Receive.java	2008-04-22 00:36:19 UTC (rev 109)
++++ rero/src/rero/dcc/Receive.java	2008-05-09 21:30:04 UTC (rev 110)
+@@ -148,9 +148,9 @@
+        {
+           boolean appendToFile = startSize != 0;
+ 
+-          if (!dumpTo.exists())
++          if (!dumpTo.getParentFile().exists())
+           {
+-             dumpTo.mkdirs(); /* create the dcc receive directory if it does not exist */
++             dumpTo.getParentFile().mkdirs(); /* create the dcc receive directory if it does not exist */
+           }
+  
+           fileStream = new FileOutputStream(dumpTo, appendToFile);
+
+
+
+From rsmudge at mail.berlios.de  Sat May 10 00:00:19 2008
+From: rsmudge at mail.berlios.de (rsmudge at BerliOS)
+Date: Sat, 10 May 2008 00:00:19 +0200
+Subject: [Jircii-svn] r111 - in rero: resources/toplevel src/text/wrapped
+Message-ID: <200805092200.m49M0Je1013844@sheep.berlios.de>
+
+Author: rsmudge
+Date: 2008-05-10 00:00:07 +0200 (Sat, 10 May 2008)
+New Revision: 111
+
+Modified:
+   rero/resources/toplevel/whatsnew.txt
+   rero/src/text/wrapped/WrappedContainer.java
+Log:
+la la la ...
+
+
+Modified: rero/resources/toplevel/whatsnew.txt
+===================================================================
+--- rero/resources/toplevel/whatsnew.txt	2008-05-09 21:30:04 UTC (rev 110)
++++ rero/resources/toplevel/whatsnew.txt	2008-05-09 22:00:07 UTC (rev 111)
+@@ -1,4 +1,4 @@
+-Beta    43
++Beta    43 release 9 May 08
+ ====
+ - fixed alpha order of some aliases in the Help -> Commands menu
+ - jIRCii now creates the DCC receive directory if the directory
+@@ -6,11 +6,9 @@
+ - replaced call to skip with in Send.java with skipFully provided by
+   nanaki at gmail.com using Find Bugs http://findbugs.sourceforge.net/
+ - implemented /kill <nick> <reason> command
+-- updated jIRCii to Sleep 2.1-b23 API compatability (thanks Sleep 
+-  maintainer for breaking Loadable API, oh wait, thats me).
+-- updated scripting engine to Sleep 2.1-b25.  Many changes that will aid
+-  those of you who use jIRCii as a platform for developing apps that 
+-  crunch massive amounts of data.
++- updated scripting engine to Sleep 2.1-b25.  
++- added a check to the word wrapping code to prevent infinite recursion
++  when the window becomes too small.
+ 
+ Beta    42 release 26 Nov 07
+ ====
+
+Modified: rero/src/text/wrapped/WrappedContainer.java
+===================================================================
+--- rero/src/text/wrapped/WrappedContainer.java	2008-05-09 21:30:04 UTC (rev 110)
++++ rero/src/text/wrapped/WrappedContainer.java	2008-05-09 22:00:07 UTC (rev 111)
+@@ -202,6 +202,8 @@
+ 
+    public static AttributedText[] wrap(AttributedString textData, int maxWidth)
+    {
++      if (maxWidth < 100) { return new AttributedText[0]; } 
++
+       TokenizedString tokens  = textData.getTokens();
+  
+       LinkedList data = new LinkedList();
+
+
+
+From rsmudge at mail.berlios.de  Sat May 10 00:09:04 2008
+From: rsmudge at mail.berlios.de (rsmudge at BerliOS)
+Date: Sat, 10 May 2008 00:09:04 +0200
+Subject: [Jircii-svn] r113 - rero/resources/toplevel
+Message-ID: <200805092209.m49M94gi014653@sheep.berlios.de>
+
+Author: rsmudge
+Date: 2008-05-10 00:09:04 +0200 (Sat, 10 May 2008)
+New Revision: 113
+
+Modified:
+   rero/resources/toplevel/readme.txt
+Log:
+updated the readme . :)
+
+
+Modified: rero/resources/toplevel/readme.txt
+===================================================================
+--- rero/resources/toplevel/readme.txt	2008-05-09 22:04:15 UTC (rev 112)
++++ rero/resources/toplevel/readme.txt	2008-05-09 22:09:04 UTC (rev 113)
+@@ -1,5 +1,5 @@
+  ------- -------------------- ---------   ---------------  ------- ---------
+-jIRCii - Beta (42) 11.26.07 - README
++jIRCii - Beta (43) 05.09.08 - README
+ -  ------------- -------- -   ---------------- --       -    -     -     - - -
+ 
+ The official jIRCii homepage is at: http://jircii.hick.org
+
+
+
+From rsmudge at mail.berlios.de  Sat May 10 00:19:03 2008
+From: rsmudge at mail.berlios.de (rsmudge at BerliOS)
+Date: Sat, 10 May 2008 00:19:03 +0200
+Subject: [Jircii-svn] r115 - rero/resources/toplevel/docs
+Message-ID: <200805092219.m49MJ3Em015375@sheep.berlios.de>
+
+Author: rsmudge
+Date: 2008-05-10 00:19:01 +0200 (Sat, 10 May 2008)
+New Revision: 115
+
+Added:
+   rero/resources/toplevel/docs/sleepmanual.url
+Log:
+..
+
+
+Added: rero/resources/toplevel/docs/sleepmanual.url
+===================================================================
+--- rero/resources/toplevel/docs/sleepmanual.url	2008-05-09 22:16:00 UTC (rev 114)
++++ rero/resources/toplevel/docs/sleepmanual.url	2008-05-09 22:19:01 UTC (rev 115)
+@@ -0,0 +1,2 @@
++[InternetShortcut]
++URL=http://sleep.dashnine.org/manual
+
+
+

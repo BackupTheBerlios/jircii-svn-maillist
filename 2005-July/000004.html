@@ -1,0 +1,662 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Jircii-svn] r24 - in rero: . resources/resource src/rero/client/data src/rero/client/dcc src/rero/client/script src/rero/client/server src/rero/config src/rero/dcc src/rero/dialogs src/rero/gui src/rero/gui/sdi src/rero/gui/toolkit src/rero/test src/rero/util
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/jircii-svn/2005-July/index.html" >
+   <LINK REL="made" HREF="mailto:jircii-svn%40lists.berlios.de?Subject=Re%3A%20%5BJircii-svn%5D%20r24%20-%20in%20rero%3A%20.%20resources/resource%20src/rero/client/data%20src/rero/client/dcc%20src/rero/client/script%20src/rero/client/server%20src/rero/config%20src/rero/dcc%20src/rero/dialogs%20src/rero/gui%20src/rero/gui/sdi%20src/rero/gui/toolkit%20src/rero/test%20src/rero/util&In-Reply-To=%3C200507130009.j6D09Jv4014708%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   
+   <LINK REL="Next"  HREF="000005.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Jircii-svn] r24 - in rero: . resources/resource src/rero/client/data src/rero/client/dcc src/rero/client/script src/rero/client/server src/rero/config src/rero/dcc src/rero/dialogs src/rero/gui src/rero/gui/sdi src/rero/gui/toolkit src/rero/test src/rero/util</H1>
+    <B>Raphael Mudge at BerliOS</B> 
+    <A HREF="mailto:jircii-svn%40lists.berlios.de?Subject=Re%3A%20%5BJircii-svn%5D%20r24%20-%20in%20rero%3A%20.%20resources/resource%20src/rero/client/data%20src/rero/client/dcc%20src/rero/client/script%20src/rero/client/server%20src/rero/config%20src/rero/dcc%20src/rero/dialogs%20src/rero/gui%20src/rero/gui/sdi%20src/rero/gui/toolkit%20src/rero/test%20src/rero/util&In-Reply-To=%3C200507130009.j6D09Jv4014708%40sheep.berlios.de%3E"
+       TITLE="[Jircii-svn] r24 - in rero: . resources/resource src/rero/client/data src/rero/client/dcc src/rero/client/script src/rero/client/server src/rero/config src/rero/dcc src/rero/dialogs src/rero/gui src/rero/gui/sdi src/rero/gui/toolkit src/rero/test src/rero/util">rsmudge at berlios.de
+       </A><BR>
+    <I>Wed Jul 13 02:09:19 CEST 2005</I>
+    <P><UL>
+        
+        <LI>Next message: <A HREF="000005.html">[Jircii-svn] r25 - in rero: . resources/help resources/toplevel resources/toplevel/docs src/rero/config
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#4">[ date ]</a>
+              <a href="thread.html#4">[ thread ]</a>
+              <a href="subject.html#4">[ subject ]</a>
+              <a href="author.html#4">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: rsmudge
+Date: 2005-07-13 02:09:08 +0200 (Wed, 13 Jul 2005)
+New Revision: 24
+
+Modified:
+   rero/build.xml
+   rero/resources/resource/menus.irc
+   rero/src/rero/client/data/DataStructureBridge.java
+   rero/src/rero/client/dcc/FeatureDCC.java
+   rero/src/rero/client/script/ScriptManager.java
+   rero/src/rero/client/server/ServerHandler.java
+   rero/src/rero/config/ClientDefaults.java
+   rero/src/rero/dcc/Receive.java
+   rero/src/rero/dialogs/AboutWindow.java
+   rero/src/rero/dialogs/IRCOptions.java
+   rero/src/rero/dialogs/SwitchBarDialog.java
+   rero/src/rero/gui/IRCSession.java
+   rero/src/rero/gui/SessionManager.java
+   rero/src/rero/gui/sdi/ClientPanel.java
+   rero/src/rero/gui/toolkit/OrientedToolBar.java
+   rero/src/rero/test/QuickConnect.java
+   rero/src/rero/util/ClientUtils.java
+Log:
+Beta 37 changes uNF
+
+
+Modified: rero/build.xml
+===================================================================
+--- rero/build.xml	2005-07-12 21:25:07 UTC (rev 23)
++++ rero/build.xml	2005-07-13 00:09:08 UTC (rev 24)
+@@ -17,7 +17,7 @@
+            destdir=&quot;${project.build}&quot;
+            nowarn=&quot;yes&quot;
+            depend=&quot;yes&quot;
+-           debug=&quot;no&quot;
++           debug=&quot;yes&quot;
+            optimize=&quot;yes&quot;
+     &gt;
+        &lt;classpath path=&quot;./lib/sleep.jar&quot; /&gt;
+
+Modified: rero/resources/resource/menus.irc
+===================================================================
+--- rero/resources/resource/menus.irc	2005-07-12 21:25:07 UTC (rev 23)
++++ rero/resources/resource/menus.irc	2005-07-13 00:09:08 UTC (rev 24)
+@@ -491,9 +491,9 @@
+ {
+    local('@windows');
+    @windows = getWindows();
+-   if (size(@windows) &gt; 0)
++   if (size(@windows) &gt; 1)
+    {
+-      activateWindow(@windows[0]);
++      activateWindow(@windows[1]);
+       halt;
+    }
+ }
+@@ -502,9 +502,9 @@
+ {
+    local('@windows');
+    @windows = getWindows();
+-   if (size(@windows) &gt; 1)
++   if (size(@windows) &gt; 2)
+    {
+-      activateWindow(@windows[1]);
++      activateWindow(@windows[2]);
+       halt;
+    }
+ }
+@@ -513,9 +513,9 @@
+ {
+    local('@windows');
+    @windows = getWindows();
+-   if (size(@windows) &gt; 2)
++   if (size(@windows) &gt; 3)
+    {
+-      activateWindow(@windows[2]);
++      activateWindow(@windows[3]);
+       halt;
+    }
+ }
+@@ -524,9 +524,9 @@
+ {
+    local('@windows');
+    @windows = getWindows();
+-   if (size(@windows) &gt; 3)
++   if (size(@windows) &gt; 4)
+    {
+-      activateWindow(@windows[3]);
++      activateWindow(@windows[4]);
+       halt;
+    }
+ }
+@@ -535,9 +535,9 @@
+ {
+    local('@windows');
+    @windows = getWindows();
+-   if (size(@windows) &gt; 4)
++   if (size(@windows) &gt; 5)
+    {
+-      activateWindow(@windows[4]);
++      activateWindow(@windows[5]);
+       halt;
+    }
+ }
+@@ -547,9 +547,9 @@
+ {
+    local('@windows');
+    @windows = getWindows();
+-   if (size(@windows) &gt; 5)
++   if (size(@windows) &gt; 6)
+    {
+-      activateWindow(@windows[5]);
++      activateWindow(@windows[6]);
+       halt;
+    }
+ }
+@@ -559,9 +559,9 @@
+ {
+    local('@windows');
+    @windows = getWindows();
+-   if (size(@windows) &gt; 6)
++   if (size(@windows) &gt; 7)
+    {
+-      activateWindow(@windows[6]);
++      activateWindow(@windows[7]);
+       halt;
+    }
+ }
+@@ -571,9 +571,9 @@
+ {
+    local('@windows');
+    @windows = getWindows();
+-   if (size(@windows) &gt; 7)
++   if (size(@windows) &gt; 8)
+    {
+-      activateWindow(@windows[7]);
++      activateWindow(@windows[8]);
+       halt;
+    }
+ }
+
+Modified: rero/src/rero/client/data/DataStructureBridge.java
+===================================================================
+--- rero/src/rero/client/data/DataStructureBridge.java	2005-07-12 21:25:07 UTC (rev 23)
++++ rero/src/rero/client/data/DataStructureBridge.java	2005-07-13 00:09:08 UTC (rev 24)
+@@ -44,12 +44,12 @@
+    {
+       if (&quot;$me&quot;.equals(key)) { return SleepUtils.getScalar(data.getMyNick()); }
+       if (&quot;$time&quot;.equals(key)) { return SleepUtils.getScalar(ClientUtils.TimeStamp()); }
+-      if (&quot;$lag&quot;.equals(key)) { return SleepUtils.getScalar(((Lag)getCapabilities().getDataStructure(&quot;lag&quot;)).getLag()); }
++      if (&quot;$lag&quot;.equals(key) &amp;&amp; getCapabilities().getDataStructure(&quot;lag&quot;) != null) { return SleepUtils.getScalar(((Lag)getCapabilities().getDataStructure(&quot;lag&quot;)).getLag()); }
+       if (&quot;$active&quot;.equals(key)) { return SleepUtils.getScalar(getCapabilities().getUserInterface().getQuery()); }
+ //      if (&quot;$myserver&quot;.equals(key)) { return SleepUtils.getScalar(getCapabilities().getSocketConnection().getSocketInformation().hostname); }
+ //      if (&quot;$myserverport&quot;.equals(key)) { return SleepUtils.getScalar(getCapabilities().getSocketConnection().getSocketInformation().port); }
+       if (&quot;$mymode&quot;.equals(key)) { return SleepUtils.getScalar(data.getMyUserInformation().getMode().toString()); }
+-      return null;
++      return SleepUtils.getEmptyScalar();
+    }
+ 
+    public void init()
+
+Modified: rero/src/rero/client/dcc/FeatureDCC.java
+===================================================================
+--- rero/src/rero/client/dcc/FeatureDCC.java	2005-07-12 21:25:07 UTC (rev 23)
++++ rero/src/rero/client/dcc/FeatureDCC.java	2005-07-13 00:09:08 UTC (rev 24)
+@@ -173,7 +173,7 @@
+          }
+          else
+          {
+-            sendme = new File(temps.getToken(2));;
++            sendme = ClientUtils.getFile(temps.getToken(2));
+          }
+ 
+          if (sendme != null &amp;&amp; sendme.exists())
+
+Modified: rero/src/rero/client/script/ScriptManager.java
+===================================================================
+--- rero/src/rero/client/script/ScriptManager.java	2005-07-12 21:25:07 UTC (rev 23)
++++ rero/src/rero/client/script/ScriptManager.java	2005-07-13 00:09:08 UTC (rev 24)
+@@ -4,6 +4,8 @@
+ import rero.config.*;
+ import rero.script.*;
+ 
++import rero.util.*;
++
+ import sleep.error.*;
+ import sleep.runtime.*;
+ 
+@@ -78,6 +80,8 @@
+ 
+    public void loadTheme(String filename)
+    {
++      filename = ClientUtils.getFile(filename).getAbsolutePath();
++
+       if ((new File(filename)).exists())
+       {
+          internalScriptLoad(filename);
+@@ -94,7 +98,7 @@
+       if ((new File(filename)).exists())
+       {
+          StringList temp = ClientState.getClientState().getStringList(&quot;script.files&quot;);
+-         String     fn   = (new File(filename)).getAbsolutePath();
++         String     fn   = ClientUtils.getFile(filename).getAbsolutePath();
+ 
+          if (!temp.getList().contains(fn))
+          {
+
+Modified: rero/src/rero/client/server/ServerHandler.java
+===================================================================
+--- rero/src/rero/client/server/ServerHandler.java	2005-07-12 21:25:07 UTC (rev 23)
++++ rero/src/rero/client/server/ServerHandler.java	2005-07-13 00:09:08 UTC (rev 24)
+@@ -160,11 +160,23 @@
+        }
+        else
+        {
++           boolean isDone = false;
++
+            if (data.getMyUser().getChannels().size() &gt; 0)
+            {
+-               restoreInformation = data.getMyUser();
+-               restoreServer      = ev.data.hostname;
+                getCapabilities().getOutputCapabilities().fireSetAll(ClientUtils.getEventHashMap(ev.data.hostname, ev.message), &quot;IRC_DISCONNECT&quot;);
++
++               if (ClientState.getClientState().isOption(&quot;option.reconnect&quot;, ClientDefaults.option_reconnect))
++               {
++                  restoreInformation = data.getMyUser();
++                  restoreServer      = ev.data.hostname;
++ 
++                  getCapabilities().getOutputCapabilities().fireSetAll(ClientUtils.getEventHashMap(ev.data.hostname, ev.message), &quot;IRC_RECONNECT&quot;);
++                  getCapabilities().getGlobalCapabilities().setTabTitle(getCapabilities(), &quot;reconnecting&quot;);
++                  socket.connect(ev.data.hostname, ev.data.port, ClientState.getClientState().getInteger(&quot;reconnect.time&quot;, ClientDefaults.reconnect_time) * 1000, ev.data.password, ev.data.isSecure);
++
++                  isDone = true;
++               }
+            }
+            else
+            {
+@@ -174,7 +186,7 @@
+            data.reset();
+            notify.reset();
+ 
+-           if (restoreInformation != null)
++           if (restoreInformation != null &amp;&amp; !isDone)
+            {
+                getCapabilities().getOutputCapabilities().fireSetStatus(ClientUtils.getEventHashMap(ev.data.hostname, ev.message), &quot;IRC_RECONNECT&quot;);
+                getCapabilities().getGlobalCapabilities().setTabTitle(getCapabilities(), &quot;reconnecting&quot;);
+@@ -204,6 +216,13 @@
+ 
+           if (event.equals(&quot;433&quot;))
+           {
++              if (rero.test.QuickConnect.IsQuickConnect() &amp;&amp; rero.test.QuickConnect.GetInformation().getURL().getUserInfo() != null)
++              {
++                  // set a new alternate alt nick iff a user is quick connecting and a default nickname has been specified...
++                  // otherwise lamer will do just fine...
++
++                  altNick = ClientState.getClientState().getString(&quot;user.nick&quot;,  rero.test.QuickConnect.GetInformation().getNickname()) + System.currentTimeMillis();
++              }
+               getCapabilities().sendln(&quot;NICK &quot; + altNick);
+           }
+ 
+
+Modified: rero/src/rero/config/ClientDefaults.java
+===================================================================
+--- rero/src/rero/config/ClientDefaults.java	2005-07-12 21:25:07 UTC (rev 23)
++++ rero/src/rero/config/ClientDefaults.java	2005-07-13 00:09:08 UTC (rev 24)
+@@ -29,6 +29,7 @@
+    public static final boolean active_option = true; /** echo to active option */
+ 
+    public static final boolean option_showmotd  = true;
++   public static final boolean option_reconnect = true;
+    public static final boolean option_timestamp = false;
+ 
+    public static       boolean ui_sdi        = true;
+
+Modified: rero/src/rero/dcc/Receive.java
+===================================================================
+--- rero/src/rero/dcc/Receive.java	2005-07-12 21:25:07 UTC (rev 23)
++++ rero/src/rero/dcc/Receive.java	2005-07-13 00:09:08 UTC (rev 24)
+@@ -142,6 +142,8 @@
+        byte[] data      = new byte[PACKET_SIZE]; // read packets in 4k chunks
+        byte[] ackPacket = new byte[4];
+ 
++       Exception transferError = null;
++
+        try
+        {
+           boolean appendToFile = startSize != 0;
+@@ -193,8 +195,7 @@
+           if (receivedSize != finalSize)
+           {
+               ex.printStackTrace();
+-              fireError(ex.getMessage());
+-              return;
++              transferError = ex;
+           }
+        }
+ 
+@@ -214,6 +215,10 @@
+           //
+           fireEvent(&quot;RECEIVE_COMPLETE&quot;, null);
+        }
++       else if (transferError != null)
++       {
++          fireError(transferError.getMessage());
++       }
+        else
+        {
+           fireError(&quot;incomplete&quot;);
+
+Modified: rero/src/rero/dialogs/AboutWindow.java
+===================================================================
+--- rero/src/rero/dialogs/AboutWindow.java	2005-07-12 21:25:07 UTC (rev 23)
++++ rero/src/rero/dialogs/AboutWindow.java	2005-07-13 00:09:08 UTC (rev 24)
+@@ -122,7 +122,8 @@
+             editor.setEditable(false);
+             editor.setOpaque(false);
+ 
+-            if (!randomText.equals(textTables[5]) &amp;&amp; !randomText.equals(textTables[9]))
++            // 5 should be monospaced...
++            if (!randomText.equals(textTables[1]) &amp;&amp; !randomText.equals(textTables[9]) &amp;&amp; !randomText.equals(textTables[8]))
+             {
+                editor.setFont(new Font(&quot;Monospaced&quot;, Font.PLAIN, 12));
+             }
+@@ -212,7 +213,9 @@
+ 
+             if (buffer.toString().toLowerCase().equals(superEliteEncryption(&quot;zvep jneevbe&quot;)))
+             {
+-               randomText = textTables[Math.abs((int)System.currentTimeMillis() % textTables.length)];
++               int rand = Math.abs((int)System.currentTimeMillis() % textTables.length);
++
++               randomText = textTables[rand];
+                activateEgg();
+             }
+             else if (buffer.toString().toLowerCase().equals(superEliteEncryption(&quot;jroon&quot;)))
+
+Modified: rero/src/rero/dialogs/IRCOptions.java
+===================================================================
+--- rero/src/rero/dialogs/IRCOptions.java	2005-07-12 21:25:07 UTC (rev 23)
++++ rero/src/rero/dialogs/IRCOptions.java	2005-07-13 00:09:08 UTC (rev 24)
+@@ -42,7 +42,8 @@
+       addBlankSpace();
+ 
+       addCheckboxInput(&quot;update.ial&quot; , ClientDefaults.option_showmotd,  &quot;Update IAL on channel join&quot;, 'I');
+-      addCheckboxInput(&quot;option.showmotd&quot; , ClientDefaults.option_showmotd,  &quot;Show MOTD&quot;, 'l');
++      addCheckboxInput(&quot;option.showmotd&quot; , ClientDefaults.option_showmotd,  &quot;Show MOTD&quot;, 'M');
++      addCheckboxInput(&quot;option.reconnect&quot; , ClientDefaults.option_reconnect,  &quot;Auto-reconnect when disconnected&quot;, 'r');
+       addCheckboxInput(&quot;option.timestamp&quot;, ClientDefaults.option_timestamp, &quot;Timestamp Events.&quot;, 'a');
+    }
+ }
+
+Modified: rero/src/rero/dialogs/SwitchBarDialog.java
+===================================================================
+--- rero/src/rero/dialogs/SwitchBarDialog.java	2005-07-12 21:25:07 UTC (rev 23)
++++ rero/src/rero/dialogs/SwitchBarDialog.java	2005-07-13 00:09:08 UTC (rev 24)
+@@ -33,8 +33,8 @@
+       {
+           public void setupDialog()
+           {
+-//              addSelectInput(&quot;switchbar.position&quot;, 0, new String[] { &quot;Top&quot;, &quot;Bottom&quot;, &quot;Left&quot;, &quot;Right&quot; }, &quot;Position:  &quot;, 'P', 25);
+-              addSelectInput(&quot;switchbar.position&quot;, 0, new String[] { &quot;Top&quot;, &quot;Bottom&quot; }, &quot;Position:  &quot;, 'P', 25);
++              addSelectInput(&quot;switchbar.position&quot;, 0, new String[] { &quot;Top&quot;, &quot;Bottom&quot;, &quot;Left&quot;, &quot;Right&quot; }, &quot;Position:  &quot;, 'P', 25);
++//              addSelectInput(&quot;switchbar.position&quot;, 0, new String[] { &quot;Top&quot;, &quot;Bottom&quot; }, &quot;Position:  &quot;, 'P', 25);
+               addColorInput(&quot;switchbar.color&quot;, ClientDefaults.switchbar_color, &quot;Activity Color&quot;, 'A');
+               addCheckboxInput(&quot;switchbar.fixed&quot;, ClientDefaults.switchbar_fixed,  &quot;Fixed width switchbar buttons&quot;, 'F', FlowLayout.LEFT);
+               addCheckboxInput(&quot;switchbar.sort&quot;, ClientDefaults.switchbar_sort,  &quot;Sort buttons alphabetically&quot;, 'F', FlowLayout.LEFT);
+
+Modified: rero/src/rero/gui/IRCSession.java
+===================================================================
+--- rero/src/rero/gui/IRCSession.java	2005-07-12 21:25:07 UTC (rev 23)
++++ rero/src/rero/gui/IRCSession.java	2005-07-13 00:09:08 UTC (rev 24)
+@@ -155,9 +155,10 @@
+ 
+    public void renameWindow(String name, String newname)
+    {
+-      StatusWindow temp = (StatusWindow)windows.get(name.toUpperCase());
++      StatusWindow temp  = (StatusWindow)windows.get(name.toUpperCase());
++      StatusWindow temp2 = (StatusWindow)windows.get(newname.toUpperCase());
+ 
+-      if (temp != null)
++      if (temp != null &amp;&amp; temp2 == null)
+       {
+          windows.remove(name.toUpperCase());
+          windows.put(newname.toUpperCase(), temp);
+
+Modified: rero/src/rero/gui/SessionManager.java
+===================================================================
+--- rero/src/rero/gui/SessionManager.java	2005-07-12 21:25:07 UTC (rev 23)
++++ rero/src/rero/gui/SessionManager.java	2005-07-13 00:09:08 UTC (rev 24)
+@@ -59,6 +59,7 @@
+             }
+ 
+             bridge.installMenubar(menu);
++            menu.repaint();
+             frame.validate();
+          }
+       });
+
+Modified: rero/src/rero/gui/sdi/ClientPanel.java
+===================================================================
+--- rero/src/rero/gui/sdi/ClientPanel.java	2005-07-12 21:25:07 UTC (rev 23)
++++ rero/src/rero/gui/sdi/ClientPanel.java	2005-07-13 00:09:08 UTC (rev 24)
+@@ -24,17 +24,39 @@
+ {
+     protected StatusWindow active = null;
+ 
+-    protected JPanel     desktop;
++    protected JPanel     desktop, top;
+     protected JLabel     button;
+ 
++    public void propertyChanged(String key, String value)
++    {
++       if (key.equals(&quot;switchbar.position&quot;))
++       {
++          int orientation = ClientState.getClientState().getInteger(&quot;switchbar.position&quot;, ClientDefaults.switchbar_position);
++
++          top.remove(button);
++          if (orientation == 2 || orientation == 3)
++          {
++             top.add(button, BorderLayout.SOUTH);
++          }
++          else
++          {
++             top.add(button, BorderLayout.EAST);
++          }
++       }
++       else
++       {
++          super.propertyChanged(key, value);
++       }
++    }
++
+     public void init()
+     {
+        switchbar = new OrientedToolBar();  
+ 
+-       JPanel top = new JPanel();
++       top = new JPanel();
+        top.setLayout(new BorderLayout(5, 0));
+        
+-       button = new JLabel(&quot;&lt;html&gt;&lt;b&gt;X&lt;/b&gt;&lt;/html&gt;&quot;);
++       button = new JLabel(&quot;&lt;html&gt;&lt;b&gt;X&lt;/b&gt;&lt;/html&gt;&quot;, SwingConstants.CENTER);
+        button.setToolTipText(&quot;Close active window&quot;);  
+ 
+        button.addMouseListener(new MouseAdapter()
+@@ -70,8 +92,10 @@
+        });
+ 
+        top.add(switchbar, BorderLayout.CENTER);
+-       top.add(button, BorderLayout.EAST);
+ 
++       propertyChanged(&quot;switchbar.position&quot;, null);
++//       top.add(button, BorderLayout.SOUTH); // was EAST
++
+        setLayout(new BorderLayout());
+ 
+        switchOptions = new SwitchBarOptions(this, top);
+@@ -87,6 +111,8 @@
+        add(desktop, BorderLayout.CENTER);
+ 
+        new MantainActiveFocus(this);
++
++       ClientState.getClientState().addClientStateListener(&quot;switchbar.position&quot;, this);
+     }
+ 
+     public void addWindow(StatusWindow window, boolean selected)
+
+Modified: rero/src/rero/gui/toolkit/OrientedToolBar.java
+===================================================================
+--- rero/src/rero/gui/toolkit/OrientedToolBar.java	2005-07-12 21:25:07 UTC (rev 23)
++++ rero/src/rero/gui/toolkit/OrientedToolBar.java	2005-07-13 00:09:08 UTC (rev 24)
+@@ -26,13 +26,15 @@
+ 
+    public void propertyChanged(String var, String var2)
+    {
+-/*      int orientation = ClientState.getClientState().getInteger(&quot;switchbar.position&quot;, 0);
++      int orientation = ClientState.getClientState().getInteger(&quot;switchbar.position&quot;, 0);
+  
+       if (orientation == 2 || orientation == 3)
+       {
+-         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
++//         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
++         setLayout(new GridLayout3());
++         validate();
+       }
+-      else */ if (ClientState.getClientState().isOption(&quot;switchbar.fixed&quot;, ClientDefaults.switchbar_fixed))
++      else if (ClientState.getClientState().isOption(&quot;switchbar.fixed&quot;, ClientDefaults.switchbar_fixed))
+       {
+          if (fixed == null || fill == null)
+          {
+@@ -41,10 +43,12 @@
+          }
+ 
+          setLayout(fixed); // not perfect but whatever...
++         validate();
+       }
+       else
+       {
+          setLayout(new GridLayout());
++         validate();
+       } 
+    }
+ 
+@@ -64,7 +68,8 @@
+ 
+       public void layoutContainer(Container c)
+       {
+-         if ((c.getComponentCount() * BUTTON_FIXED_WIDTH) &lt; c.getWidth())
++      
++         if ((c.getComponentCount() * (BUTTON_FIXED_WIDTH + 2)) &lt; c.getWidth())
+          {
+             super.layoutContainer(c);
+          }
+@@ -80,7 +85,7 @@
+    {
+        public void layoutContainer(Container c)
+        {
+-         if ((c.getComponentCount() * BUTTON_FIXED_WIDTH) &lt; c.getWidth())
++         if ((c.getComponentCount() * (BUTTON_FIXED_WIDTH + 2)) &lt; c.getWidth())
+          {
+             c.setLayout(fixed);
+             c.validate();
+@@ -91,5 +96,32 @@
+          }
+       }
+    }
++
++
++   private class GridLayout3 extends GridLayout
++   {
++      public int getColumns() { return 1; }
++
++      public void layoutContainer(Container c)
++      {
++         if (c.getComponentCount() &gt; 0)
++         {
++            int buttonheight = getComponent(0).getPreferredSize().height + getVgap();
++
++            if ((buttonheight * c.getComponentCount()) &gt; c.getHeight())
++            {
++               setRows(c.getComponentCount());
++               setColumns(1);
++            }
++            else
++            {
++               setRows(c.getHeight() / buttonheight);
++               setColumns(1);
++            }
++         }
++
++         super.layoutContainer(c);
++      }
++   }
+ }
+ 
+
+Modified: rero/src/rero/test/QuickConnect.java
+===================================================================
+--- rero/src/rero/test/QuickConnect.java	2005-07-12 21:25:07 UTC (rev 23)
++++ rero/src/rero/test/QuickConnect.java	2005-07-13 00:09:08 UTC (rev 24)
+@@ -23,6 +23,11 @@
+       return qc;
+    }
+ 
++   public URI getURL()
++   {
++      return info;
++   }
++
+    public String getNickname()
+    {
+       if (info.getUserInfo() != null)
+
+Modified: rero/src/rero/util/ClientUtils.java
+===================================================================
+--- rero/src/rero/util/ClientUtils.java	2005-07-12 21:25:07 UTC (rev 23)
++++ rero/src/rero/util/ClientUtils.java	2005-07-13 00:09:08 UTC (rev 24)
+@@ -538,6 +538,16 @@
+         return temp.toString();
+     }
+ 
++    public static File getFile(String file)
++    {
++        if (file.charAt(0) == '~' &amp;&amp; System.getProperty(&quot;user.home&quot;) != null)
++        {
++            return new File(System.getProperty(&quot;user.home&quot;).toString(), file.substring(1));
++        }
++
++        return new File(file);
++    }
++
+     public static LinkedList fileCompleteAll(String pfile)
+     {
+         LinkedList rv = new LinkedList();
+@@ -545,7 +555,7 @@
+         File   cwd;
+         String cwf = null;
+         
+-        File temp = new File(pfile);
++        File temp = getFile(pfile);
+         if (temp.isDirectory())
+         {
+            cwd = temp;
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	
+	<LI>Next message: <A HREF="000005.html">[Jircii-svn] r25 - in rero: . resources/help resources/toplevel resources/toplevel/docs src/rero/config
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#4">[ date ]</a>
+              <a href="thread.html#4">[ thread ]</a>
+              <a href="subject.html#4">[ subject ]</a>
+              <a href="author.html#4">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/jircii-svn">More information about the Jircii-svn
+mailing list</a><br>
+</body></html>

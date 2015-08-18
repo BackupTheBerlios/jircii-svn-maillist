@@ -1,0 +1,765 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Jircii-svn] r99 - in rero: . resources/help resources/toplevel	resources/toplevel/docs resources/toplevel/docs/css	src/rero/client/server
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/jircii-svn/2007-November/index.html" >
+   <LINK REL="made" HREF="mailto:jircii-svn%40lists.berlios.de?Subject=Re%3A%20%5BJircii-svn%5D%20r99%20-%20in%20rero%3A%20.%20resources/help%20resources/toplevel%0A%09resources/toplevel/docs%20resources/toplevel/docs/css%0A%09src/rero/client/server&In-Reply-To=%3C200711260039.lAQ0do7U030742%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000076.html">
+   <LINK REL="Next"  HREF="000078.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Jircii-svn] r99 - in rero: . resources/help resources/toplevel	resources/toplevel/docs resources/toplevel/docs/css	src/rero/client/server</H1>
+    <B>rsmudge at BerliOS</B> 
+    <A HREF="mailto:jircii-svn%40lists.berlios.de?Subject=Re%3A%20%5BJircii-svn%5D%20r99%20-%20in%20rero%3A%20.%20resources/help%20resources/toplevel%0A%09resources/toplevel/docs%20resources/toplevel/docs/css%0A%09src/rero/client/server&In-Reply-To=%3C200711260039.lAQ0do7U030742%40sheep.berlios.de%3E"
+       TITLE="[Jircii-svn] r99 - in rero: . resources/help resources/toplevel	resources/toplevel/docs resources/toplevel/docs/css	src/rero/client/server">rsmudge at mail.berlios.de
+       </A><BR>
+    <I>Mon Nov 26 01:39:50 CET 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000076.html">[Jircii-svn] r97 - in rero: lib src-apple/jIRCii.app/Contents
+</A></li>
+        <LI>Next message: <A HREF="000078.html">[Jircii-svn] r101 - rero/resources/toplevel
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#77">[ date ]</a>
+              <a href="thread.html#77">[ thread ]</a>
+              <a href="subject.html#77">[ subject ]</a>
+              <a href="author.html#77">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: rsmudge
+Date: 2007-11-26 01:39:49 +0100 (Mon, 26 Nov 2007)
+New Revision: 99
+
+Modified:
+   rero/readme.txt
+   rero/resources/help/About
+   rero/resources/help/Contributors
+   rero/resources/help/Script_Tutorial
+   rero/resources/help/aliases
+   rero/resources/toplevel/docs/css/print.css
+   rero/resources/toplevel/docs/css/screen.css
+   rero/resources/toplevel/docs/sleeplang.html
+   rero/resources/toplevel/whatsnew.txt
+   rero/src/rero/client/server/ProcessEvents.java
+Log:
+updated stale docs...
+
+
+
+Modified: rero/readme.txt
+===================================================================
+--- rero/readme.txt	2007-11-26 00:12:52 UTC (rev 98)
++++ rero/readme.txt	2007-11-26 00:39:49 UTC (rev 99)
+@@ -19,8 +19,10 @@
+ 
+ To run jIRCii from the command line... 
+ 
+-[<A HREF="https://lists.berlios.de/mailman/listinfo/jircii-svn">raffi at beardsley</A> ~/rero/bin]$ java -classpath .:../lib/sleep.jar:../resources rero.test.WindowTest
++[<A HREF="https://lists.berlios.de/mailman/listinfo/jircii-svn">raffi at beardsley</A> ~/rero]$ java -classpath ./bin:./lib/sleep.jar:./resources rero.test.WindowTest
+ 
++(use the -settings command line option to specify a directory to dump your test settings to)
++
+ To Package jIRCii
+ 
+ [<A HREF="https://lists.berlios.de/mailman/listinfo/jircii-svn">raffi at beardsley</A> ~/rero]$ chmod +x Package.sh
+
+Modified: rero/resources/help/About
+===================================================================
+--- rero/resources/help/About	2007-11-26 00:12:52 UTC (rev 98)
++++ rero/resources/help/About	2007-11-26 00:39:49 UTC (rev 99)
+@@ -13,10 +13,10 @@
+ &lt;br&gt;
+ &lt;br&gt;My name is Raffi, I wrote jIRCii (with some help, see the Contributors section).  If you'd like to get in touch with me feel free to email me.
+ &lt;br&gt;
+-&lt;br&gt;email: &lt;a href=&quot;mailto:<A HREF="https://lists.berlios.de/mailman/listinfo/jircii-svn">raffi at hick.org</A>&quot;&gt;<A HREF="https://lists.berlios.de/mailman/listinfo/jircii-svn">raffi at hick.org</A>&lt;/a&gt;
++&lt;br&gt;email: &lt;a href=&quot;mailto:<A HREF="https://lists.berlios.de/mailman/listinfo/jircii-svn">rsmudge at gmail.com</A>&quot;&gt;<A HREF="https://lists.berlios.de/mailman/listinfo/jircii-svn">rsmudge at gmail.com</A>&lt;/a&gt;
+ &lt;br&gt;www: &lt;a href=&quot;<A HREF="http://www.hick.org/~raffi/">http://www.hick.org/~raffi/</A>&quot;&gt;<A HREF="http://www.hick.org/~raffi/&lt;/a">http://www.hick.org/~raffi/&lt;/a</A>&gt;
+ &lt;br&gt;
+-&lt;br&gt;You can also stop by the jIRCii IRC channel #jircii on irc.freenode.net.
++&lt;br&gt;You can also stop by the jIRCii IRC channel #jircii on EFNet.
+ &lt;br&gt;
+ &lt;br&gt;&lt;b&gt;Features&lt;/b&gt;&lt;/font&gt;
+ &lt;br&gt;&lt;b&gt;*&lt;/b&gt; multiserver support
+
+Modified: rero/resources/help/Contributors
+===================================================================
+--- rero/resources/help/Contributors	2007-11-26 00:12:52 UTC (rev 98)
++++ rero/resources/help/Contributors	2007-11-26 00:39:49 UTC (rev 99)
+@@ -3,6 +3,7 @@
+ &lt;br&gt;jIRCii has been a work in progress for a long time now.  I originally started it as a project to learn java while in high school.  I tinkered with it as a hobby throughout college.  I didn't make that final push to create a release quality product until now though.  Anyways with such a long history as a project there are to many people to thank so I'm going to keep this list short.
+ &lt;br&gt;
+ &lt;br&gt;&lt;b&gt;Development Team&lt;/b&gt;
++&lt;br&gt;Raphael Mudge (&lt;i&gt;`butane&lt;/i&gt;) &lt;-- me :)
+ &lt;br&gt;Serge Baranov (&lt;i&gt;Serge&lt;/i&gt;)
+ &lt;br&gt;Andreas Ravnestad (&lt;i&gt;oracel&lt;/i&gt;)
+ &lt;br&gt;
+@@ -22,9 +23,6 @@
+ &lt;br&gt;&lt;b&gt;Tijiez&lt;/b&gt;&lt;/font&gt;
+ &lt;br&gt;I owe a thanks as well to Tijiez for running the jIRCii mirror site at &lt;a href=&quot;<A HREF="http://jircii.leenux.net">http://jircii.leenux.net</A>&quot;&gt;<A HREF="http://jircii.leenux.net&lt;/a">http://jircii.leenux.net&lt;/a</A>&gt;.  Tijiez has had a huge influence on jIRCii through a series of constant complaints and feature requests.
+ &lt;br&gt;
+-&lt;br&gt;&lt;b&gt;www.irchelp.org/&lt;/b&gt;&lt;/font&gt;
+-&lt;br&gt;I'd also like to acknowledge &lt;a href=&quot;<A HREF="http://www.irchelp.org">http://www.irchelp.org</A>&quot;&gt;www.irchelp.org&lt;/a&gt;.  They run a very informative website full of information for the beginning irc user.  I've used some of there work here in the jIRCii help file.  Hopefully they don't mind :)
+-&lt;br&gt;
+ &lt;br&gt;&lt;b&gt;Tjerk Vonck&lt;/b&gt;&lt;/font&gt;
+ &lt;br&gt;I owe a shout out to &lt;a href=&quot;<A HREF="http://www.mirc.co.uk">http://www.mirc.co.uk</A>&quot;&gt;Tjerk Vonck&lt;/a&gt; for his excellent servers.ini file.  I wouldn't want to mantain that monster.  jIRCii uses the mIRC servers.ini format for its server list.  Thanks for mantaining that file!
+ &lt;br&gt;
+
+Modified: rero/resources/help/Script_Tutorial
+===================================================================
+--- rero/resources/help/Script_Tutorial	2007-11-26 00:12:52 UTC (rev 98)
++++ rero/resources/help/Script_Tutorial	2007-11-26 00:39:49 UTC (rev 99)
+@@ -122,7 +122,7 @@
+ &lt;br&gt;
+ &lt;br&gt;In the above example Ctrl represents the control key.  The + means both keys have to be pressed at the same time in this case the second key is S.  
+ &lt;br&gt;
+-&lt;br&gt;Numerous shortcut combinations can be made using +.  Ctrl and Alt represent the Control and Alt keys respectively.  Nearly any key combination A-Z, F1-F12, enter, home etc. can be bound.  See the &lt;a href=&quot;<A HREF="http://jirc.hick.org/jirc/tutorial.prl?scriptjirc">http://jirc.hick.org/jirc/tutorial.prl?scriptjirc</A>&quot;&gt;jIRCii Scripting Reference&lt;/a&gt; for more details.
++&lt;br&gt;Numerous shortcut combinations can be made using +.  Ctrl and Alt represent the Control and Alt keys respectively.  Nearly any key combination A-Z, F1-F12, enter, home etc. can be bound.  See the &lt;a href=&quot;<A HREF="http://jircii.hick.org/jirc/tutorial.prl?scriptjirc">http://jircii.hick.org/jirc/tutorial.prl?scriptjirc</A>&quot;&gt;jIRCii Scripting Reference&lt;/a&gt; for more details.
+ &lt;br&gt;
+ &lt;br&gt;&lt;center&gt;&lt;small&gt;[ &lt;a href=&quot;<A HREF="http://www/#toc">http://www/#toc</A>&quot;&gt;contents&lt;/a&gt; | &lt;a href=&quot;<A HREF="http://www/#part1">http://www/#part1</A>&quot;&gt;1&lt;/a&gt; | &lt;a href=&quot;<A HREF="http://www/#part2">http://www/#part2</A>&quot;&gt;2&lt;/a&gt; | &lt;a href=&quot;<A HREF="http://www/#part3">http://www/#part3</A>&quot;&gt;3&lt;/a&gt; | &lt;a href=&quot;<A HREF="http://www/#part4">http://www/#part4</A>&quot;&gt;4&lt;/a&gt; ]&lt;/small&gt;&lt;/center&gt;&lt;/p&gt;
+ &lt;br&gt;
+@@ -214,13 +214,13 @@
+ &lt;br&gt;
+ &lt;br&gt;&lt;b&gt;&lt;a name=&quot;part4&quot;&gt;&lt;font color=&quot;#000099&quot; size=&quot;+1&quot;&gt;4. Where to go from here&lt;/font&gt;&lt;/a&gt;&lt;/b&gt;
+ &lt;br&gt;
+-&lt;br&gt;This tutorial is merely meant to be a starting point for writing jIRCii scripts.  You now know enough to understand what a basic script is doing.  The next logical step is to learn more about sleep.  Sleep is the scripting language behind jIRCii.  The &lt;a href=&quot;<A HREF="http://jirc.hick.org/jirc/tutorial.prl?sleeplang">http://jirc.hick.org/jirc/tutorial.prl?sleeplang</A>&quot;&gt;Sleep Language Reference&lt;/a&gt; is a very fast paced reference / tutorial.
++&lt;br&gt;This tutorial is merely meant to be a starting point for writing jIRCii scripts.  You now know enough to understand what a basic script is doing.  The next logical step is to learn more about sleep.  Sleep is the scripting language behind jIRCii.  The &lt;a href=&quot;<A HREF="http://sleep.hick.org/documentation.html">http://sleep.hick.org/documentation.html</A>&quot;&gt;Sleep Language Reference&lt;/a&gt; is a very fast paced reference / tutorial.
+ &lt;br&gt;
+-&lt;br&gt;Once you have an understanding of Sleep you may want to read the &lt;a href=&quot;<A HREF="http://jirc.hick.org/jirc/tutorial.prl?scriptjirc">http://jirc.hick.org/jirc/tutorial.prl?scriptjirc</A>&quot;&gt;jIRCii Scripting Reference&lt;/a&gt;.  The &lt;a href=&quot;<A HREF="http://jirc.hick.org/jirc/tutorial.prl?scriptjirc">http://jirc.hick.org/jirc/tutorial.prl?scriptjirc</A>&quot;&gt;jIRCii Scripting Reference&lt;/a&gt; covers all of the jIRCii specific stuff in Sleep.. 
++&lt;br&gt;Once you have an understanding of Sleep you may want to read the &lt;a href=&quot;<A HREF="http://jircii.hick.org/download/scriptjirc.pdf">http://jircii.hick.org/download/scriptjirc.pdf</A>&quot;&gt;jIRCii Scripting Reference&lt;/a&gt;.  The &lt;a href=&quot;<A HREF="http://jircii.hick.org/download/scriptjirc.pdf">http://jircii.hick.org/download/scriptjirc.pdf</A>&quot;&gt;jIRCii Scripting Reference&lt;/a&gt; covers all of the jIRCii specific stuff in Sleep.. 
+ &lt;br&gt;
+ &lt;br&gt;After you read these documents you can further your learning by looking at other jIRCii scripts.  Just download a script from the jIRCii homepage, open it in your favorite text editor, and start learning.  
+ &lt;br&gt;
+-&lt;br&gt;Hopefully this helps.  If you would like some one on one assistance stop by the jIRCii IRC Channel #jIRCii on irc.freenode.net.
++&lt;br&gt;Hopefully this helps.  If you would like some one on one assistance stop by the jIRCii IRC Channel #jIRCii on EFNet.
+ &lt;br&gt;
+ &lt;br&gt;Good luck!
+ &lt;br&gt;
+
+Modified: rero/resources/help/aliases
+===================================================================
+--- rero/resources/help/aliases	2007-11-26 00:12:52 UTC (rev 98)
++++ rero/resources/help/aliases	2007-11-26 00:39:49 UTC (rev 99)
+@@ -33,7 +33,7 @@
+ join::/join #jIRC::Joins the specified channel.  If you are already on that channel, jIRC will set the status window query to the specified channel::[#]channel - channel to join/query::+key - channel key
+ k::/k JakieChan you suck!::kicks user from current channel with the specified reason.::nick - user to kick::+reason - specified kick message.
+ kb::/kb JakieChan you suck!::kicks and bans user from current channel with the specified reason.::nick - user to kick::+reason - specified kick message.
+-kick::/kick #jIRC tanto I'll add a timer later!::kicks a user from the specified channel with the specified reason::+channel - channel to kick user from::nick - user to kick::+reason - specified kick message.
++kick::/kick #jIRC tanto I'll add a timer later!::kicks a user from the specified channel with the specified reason::channel - channel to kick user from::nick - user to kick::+reason - specified kick message.
+ l::/l #mIRCscripts::leaves the specifed channel::+#channel - channel to leave.
+ list::/list *mp3*::retrieves a list of channels from the server::+-gui - dump channel list to a window::+filter - wildcard to filter list of channels with.
+ load::/load bitchx.irc::loads a specified sleep script, if no file is specified /load lists the currently loaded scripts.::+file.irc - name of sleep script to load.
+
+Modified: rero/resources/toplevel/docs/css/print.css
+===================================================================
+--- rero/resources/toplevel/docs/css/print.css	2007-11-26 00:12:52 UTC (rev 98)
++++ rero/resources/toplevel/docs/css/print.css	2007-11-26 00:39:49 UTC (rev 99)
+@@ -62,7 +62,7 @@
+    font-family:     Verdana, Arial, Helvetica, sans-serif;
+    font-weight:     bold;
+    text-align:      left;
+-   margin:          1.5em 0 0 0;
++   margin:          0em 0 0 0;
+    padding:         0;
+    page-break-after:  avoid;
+    page-break-inside: avoid;
+
+Modified: rero/resources/toplevel/docs/css/screen.css
+===================================================================
+--- rero/resources/toplevel/docs/css/screen.css	2007-11-26 00:12:52 UTC (rev 98)
++++ rero/resources/toplevel/docs/css/screen.css	2007-11-26 00:39:49 UTC (rev 99)
+@@ -55,7 +55,7 @@
+ h3 {
+    font-weight:     bold;
+    text-align:      left;
+-   margin:          1.5em 0 0 0;
++   margin:          0em 0 0 0;
+    padding:         0;
+ }
+ 
+
+Modified: rero/resources/toplevel/docs/sleeplang.html
+===================================================================
+--- rero/resources/toplevel/docs/sleeplang.html	2007-11-26 00:12:52 UTC (rev 98)
++++ rero/resources/toplevel/docs/sleeplang.html	2007-11-26 00:39:49 UTC (rev 99)
+@@ -226,6 +226,22 @@
+ &lt;var&gt;$decision&lt;/var&gt; was then assigned the value &quot;not guilty&quot;.  When the subroutine verdict finished executing the local variable
+ &lt;var&gt;$decision&lt;/var&gt; went away.  The global variable &lt;var&gt;$decision&lt;/var&gt; was not touched.&lt;/p&gt;
+ 
++&lt;h3&gt;Scalar Identity&lt;/h3&gt;
++
++&lt;p&gt;In general Sleep tries to hide the type of the data you're working with.  You can use strings, numbers, and objects interchangeably 
++in many cases.&lt;/p&gt;
++
++&lt;p&gt;Sleep has built-in array and hash (dictionary) data structures for storing scalars.  The concept of scalar identity was invented to
++help with manipulating and querying these data structures.  For example the &lt;code&gt;&amp;addAll&lt;/code&gt; function is a way to union two
++arrays together.  Scalars are judged as being equivalent through scalar identity.&lt;/p&gt;
++
++&lt;p&gt;If a scalar holds a reference to a value (i.e. a hash, an object, or an array) then the identity of that scalar is the reference 
++itself.  Otherwise the identity is based on the string form of the value.&lt;/p&gt;
++
++&lt;p&gt;The &lt;code&gt;=~&lt;/code&gt; operator exists for checking if two scalars share the same identity.  Really though you only need to know about
++this concept to understand how the &lt;code&gt;in&lt;/code&gt; predicate works and how &lt;code&gt;&amp;addAll&lt;/code&gt;, &lt;code&gt;&amp;retainAll&lt;/code&gt;, and
++&lt;code&gt;&amp;removeAll&lt;/code&gt; work.&lt;/p&gt;
++
+ &lt;h2&gt;&lt;a name=&quot;2&quot;&gt;If-Else Statements&lt;/a&gt;&lt;/h2&gt;
+ 
+ &lt;p&gt;If-Else statements let you compare different values and execute a certain part of the script based on the result of the 
+@@ -318,9 +334,21 @@
+   &lt;th&gt;Description&lt;/th&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
++  &lt;td&gt;in&lt;/td&gt;
++  &lt;td&gt;true if scalar v1 identity exists in array/generator v2&lt;/td&gt;
++ &lt;/tr&gt;
++ &lt;tr&gt;
+   &lt;td&gt;is&lt;/td&gt;
+   &lt;td&gt;true if scalar object reference v1 equals object reference v2&lt;/td&gt;
+  &lt;/tr&gt;
++ &lt;tr&gt;  
++  &lt;td&gt;isa&lt;/td&gt;
++  &lt;td&gt;true if scalar object reference v1 is an instance of the Class referenced by scalar v2&lt;/td&gt;
++ &lt;/tr&gt;
++ &lt;tr&gt;  
++  &lt;td&gt;=~&lt;/td&gt;
++  &lt;td&gt;true if scalar v1 identity is equal to scalar v2 identity&lt;/td&gt;
++ &lt;/tr&gt;
+ &lt;/table&gt;
+ 
+ &lt;p&gt;One example use of the &lt;code&gt;is&lt;/code&gt; comparison is to check if a function really returned
+@@ -348,6 +376,8 @@
+    # the string &quot;test&quot; is not contained in the string &quot;walrus&quot;
+ }&lt;/pre&gt;
+ 
++&lt;p&gt;The &lt;code&gt;isa&lt;/code&gt; predicate is covered later in the &lt;i&gt;Class Literals&lt;/i&gt; subsection of this document.&lt;/p&gt;
++
+ &lt;h3&gt;Combining Comparisons&lt;/h3&gt;
+ 
+ &lt;p&gt;Comparisons can be combined using the logical operators &amp;&amp; for AND and || for OR.  For example:&lt;/p&gt;
+@@ -436,6 +466,31 @@
+ &lt;var&gt;$value&lt;/var&gt; would be &quot;Calculation took 1 second&quot;.  The iff example above checks if &lt;var&gt;$x&lt;/var&gt; is greater than 1.  If it 
+ is then &quot;s&quot; is returned.  Otherwise &quot;&quot; is returned.&lt;/p&gt;
+ 
++&lt;h3&gt;Assertions&lt;/h3&gt;
++
++&lt;p&gt;Now that you know about predicates and conditions, I can introduce assertions.  Assertions are a really basic debugging mechanism.  An assertion is a quick way to check that a condition is true.  If the condition isn't true, the current script will exit with an error message.  The syntax for an assertion is:&lt;/p&gt;
++
++&lt;pre&gt;assert &lt;b&gt;comparison&lt;/b&gt;;&lt;/pre&gt;
++
++&lt;p&gt;Assertions also allow a message to be attached.  The attached message is echoed whenever an assertion fails.&lt;/p&gt;
++
++&lt;pre&gt;assert &lt;b&gt;comparison&lt;/b&gt; : &lt;b&gt;message&lt;/b&gt;;&lt;/pre&gt;
++
++&lt;p&gt;Assertions are great for doing a last minute sanity check of some condition.  Can you tell what is wrong with this code snippet?&lt;/P&gt;
++
++&lt;pre&gt;sub fact
++{
++   return iff($1 == 0, 1, $1 * fact($1 - 1));
++}&lt;/pre&gt;
++
++&lt;p&gt;If someone were to call fact with a negative argument, the script would go into an infinite loop potentially crashing Sleep and/or the app hosting it.  An assertion can provide a quick sanity check to protect against this.&lt;/p&gt;
++
++&lt;pre&gt;sub fact
++{
++   assert $1 &gt;= 0 : &quot;invalid arg for fact: $1&quot;;
++   return iff($1 == 0, 1, $1 * fact($1 - 1));
++}&lt;/pre&gt;
++
+ &lt;h2&gt;&lt;a name=&quot;3&quot;&gt;Loops&lt;/a&gt;&lt;/h2&gt;
+ 
+ &lt;h3&gt;While Loops&lt;/h3&gt;
+@@ -730,6 +785,33 @@
+    return $1 * fact($1 - 1)
+ }&lt;/pre&gt;
+ 
++&lt;h3&gt;Inline Subroutines&lt;/h3&gt;
++
++&lt;p&gt;An inline subroutine is Sleep's solution to the macro.  An inline subroutine executes within the current function context as if it manually
++existed there.  Local and closure variable scopes are shared with the current function.  Any attempt to yield, return, or callcc a value from an 
++inline function will directly affect the parent.&lt;/p&gt;
++
++&lt;p&gt;Parameters passed to inline subroutines are numbered from &lt;var&gt;$1&lt;/var&gt; ... &lt;var&gt;$n&lt;/var&gt;.  &lt;var&gt;$this&lt;/var&gt; and friends refer to the current
++function and not the inline function.&lt;/p&gt;
++
++&lt;p&gt;Inline functions have utility for abstracting complex callcc, yield, or return behavior.  They are declared with the inline keyword.&lt;/p&gt;
++
++&lt;pre&gt;inline printx
++{
++   println(&quot;\$x is $x&quot;);
++}
++
++sub foo
++{
++   local('$x');
++   $x = 0x31337;
++   printx();
++}&lt;/pre&gt;
++
++&lt;p&gt;Inline subroutines do not return values themselves.  Any attempt to use an inline function call in
++an expression will result in &lt;var&gt;$null&lt;/var&gt;.  Any attempt to use an inline function call that saves function state (yield, callcc) will result
++in an unusable continuation.&lt;/p&gt;
++
+ &lt;h3&gt;Nesting Subroutines&lt;/h3&gt;
+ 
+ &lt;p&gt;Everything in sleep is evaluated in a (semi) straight forward manner.  When sleep executes a statement that consists of the 
+@@ -986,7 +1068,7 @@
+ it.&lt;/p&gt;
+ 
+ &lt;p&gt;To obtain an @array of all of the keys in a hash you can use the keys() function with the %hash as the parameter.   To remove 
+-a key from a hash you can use remove(%hash, &quot;key&quot;).&lt;/P&gt;
++a value from a hash you can use remove(%hash, &quot;value&quot;).&lt;/P&gt;
+ 
+ &lt;p&gt;To remove a key key from a hash simply set the value to $null.&lt;/p&gt;
+ 
+@@ -1016,6 +1098,33 @@
+ 
+ &lt;p&gt;The example above prints 'My name is Raphael Mudge, and I like ice cream!!!' three times.&lt;/p&gt;
+ 
++&lt;p&gt;Built-in functions that expect a key/value pair will accept either a key/value expression or a string of the form
++&quot;key=value&quot;.&lt;/p&gt;
++
++&lt;h4&gt;Scalar References&lt;/h4&gt;
++
++&lt;p&gt;Many times you may find yourself passing a key/value pair with the same key/value.  This is most often done to move
++a scalar between scopes.  This is very common with fork, lambda, and let.  To save you some typing Sleep has a special
++syntax for specifying a scalar be passed by name as a parameter.  Simply prefix the scalar with a backslash.&lt;/p&gt;
++
++&lt;pre&gt;sub foo
++{
++   local('$name');
++   $name = &quot;Raphael&quot;;
++   bar(\$name);
++}
++
++bar
++{
++   println(&quot;Name is: $name&quot;);
++}
++
++foo();&lt;/pre&gt;
++
++&lt;p&gt;In the example above &lt;var&gt;$name&lt;/var&gt; is local to &lt;code&gt;&amp;foo&lt;/code&gt;.  Normally to pass &lt;var&gt;$name&lt;/var&gt; into the this
++scope of &lt;code&gt;&amp;bar&lt;/code&gt; you would have to use &lt;code&gt;$name =&gt; $name&lt;/code&gt;.  The scalar reference &lt;code&gt;\$name&lt;/code&gt;
++is equivalent to that expression.&lt;/p&gt;
++
+ &lt;h3&gt;Multidimensional Hashes/Arrays&lt;/h3&gt;
+ 
+ &lt;p&gt;Multidimensional hashes work exactly the same as Sleep arrays.  It is also possible to have an array of hashes, or a hash of 
+@@ -1307,6 +1416,20 @@
+ &lt;p&gt;Calling closef on a process will kill the process.  The above program executes the UNIX command ls -al which lists all of the 
+ files in the current directory with some details.&lt;/p&gt;
+ 
++&lt;h4&gt;Quick Execution&lt;/h4&gt;
++
++&lt;p&gt;Similar to Perl, Sleep also supports quick execution of a process via a string enclosed in backticks.  Any string enclosed in
++backticks is evaluated (as if it was a parsed literal) and the contents is then executed.  The output of the executed command is
++returned as an array.&lt;/p&gt;  
++
++&lt;pre&gt;foreach $file (`ls -1`)
++{
++   # do something with the file...
++}&lt;/pre&gt;
++
++&lt;p&gt;Any errors from trying to execute the command are available via &lt;code&gt;&amp;checkError&lt;/code&gt;.  If the process returns a non-zero
++value, this will also be available with &lt;code&gt;&amp;checkError&lt;/code&gt;.&lt;/p&gt;
++
+ &lt;h3&gt;Buffers&lt;/h3&gt;
+ 
+ &lt;p&gt;For those times when speed is a necessity Sleep provides the loveable byte buffer.  A buffer is simply
+@@ -1580,6 +1703,29 @@
+ 
+ &lt;p&gt;If the jar filename includes spaces, you can surround it with single or double quotes.&lt;/p&gt;
+ 
++&lt;h4&gt;Class Literals&lt;/h4&gt;
++
++&lt;p&gt;Sleep has a special literal form for specifying Java classes within scripts.  The hat symbol followed by a string is 
++expanded into the appropriate class using the current list of imports at script compile time.  As an example &lt;code&gt;^String&lt;/code&gt;
++expands to the result of &lt;code&gt;[Class forName: &quot;java.lang.String&quot;]&lt;/code&gt;.  Class literals can be used to compare scalar types
++against eachother, to specify a desired class in a casting function, and more.&lt;/p&gt;
++
++&lt;p&gt;Inner classes are referenced with a dollar sign between the parent class and the inner class name i.e.:
++&lt;code&gt;^Map$Entry&lt;/code&gt; references the Entry class that belongs to the Map class.&lt;/p&gt;
++
++&lt;p&gt;For example to check if an exception is an IOException before acting on it:&lt;/p&gt;
++
++&lt;pre&gt;import java.io.IOException;
++
++$handle = openf(&quot;fjosfjs&quot;);
++if (checkError($error) &amp;&amp; $error isa ^IOException)
++{
++   println(&quot;Could not open file: &quot; . [$error getCause]);
++}&lt;/pre&gt;
++
++&lt;p&gt;The &lt;code&gt;isa&lt;/code&gt; predicate is used to check if the value on the left hand side is an instance of the class on the 
++right hand side.  It is analagous to Java's instanceof predicate.&lt;/p&gt;
++
+ &lt;h3&gt;&lt;a name=&quot;interfaces&quot;&gt;&lt;/a&gt;Sleep Interfaces&lt;/h3&gt;
+ 
+ &lt;p&gt;A neat feature of HOES is how interfaces can be quickly and easily created and passed to Java objects.  A Java interface
+@@ -1622,6 +1768,8 @@
+ only message passed to ActionListener interfaces is the actionPerformed message.  The button_pressed subroutine is passed as a 
+ closure parameter in this line: &lt;code&gt;[$button addActionListener:&amp;button_pressed];&lt;/code&gt;.&lt;/p&gt;
+ 
++&lt;p&gt;Sleep backed instantiations of Java interfaces can also be created with the &lt;code&gt;&amp;newInstance&lt;/code&gt; function.&lt;/p&gt;
++
+ &lt;p&gt;Any uncaught exceptions originating from a Sleep script will bubble up to the Java caller of the Sleep interface.&lt;/p&gt;
+ 
+ &lt;h3&gt;Scalar Conversions&lt;/h3&gt;
+@@ -1847,6 +1995,43 @@
+ evaluate an expression each iteration of a loop where as foreach is iterating over a closure reference.  The difference is
+ pretty much in the implementation, the end result is the same.&lt;/p&gt;
+ 
++&lt;h4&gt;The Callcc Command&lt;/h4&gt;
++
++&lt;p&gt;Similar to coroutines are continuations.  A paused function object can be thought of as the future stuff to execute (or the
++continuation) of the function.  The callcc command syntactically resembles yield and return except a function parameter is required.&lt;/p&gt;
++
++&lt;p&gt;callcc will save the current function state into a object.  The specified function will the be called with the current function continuation
++as a parameter.  Control flow will be moved to the specified function.  callcc can be thought of as a functional-level goto.&lt;/p&gt;
++
++&lt;p&gt;The syntax for callcc is:&lt;/p&gt;
++
++&lt;p&gt;&lt;code&gt;callcc &lt;b&gt;closure&lt;/b&gt;&lt;/code&gt;;&lt;/p&gt;
++
++&lt;p&gt;The return value of the specified closure will be the return value of the current function.  The specified closure receives the continuation of 
++the current function as the &lt;var&gt;$1&lt;/var&gt; parameter.&lt;/p&gt;
++
++&lt;p&gt;The following is a simple example of callcc demonstrating the producer/consumer problem:&lt;/p&gt;
++
++&lt;pre&gt;$buffer  = $null;
++
++sub produce {
++   for ($x = 0; $x &lt; 3; $x++) {
++      println(&quot;Produce: $x * 3&quot;);
++      $buffer = $x * 3;
++      callcc &consume;
++   }
++}
++
++sub consume {
++   println(&quot;Consume: $buffer&quot;);
++   callcc $1; # resume the calling function
++}
++
++produce();&lt;/pre&gt;
++
++&lt;p&gt;Callcc and yield use the same internal mechanisms.  The practical difference between callcc and yield is that callcc expects a function parameter and this
++function parameter is immediately invoked with the saved state of the calling function.&lt;/p&gt;
++
+ &lt;h2&gt;&lt;a name=&quot;11&quot;&gt;Function Library&lt;/a&gt;&lt;/h2&gt;
+ 
+ &lt;p&gt;This appendix is a list of the application neutral built-in functions for sleep.  I expect this list to grow as time goes on.  
+@@ -1869,6 +2054,9 @@
+ 
+ &lt;p&gt;Parameters specified as &lt;code&gt;@|&amp;&lt;/code&gt; represent that either an @array can be passed or a &amp;generator function.  A generator function is a closure that iterates over a sequence with the yield keyword and returns $null when no values are left to iterate over.&lt;/p&gt;
+ 
++&lt;p&gt;A &lt;code&gt;^&lt;/code&gt; indicates a literal Class value i.e. &lt;code&gt;^String&lt;/code&gt;.  This is used to indicate that a function expects
++a class literal as an argument (or offers one as a return value).&lt;/p&gt;
++
+ &lt;p&gt;Note, the $ is not part of the function name.  It is solely shorthand for specifying the return type of the function.&lt;/p&gt;
+ 
+ &lt;h3&gt;Array Functions&lt;/h3&gt;
+@@ -1896,10 +2084,11 @@
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td&gt;$&lt;/td&gt;
+-  &lt;td&gt;cast(@array, 't', ...)&lt;/td&gt;
+-  &lt;td&gt;casts @array into an object scalar representing a native java array of type t where t can be b = byte, c = char, d = 
+-double, f = float, h = short, i = int, l = long, z = boolean, * = any object type.  Arguments ... are optional and used 
+-to represent the dimensions of the array.&lt;/td&gt;
++  &lt;td&gt;cast(@array, 't'|^Class, ...)&lt;/td&gt;
++  &lt;td&gt;casts @array into an object scalar representing a native java array of type t where t can be b = byte, c = char, d =
++double, f = float, h = short, i = int, l = long, o = java.lang.Object, z = boolean, * = any object type.  Optionally a
++^Class literal can be specified and Sleep will create an array of that type.  Arguments ... are optional and used to
++represent the dimensions of the array.&lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td&gt;&lt;/td&gt;
+@@ -1918,8 +2107,8 @@
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td&gt;@&lt;/td&gt;
+-  &lt;td&gt;flatten(@array)&lt;/td&gt;
+-  &lt;td&gt;returns a copy of a multidimensional(?) @array flattened into a one dimensional array&lt;/td&gt;
++  &lt;td&gt;flatten(@|&amp;)&lt;/td&gt;
++  &lt;td&gt;returns a copy of a multidimensional(?) @array or &amp;generator flattened into a one dimensional array (only array elements are flattened)&lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td&gt;@&lt;/td&gt;
+@@ -1942,7 +2131,7 @@
+   &lt;td&gt;I probably should have learned from python and not added this but here it is anyways.  Applies &amp;closure to first two elements of @array or &amp;generator.  Takes the resulting value and applies it to the next element of @array or &amp;generator, so on and so forth.  Returns one value.&lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+-  &lt;td&gt;&lt;/td&gt;
++  &lt;td&gt;@&lt;/td&gt;
+   &lt;td&gt;remove(@array, $scalar, ...)&lt;/td&gt;
+   &lt;td&gt;removes each specified $scalar from @array.  if no parameters are passed the active element in the current foreach loop is removed.&lt;/td&gt;
+  &lt;/tr&gt;
+@@ -1952,9 +2141,9 @@
+   &lt;td&gt;removes all elements of @b from @a. equivalent to the different of @a and @b&lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+-  &lt;td&gt;$&lt;/td&gt;
+-  &lt;td&gt;removeAt(@arrray, index)&lt;/td&gt;
+-  &lt;td&gt;removes the element at index from @array.&lt;/td&gt;
++  &lt;td&gt;&lt;/td&gt;
++  &lt;td&gt;removeAt(@arrray, index, ...)&lt;/td&gt;
++  &lt;td&gt;removes the elements at the specified indices.&lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td&gt;@&lt;/td&gt;
+@@ -2182,6 +2371,11 @@
+  &lt;/tr&gt;  
+ 
+  &lt;tr&gt;
++   &lt;td&gt;%&lt;/td&gt;
++   &lt;td&gt;add(%hash, key =&gt; &quot;value&quot;, ...)&lt;/td&gt;
++   &lt;td&gt;adds specified key/values to the hash.&lt;/td&gt;
++ &lt;/tr&gt; 
++ &lt;tr&gt;
+   &lt;td&gt;&lt;/td&gt;
+   &lt;td&gt;clear(%hash)&lt;/td&gt;
+   &lt;td&gt;clears %hash&lt;/td&gt;
+@@ -2198,6 +2392,11 @@
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td&gt;%&lt;/td&gt;
++  &lt;td&gt;ohash(blah =&gt; &quot;value&quot;, ...)&lt;/td&gt;
++  &lt;td&gt;instantiates an ordered hash with the specified values.  ordered hashes mantain key insertion order.  keys can be updated without changing order.&lt;/td&gt;
++ &lt;/tr&gt;
++ &lt;tr&gt;
++  &lt;td&gt;%&lt;/td&gt;
+   &lt;td&gt;putAll(%hash, @|&amp;, [@|&amp;])&lt;/td&gt;
+   &lt;td&gt;populates the hash with the specified iterators.  If only one iterator is specified then the second argument
+   is assumed to be the same as the first.  The first iterator is iterated over to obtain the keys for the hash
+@@ -2205,10 +2404,20 @@
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td&gt;&lt;/td&gt;
+-  &lt;td&gt;remove(%hash, $key, ...)&lt;/td&gt;
+-  &lt;td&gt;removes all specified keys from %hash&lt;/td&gt;
++  &lt;td&gt;remove(%hash, $value, ...)&lt;/td&gt;
++  &lt;td&gt;removes all specified values from %hash&lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
++  &lt;td&gt;&lt;/td&gt;
++  &lt;td&gt;removeAt(%hash, &quot;key&quot;, ...)&lt;/td&gt;
++  &lt;td&gt;removes the specified keys from the hash.&lt;/td&gt;
++ &lt;/tr&gt;
++ &lt;tr&gt;
++  &lt;td&gt;$&lt;/td&gt;
++  &lt;td&gt;size(%hash)&lt;/td&gt;
++  &lt;td&gt;returns the number of elements in %hash&lt;/td&gt;
++ &lt;/tr&gt;
++ &lt;tr&gt;
+   &lt;td&gt;@&lt;/td&gt;
+   &lt;td&gt;values(%hash, $key)&lt;/td&gt;
+   &lt;td&gt;returns a flat array of all the values in %hash&lt;/td&gt;
+@@ -2264,9 +2473,11 @@
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td&gt;$&lt;/td&gt;
+-  &lt;td&gt;connect(&quot;host&quot;, port, [timeout], [&amp;closure])&lt;/td&gt;
++  &lt;td&gt;connect(&quot;host&quot;, port, [timeout], [&amp;closure], ...)&lt;/td&gt;
+   &lt;td&gt;connects to the specified host:port and returns a $handle.  Check for issues connecting to a host with checkError().  If 
+-     &amp;closure is specified, this call will not block.  &amp;closure will be called when a connection is established.&lt;/td&gt;
++     &amp;closure is specified, this call will not block.  &amp;closure will be called when a connection is established.  multiple key value pairs
++can be specified to set parameters of the connection: linger =&gt; (the value of SO_LINGER (how long (ms) the socket waits for a TCP reset before
++actually closing.); lport =&gt; (the local port number to bind to); laddr =&gt; (the local address to bind to)&lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td&gt;$&lt;/td&gt;
+@@ -2299,10 +2510,13 @@
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td&gt;$&lt;/td&gt;
+-  &lt;td&gt;listen(port, [timeout], [$host], [&amp;closure])&lt;/td&gt;
++  &lt;td&gt;listen(port, [timeout], [$host], [&amp;closure], ...)&lt;/td&gt;
+   &lt;td&gt;listens for a connection on the specified port.  Check for listening issues with the checkError() function.  If 
+       &amp;closure is specified, this call will not block.  &amp;closure will be called when a connection is established.  
+-      The specified scalar $host will be set to the name of the host that connects (if successful).&lt;/td&gt;
++      The specified scalar $host will be set to the name of the host that connects (if successful).  multiple key value pairs can be specified to
++set parameters of the connection: linger =&gt; (the value of SO_LINGER (how long (ms) the socket waits for a TCP reset before actually closing.);
++lport =&gt; (the local port number to bind to); laddr =&gt; (the local address to bind to); and backlog =&gt; (the number of connections to queue while
++waiting for a subsequent call of listen(...) to accept a connection.)&lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td&gt;&lt;/td&gt;
+@@ -2384,6 +2598,11 @@
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td&gt;$&lt;/td&gt;
++  &lt;td&gt;sizeof('format')&lt;/td&gt;
++  &lt;td&gt;using the specified data format string, calculates an estimated size of the data.&lt;/td&gt;
++ &lt;/tr&gt;
++ &lt;tr&gt;
++  &lt;td&gt;$&lt;/td&gt;
+   &lt;td&gt;skip([$handle], n)&lt;/td&gt;
+   &lt;td&gt;tells the handle to skip the next n bytes&lt;/td&gt;
+  &lt;/tr&gt;
+@@ -2568,6 +2787,11 @@
+   &lt;td&gt;returns the rounded positive square root of $scalar&lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
++   &lt;td&gt;$&lt;/td&gt;
++   &lt;td&gt;srand($scalar)&lt;/td&gt;
++   &lt;td&gt;seeds the random number generator with the specified scalar (interpreted as a long)&lt;/td&gt;
++ &lt;/tr&gt;
++ &lt;tr&gt;
+   &lt;td&gt;$&lt;/td&gt;
+   &lt;td&gt;tan($scalar)&lt;/td&gt;
+   &lt;td&gt;returns the tangent value of angle $scalar (radians)&lt;/td&gt;
+@@ -2622,11 +2846,16 @@
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td&gt;$&lt;/td&gt;
+-  &lt;td&gt;join(&quot;string&quot;, @array)&lt;/td&gt;
+-  &lt;td&gt;joins the elements of @array with &quot;string&quot;&lt;/td&gt;
++  &lt;td&gt;lindexOf(&quot;string&quot;, &quot;substr&quot;, [start])&lt;/td&gt;
++  &lt;td&gt;returns the last index of &quot;substr&quot; inside of &quot;string&quot; looking backwards from the specified start index.&lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td&gt;$&lt;/td&gt;
++  &lt;td&gt;join(&quot;string&quot;, @|&amp;)&lt;/td&gt;
++  &lt;td&gt;joins the elements of @array or &amp;generator with &quot;string&quot;&lt;/td&gt;
++ &lt;/tr&gt;
++ &lt;tr&gt;
++  &lt;td&gt;$&lt;/td&gt;
+   &lt;td&gt;lc(&quot;STRING&quot;)&lt;/td&gt;
+   &lt;td&gt;returns a lowercase version of the specified string&lt;/td&gt;
+  &lt;/tr&gt;
+@@ -2727,14 +2956,20 @@
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td&gt;$&lt;/td&gt;
+-  &lt;td&gt;casti($scalar, 't')&lt;/td&gt;
++  &lt;td&gt;casti($scalar, 't'|^Class)&lt;/td&gt;
+   &lt;td&gt;casts $scalar into an object scalar representing a native java value of type t where t can be b = byte, c = char, d = 
+-      double, f = float, h = short, i = int, l = long, z = boolean.&lt;/td&gt;
++      double, f = float, h = short, i = int, l = long, o = java.lang.Object, z = boolean.  Optionally a ^Class literal can be
++      specified in place of a type string.&lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td&gt;$&lt;/td&gt;
+   &lt;td&gt;debug(level)&lt;/td&gt;
+-  &lt;td&gt;explicitly enables the specified debug level for this script: 0 - no debugging; 1 - show only critical errors (default); 2 - show all messages flagged for retrieval with checkError(); 4 - show first time use of non-declared variables; 8 - trace all function calls (collects profiler statistics); 24 - trace only for the purpose of collecting profiler statistics; 34 - &quot;throw&quot; all messages flagged for use with checkError() - this allows use of try/catch to deal with errors.  any of the levels can be |'d together.&lt;/td&gt;
++  &lt;td&gt;explicitly enables the specified debug level for this script: 0 - no debugging; 1 - show only critical
++errors (default); 2 - show all messages flagged for retrieval with checkError(); 4 - show first time use of
++non-declared variables; 8 - trace all function calls (collects profiler statistics); 24 - trace only for the
++purpose of collecting profiler statistics; 34 - &quot;throw&quot; all messages flagged for use with checkError() - this
++allows use of try/catch to deal with errors; 64 - trace all logical comparisons.  any of the levels can be |'d 
++together.&lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td&gt;$&lt;/td&gt;
+@@ -2743,7 +2978,7 @@
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td&gt;$&lt;/td&gt;
+-  &lt;td&gt;exit()&lt;/td&gt;
++  &lt;td&gt;exit([&quot;reason&quot;])&lt;/td&gt;
+   &lt;td&gt;causes the currently executing script context to exit.&lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+@@ -2798,6 +3033,11 @@
+   &lt;td&gt;parses the specified string and declares all variables in the string as local variables.&lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
++  &lt;td&gt;$&lt;/td&gt;
++  &lt;td&gt;newInstance(@|^Interface, &amp;closure)&lt;/td&gt;
++  &lt;td&gt;Creates a sleep closure backed instance of the specified java interface class (or classes if an array is used).&lt;/td&gt;
++ &lt;/tr&gt;
++ &lt;tr&gt;
+   &lt;td&gt;@&lt;/td&gt;
+   &lt;td&gt;profile()&lt;/td&gt;
+   &lt;td&gt;returns the profiler statistics for the current script environment.  Profile statistics will only be collected if DEBUG_TRACE_CALLS (8) or DEBUG_TRACE_PROFILE_ONLY (24) is set.&lt;/td&gt;
+@@ -2814,7 +3054,7 @@
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td&gt;&lt;/td&gt;
+-  &lt;td&gt;setField(class|$object, field =&gt; value, ...)&lt;/td&gt;
++  &lt;td&gt;setField(^class|$object, field =&gt; value, ...)&lt;/td&gt;
+   &lt;td&gt;sets any number of public/protected fields of the specified class or instance of $object to a corresponding value.&lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+@@ -2837,10 +3077,15 @@
+   &lt;td&gt;this('$x $y')&lt;/td&gt;
+   &lt;td&gt;parses the specified string and declares all variables in the string as variables specific to the current closure.&lt;/td&gt;
+  &lt;/tr&gt;
++ &lt;tr&gt;   
++  &lt;td&gt;$&lt;/td&gt;
++  &lt;td&gt;typeOf($scalar)&lt;/td&gt;
++  &lt;td&gt;returns the Java ^Class backing the specified scalar.&lt;/td&gt;
++ &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td&gt;&lt;/td&gt;
+-  &lt;td&gt;use(&quot;Loadable class&quot;)&lt;/td&gt;
+-  &lt;td&gt;loads the specified class into the current script environment.  Classes specified as package.Name are loaded from the Java classpath.  Classes can also be specified as filenames without the .class extension.  The specified class must be a Loadable bridge (i.e. it implements sleep.interfaces.Loadable).&lt;/td&gt;
++  &lt;td&gt;use(&quot;Loadable&quot;|^Loadable)&lt;/td&gt;
++  &lt;td&gt;loads the specified class into the current script environment.  Classes specified as package.Name are loaded from the Java classpath.  Classes can also be specified as filenames without the .class extension.  The specified class must be a Loadable bridge (i.e. it implements sleep.interfaces.Loadable).  Optionally a class literal can be specified as an argument and Sleep will instantiate an instance of that class and install it as a bridge into the current script environment.  This is a safer way to use this function as the class name can be checked at script compile time.&lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td&gt;&lt;/td&gt;
+
+Modified: rero/resources/toplevel/whatsnew.txt
+===================================================================
+--- rero/resources/toplevel/whatsnew.txt	2007-11-26 00:12:52 UTC (rev 98)
++++ rero/resources/toplevel/whatsnew.txt	2007-11-26 00:39:49 UTC (rev 99)
+@@ -5,7 +5,10 @@
+   renderer.  I don't know why the Sun one is broken.  Sun: what is up?
+ - Upgraded to Sleep 2.1-b20.  Lots of changes.  Again view the changelog:
+   <A HREF="http://sleep.hick.org/changelog.html">http://sleep.hick.org/changelog.html</A>
++- updated CTCP SOURCE reply and internal help documentation to reflect
++  current information and URLs
+ 
++
+ Beta    41 last minute update 25 Mar 07 :)
+ ====
+ - Small last minute update to unbreak a potential issue with script
+
+Modified: rero/src/rero/client/server/ProcessEvents.java
+===================================================================
+--- rero/src/rero/client/server/ProcessEvents.java	2007-11-26 00:12:52 UTC (rev 98)
++++ rero/src/rero/client/server/ProcessEvents.java	2007-11-26 00:39:49 UTC (rev 99)
+@@ -209,7 +209,7 @@
+          }
+          if (type.equals(&quot;SOURCE&quot;))
+          {
+-            getCapabilities().sendln(&quot;NOTICE &quot; + nick + &quot; :&quot; + (char)1 + &quot;SOURCE <A HREF="http://jirc.hick.org">http://jirc.hick.org</A>&quot; + (char)1);
++            getCapabilities().sendln(&quot;NOTICE &quot; + nick + &quot; :&quot; + (char)1 + &quot;SOURCE <A HREF="http://jircii.hick.org">http://jircii.hick.org</A>&quot; + (char)1);
+          }
+          if (type.equals(&quot;TIME&quot;))
+          {
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000076.html">[Jircii-svn] r97 - in rero: lib src-apple/jIRCii.app/Contents
+</A></li>
+	<LI>Next message: <A HREF="000078.html">[Jircii-svn] r101 - rero/resources/toplevel
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#77">[ date ]</a>
+              <a href="thread.html#77">[ thread ]</a>
+              <a href="subject.html#77">[ subject ]</a>
+              <a href="author.html#77">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/jircii-svn">More information about the Jircii-svn
+mailing list</a><br>
+</body></html>

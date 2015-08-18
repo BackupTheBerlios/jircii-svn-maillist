@@ -1,0 +1,61 @@
+From crazycoder at berlios.de  Tue Oct  4 01:06:40 2005
+From: crazycoder at berlios.de (Serge Baranov at BerliOS)
+Date: Tue, 4 Oct 2005 01:06:40 +0200
+Subject: [Jircii-svn] r62 - in rero: resources/resource resources/toplevel src/rero/client/server
+Message-ID: <200510032306.j93N6eUo001208@sheep.berlios.de>
+
+Author: crazycoder
+Date: 2005-10-04 01:06:35 +0200 (Tue, 04 Oct 2005)
+New Revision: 62
+
+Modified:
+   rero/resources/resource/default.irc
+   rero/resources/toplevel/whatsnew.txt
+   rero/src/rero/client/server/ProcessEvents.java
+Log:
+Support for Unreal IRCD extended whois ('connecting from' & 'using modes')
+
+Modified: rero/resources/resource/default.irc
+===================================================================
+--- rero/resources/resource/default.irc	2005-08-15 08:35:17 UTC (rev 61)
++++ rero/resources/resource/default.irc	2005-10-03 23:06:35 UTC (rev 62)
+@@ -393,6 +393,8 @@
+ }
+ set REPL_320! { return formatWhois("Secure", "\c35\b $+ $1 $+ \b\c33 $2-"); }
+ set REPL_338! { return formatWhois("Host", "$2"); }
++set REPL_379! { return formatWhois("Modes", "$5-"); }
++set REPL_378! { return formatWhois("Mask/IP", "$5-"); }
+ 
+ sub formatWhois
+ {
+
+Modified: rero/resources/toplevel/whatsnew.txt
+===================================================================
+--- rero/resources/toplevel/whatsnew.txt	2005-08-15 08:35:17 UTC (rev 61)
++++ rero/resources/toplevel/whatsnew.txt	2005-10-03 23:06:35 UTC (rev 62)
+@@ -3,6 +3,8 @@
+ - Improved find dialog slightly, if there's any previous search text in
+   the textfield, that text is now selected when the find dialog is opened
+   (oracel)
++- Support for Unreal IRCD extended whois ('connecting from' & 'using modes')
++  (Serge)
+ 
+ 
+ Beta    39 release 07.30.05
+
+Modified: rero/src/rero/client/server/ProcessEvents.java
+===================================================================
+--- rero/src/rero/client/server/ProcessEvents.java	2005-08-15 08:35:17 UTC (rev 61)
++++ rero/src/rero/client/server/ProcessEvents.java	2005-10-03 23:06:35 UTC (rev 62)
+@@ -453,7 +453,7 @@
+ 
+    private static boolean isWhoisNumeric(int x)
+    {
+-      return ((x >= 311 && x < 321) || x == 338 || x == 369 || x == 301 || x == 302 || x == 307 || x == 308 || x == 330 || x == 401 || x == 406);
++      return ((x >= 311 && x < 321) || x == 338 || x == 369 || x == 301 || x == 302 || x == 307 || x == 308 || x == 330 || x == 401 || x == 406 || x == 378 || x == 379);
+    }
+ 
+    private static class AllowAwayReply implements ChatListener
+
+
+

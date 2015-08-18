@@ -1,0 +1,215 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Jircii-svn] r57 - in rero: resources/toplevel src/rero/gui/mdi src/rero/gui/sdi src/rero/gui/windows
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/jircii-svn/2005-July/index.html" >
+   <LINK REL="made" HREF="mailto:jircii-svn%40lists.berlios.de?Subject=Re%3A%20%5BJircii-svn%5D%20r57%20-%20in%20rero%3A%20resources/toplevel%20src/rero/gui/mdi%20src/rero/gui/sdi%20src/rero/gui/windows&In-Reply-To=%3C200507302112.j6ULCef2027886%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000036.html">
+   <LINK REL="Next"  HREF="000038.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Jircii-svn] r57 - in rero: resources/toplevel src/rero/gui/mdi src/rero/gui/sdi src/rero/gui/windows</H1>
+    <B>Raphael Mudge at BerliOS</B> 
+    <A HREF="mailto:jircii-svn%40lists.berlios.de?Subject=Re%3A%20%5BJircii-svn%5D%20r57%20-%20in%20rero%3A%20resources/toplevel%20src/rero/gui/mdi%20src/rero/gui/sdi%20src/rero/gui/windows&In-Reply-To=%3C200507302112.j6ULCef2027886%40sheep.berlios.de%3E"
+       TITLE="[Jircii-svn] r57 - in rero: resources/toplevel src/rero/gui/mdi src/rero/gui/sdi src/rero/gui/windows">rsmudge at berlios.de
+       </A><BR>
+    <I>Sat Jul 30 23:12:40 CEST 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000036.html">[Jircii-svn] r56 - rero/src/rero/gui/mdi
+</A></li>
+        <LI>Next message: <A HREF="000038.html">[Jircii-svn] r58 - in rero/src/rero/gui: mdi sdi windows
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#37">[ date ]</a>
+              <a href="thread.html#37">[ thread ]</a>
+              <a href="subject.html#37">[ subject ]</a>
+              <a href="author.html#37">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: rsmudge
+Date: 2005-07-30 23:12:39 +0200 (Sat, 30 Jul 2005)
+New Revision: 57
+
+Modified:
+   rero/resources/toplevel/readme.txt
+   rero/src/rero/gui/mdi/ClientDesktop.java
+   rero/src/rero/gui/sdi/ClientPanel.java
+   rero/src/rero/gui/windows/WindowManager.java
+Log:
+Fixed the window management stuff for real this time...
+
+
+Modified: rero/resources/toplevel/readme.txt
+===================================================================
+--- rero/resources/toplevel/readme.txt	2005-07-30 19:52:33 UTC (rev 56)
++++ rero/resources/toplevel/readme.txt	2005-07-30 21:12:39 UTC (rev 57)
+@@ -1,5 +1,5 @@
+  ------- -------------------- ---------   ---------------  ------- ---------
+-jIRCii - Beta (38) 07.18.05 - README
++jIRCii - Beta (39) 07.30.05 - README
+ -  ------------- -------- -   ---------------- --       -    -     -     - - -
+ 
+ The official jIRCii homepage is at: <A HREF="http://jircii.hick.org">http://jircii.hick.org</A>
+
+Modified: rero/src/rero/gui/mdi/ClientDesktop.java
+===================================================================
+--- rero/src/rero/gui/mdi/ClientDesktop.java	2005-07-30 19:52:33 UTC (rev 56)
++++ rero/src/rero/gui/mdi/ClientDesktop.java	2005-07-30 21:12:39 UTC (rev 57)
+@@ -108,8 +108,14 @@
+ 
+     public void onMinimize(ClientWindowEvent ev) 
+     { 
++       boolean wasSelected = ev.getSource().isSelected();
+        doDeactivate(getWindowFor(ev.getSource()));
+-       newActive(windows.indexOf(getWindowFor(ev.getSource())) - 1);
++
++       if (wasSelected)
++       {
++          int index = windows.indexOf(getWindowFor(ev.getSource()));
++          newActive(index, false);
++       }
+     }
+ 
+     public void onOpen(ClientWindowEvent ev) 
+@@ -120,6 +126,9 @@
+ 
+     public void onClose(ClientWindowEvent ev) 
+     { 
++       int index = windows.indexOf(getWindowFor(ev.getSource()));
++       boolean wasSelected = ev.getSource().isSelected();
++
+        ClientWindow window = ev.getSource();
+        StatusWindow temp = (StatusWindow)windowMap.get(window);
+ 
+@@ -135,9 +144,13 @@
+        switchbar.validate();
+        switchbar.repaint();
+ 
+-       if (getActiveWindow() != null)
++/*       if (getActiveWindow() != null)
+        {
+-           doActivate(getActiveWindow());
++          doActivate(getActiveWindow());
++       } */
++       if (wasSelected)
++       {
++          newActive(index - 1, true);
+        }
+     }
+ 
+
+Modified: rero/src/rero/gui/sdi/ClientPanel.java
+===================================================================
+--- rero/src/rero/gui/sdi/ClientPanel.java	2005-07-30 19:52:33 UTC (rev 56)
++++ rero/src/rero/gui/sdi/ClientPanel.java	2005-07-30 21:12:39 UTC (rev 57)
+@@ -174,13 +174,13 @@
+ 
+        desktop.remove(window);          
+ 
+-       if (window == active &amp;&amp; !active.getName().equals(StatusWindow.STATUS_NAME))
++       if (window == active &amp;&amp; active.getName().equals(StatusWindow.STATUS_NAME))
+        {
+-           newActive(idx - 1);
++          active = null; // if we close the status window, that's it... make sure we get rid fo the reference
+        }
+-       else
++       else if (window == active)
+        {
+-          active = null;
++          newActive(idx - 1, true); // if this window was the active one, make another one active instead...
+        }
+ 
+        switchbar.validate();
+
+Modified: rero/src/rero/gui/windows/WindowManager.java
+===================================================================
+--- rero/src/rero/gui/windows/WindowManager.java	2005-07-30 19:52:33 UTC (rev 56)
++++ rero/src/rero/gui/windows/WindowManager.java	2005-07-30 21:12:39 UTC (rev 57)
+@@ -57,27 +57,43 @@
+        else
+        {
+           doDeactivate(getWindowFor(e.getSource()));
+-          newActive(windows.indexOf(getWindowFor(e.getSource())) - 1);
++
++          int index = windows.indexOf(getWindowFor(e.getSource()));
++          newActive(index, false);
+        }
+     }
+ 
+-    public void newActive(int index)
++    // find next non-minimized window to the left of the specified index without making the specified index active again
++    public void newActive(int index, boolean includeCurrent)
+     {
+-       StatusWindow temp;
++       if (index &gt; windows.size())
++       {
++          index = windows.size() - (includeCurrent ? 1 : 0);
++       }
+ 
+-       if (index &gt;= windows.size() || index &lt; 0)
++       for (int x = index - (includeCurrent ? 0 : 1); x &gt;= 0; x--)
+        {
+-          temp = (StatusWindow)windows.getFirst();
++          StatusWindow temp   = (StatusWindow)windows.get(x);
++
++          if (temp != null &amp;&amp; !temp.getWindow().isIcon())
++          {
++             doActivate(temp);
++             return;
++          }
+        }
+-       else
++
++       for (int x = windows.size() - 1; x &gt; index; x--)
+        {
+-          temp = (StatusWindow)windows.get(index);
++          StatusWindow temp   = (StatusWindow)windows.get(x);
++
++          if (temp != null &amp;&amp; !temp.getWindow().isIcon())
++          {
++             doActivate(temp);
++             return;
++          }
+        }
+-
+-       doActivate(temp);
+     }
+ 
+-
+     public void propertyChanged(String key, String value)
+     {
+        isRelative = ClientState.getClientState().isOption(&quot;window.relative&quot;, false);
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000036.html">[Jircii-svn] r56 - rero/src/rero/gui/mdi
+</A></li>
+	<LI>Next message: <A HREF="000038.html">[Jircii-svn] r58 - in rero/src/rero/gui: mdi sdi windows
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#37">[ date ]</a>
+              <a href="thread.html#37">[ thread ]</a>
+              <a href="subject.html#37">[ subject ]</a>
+              <a href="author.html#37">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/jircii-svn">More information about the Jircii-svn
+mailing list</a><br>
+</body></html>

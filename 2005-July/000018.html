@@ -1,0 +1,84 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Jircii-svn] r38 - rero/src/text/wrapped
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/jircii-svn/2005-July/index.html" >
+   <LINK REL="made" HREF="mailto:jircii-svn%40lists.berlios.de?Subject=Re%3A%20%5BJircii-svn%5D%20r38%20-%20rero/src/text/wrapped&In-Reply-To=%3C200507181645.j6IGjFrq003060%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000017.html">
+   <LINK REL="Next"  HREF="000019.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Jircii-svn] r38 - rero/src/text/wrapped</H1>
+    <B>Andreas Ravnestad at BerliOS</B> 
+    <A HREF="mailto:jircii-svn%40lists.berlios.de?Subject=Re%3A%20%5BJircii-svn%5D%20r38%20-%20rero/src/text/wrapped&In-Reply-To=%3C200507181645.j6IGjFrq003060%40sheep.berlios.de%3E"
+       TITLE="[Jircii-svn] r38 - rero/src/text/wrapped">oracel at berlios.de
+       </A><BR>
+    <I>Mon Jul 18 18:45:15 CEST 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000017.html">[Jircii-svn] r37 - in rero: resources/help resources/toplevel resources/toplevel/docs src/rero/client/script src/rero/config
+</A></li>
+        <LI>Next message: <A HREF="000019.html">[Jircii-svn] r39 - in rero: resources/toplevel src/rero/gui/input
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#18">[ date ]</a>
+              <a href="thread.html#18">[ thread ]</a>
+              <a href="subject.html#18">[ subject ]</a>
+              <a href="author.html#18">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: oracel
+Date: 2005-07-18 18:45:02 +0200 (Mon, 18 Jul 2005)
+New Revision: 38
+
+Modified:
+   rero/src/text/wrapped/WrappedData.java
+Log:
+Window find feature is now case insensitive
+
+Modified: rero/src/text/wrapped/WrappedData.java
+===================================================================
+--- rero/src/text/wrapped/WrappedData.java	2005-07-18 15:56:17 UTC (rev 37)
++++ rero/src/text/wrapped/WrappedData.java	2005-07-18 16:45:02 UTC (rev 38)
+@@ -49,7 +49,7 @@
+         WrappedContainer temp = last;
+         while (temp != null)
+         {
+-           if (temp.getText().indexOf(text) &gt; -1)
++           if (temp.getText().toUpperCase().indexOf(text.toUpperCase()) &gt; -1)
+            {
+                values.add(new Integer(x));
+            }
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000017.html">[Jircii-svn] r37 - in rero: resources/help resources/toplevel resources/toplevel/docs src/rero/client/script src/rero/config
+</A></li>
+	<LI>Next message: <A HREF="000019.html">[Jircii-svn] r39 - in rero: resources/toplevel src/rero/gui/input
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#18">[ date ]</a>
+              <a href="thread.html#18">[ thread ]</a>
+              <a href="subject.html#18">[ subject ]</a>
+              <a href="author.html#18">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/jircii-svn">More information about the Jircii-svn
+mailing list</a><br>
+</body></html>

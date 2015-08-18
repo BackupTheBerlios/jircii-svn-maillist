@@ -1,0 +1,174 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Jircii-svn] r15 - in rero: resources/help resources/toplevel src/text
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/jircii-svn/2005-June/index.html" >
+   <LINK REL="made" HREF="mailto:jircii-svn%40lists.berlios.de?Subject=Re%3A%20%5BJircii-svn%5D%20r15%20-%20in%20rero%3A%20resources/help%20resources/toplevel%20src/text&In-Reply-To=%3C200506111513.j5BFDddE010940%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000043.html">
+   <LINK REL="Next"  HREF="000044.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Jircii-svn] r15 - in rero: resources/help resources/toplevel src/text</H1>
+    <B>Raphael Mudge at BerliOS</B> 
+    <A HREF="mailto:jircii-svn%40lists.berlios.de?Subject=Re%3A%20%5BJircii-svn%5D%20r15%20-%20in%20rero%3A%20resources/help%20resources/toplevel%20src/text&In-Reply-To=%3C200506111513.j5BFDddE010940%40sheep.berlios.de%3E"
+       TITLE="[Jircii-svn] r15 - in rero: resources/help resources/toplevel src/text">rsmudge at sheep.berlios.de
+       </A><BR>
+    <I>Sat Jun 11 17:13:39 CEST 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000043.html">[Jircii-svn] r14 - in rero: resources/toplevel resources/toplevel/docs src/rero/config
+</A></li>
+        <LI>Next message: <A HREF="000044.html">[Jircii-svn] r21 - rero/resources/resource
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#2">[ date ]</a>
+              <a href="thread.html#2">[ thread ]</a>
+              <a href="subject.html#2">[ subject ]</a>
+              <a href="author.html#2">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: rsmudge
+Date: 2005-06-11 17:13:38 +0200 (Sat, 11 Jun 2005)
+New Revision: 15
+
+Modified:
+   rero/resources/help/KB_Shortcuts
+   rero/resources/toplevel/whatsnew.txt
+   rero/src/text/FindDialog.java
+Log:
+Small updates
+
+
+Modified: rero/resources/help/KB_Shortcuts
+===================================================================
+--- rero/resources/help/KB_Shortcuts	2005-06-11 14:20:27 UTC (rev 14)
++++ rero/resources/help/KB_Shortcuts	2005-06-11 15:13:38 UTC (rev 15)
+@@ -73,3 +73,8 @@
+ &lt;br&gt;
+ &lt;br&gt;Scrolling through the contents of a window can be accomplished using Page Up and Page down.
+ &lt;br&gt;
++&lt;br&gt;&lt;b&gt;Search Scrollback Buffer&lt;/b&gt;&lt;/font&gt;
++&lt;br&gt;
++&lt;br&gt;Searching through the scrollback buffer of a window can be accomplished using Alt+F, Ctrl+F, or Meta+F.  The window can be closed with the Escape key.
++&lt;br&gt;
++
+
+Modified: rero/resources/toplevel/whatsnew.txt
+===================================================================
+--- rero/resources/toplevel/whatsnew.txt	2005-06-11 14:20:27 UTC (rev 14)
++++ rero/resources/toplevel/whatsnew.txt	2005-06-11 15:13:38 UTC (rev 15)
+@@ -2,6 +2,16 @@
+ ====
+ - upgraded scripting library to Sleep 2.0-release candidate bringing 
+   several bug fixes and a few new features
++  -- foreach loops now automatically convert hash parameters into their keyset.
++  -- added a new foreach syntax:
++     foreach $index =&gt; $value (source) { }
++  -- the remove() function now takes multiple parameters for multiple items to 
++      remove.
++  -- fixed a bug parsing tuple assignments in certain cases.
++  -- added a &amp;subarray(@array, n, [m]) function for extracting an array slice
++  -- reworked the pack/unpack format strings to make them more useful
++  -- fixed a bug with the pack/unpack format string parser not assigning the 
++     specified integer to the last format character.
+ - fixed Window menubar menu showing the Status window twice.
+ - fixed bug with empty ison replies echo'ing to the status window (I think)
+ - removed synchronization from the channel users data structure.  the 
+
+Modified: rero/src/text/FindDialog.java
+===================================================================
+--- rero/src/text/FindDialog.java	2005-06-11 14:20:27 UTC (rev 14)
++++ rero/src/text/FindDialog.java	2005-06-11 15:13:38 UTC (rev 15)
+@@ -17,12 +17,14 @@
+  
+    public void showDialog()
+    {
++      rero.gui.KeyBindings.is_dialog_active = true;
+       results = null;
+       next.setEnabled(false);
+       prev.setEnabled(true);
+       pack();
+       setLocationRelativeTo(display);
+       setVisible(true);
++      search.requestFocus();
+    }
+ 
+    public FindDialog(Component comp, String title, WrappedDisplay _display, String text)
+@@ -36,6 +38,12 @@
+        search = new JTextField(text, 20);
+        search.addKeyListener(this);
+        search.addActionListener(this);
++       search.addFocusListener(new FocusAdapter() {
++           public void focusLost(FocusEvent ev) 
++           {
++              search.requestFocus();
++           }
++       }); 
+ 
+        JPanel panel = new JPanel();
+        panel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));       
+@@ -64,7 +72,14 @@
+ 
+        getContentPane().add(buttons, BorderLayout.SOUTH);
+ 
+-       setDefaultCloseOperation(WindowConstants.HIDE_ON_CLOSE);
++       addWindowListener(new WindowAdapter()
++       {
++          public void windowClosing(WindowEvent e)
++          {
++             rero.gui.KeyBindings.is_dialog_active = false;
++             setVisible(false);
++          }
++       });
+    }
+ 
+    public static void main(String args[])
+@@ -80,8 +95,14 @@
+    public void keyPressed(KeyEvent ev) { }
+    public void keyReleased(KeyEvent ev) 
+    { 
+-       if (!ev.isActionKey() &amp;&amp; ev.getKeyCode() != KeyEvent.VK_ENTER)
++       if (ev.getKeyCode() == KeyEvent.VK_ESCAPE)
+        {
++          rero.gui.KeyBindings.is_dialog_active = false;
++          setVisible(false);
++          ev.consume();
++       }
++       else if (!ev.isActionKey() &amp;&amp; ev.getKeyCode() != KeyEvent.VK_ENTER)
++       {
+           results = null;
+           next.setEnabled(search.getText().length() &gt; 0);
+           prev.setEnabled(search.getText().length() &gt; 0);
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000043.html">[Jircii-svn] r14 - in rero: resources/toplevel resources/toplevel/docs src/rero/config
+</A></li>
+	<LI>Next message: <A HREF="000044.html">[Jircii-svn] r21 - rero/resources/resource
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#2">[ date ]</a>
+              <a href="thread.html#2">[ thread ]</a>
+              <a href="subject.html#2">[ subject ]</a>
+              <a href="author.html#2">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/jircii-svn">More information about the Jircii-svn
+mailing list</a><br>
+</body></html>

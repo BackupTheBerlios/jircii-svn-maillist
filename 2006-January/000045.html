@@ -1,0 +1,80 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Jircii-svn] r63 - rero/src/rero/gui/windows
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/jircii-svn/2006-January/index.html" >
+   <LINK REL="made" HREF="mailto:jircii-svn%40lists.berlios.de?Subject=Re%3A%20%5BJircii-svn%5D%20r63%20-%20rero/src/rero/gui/windows&In-Reply-To=%3C200601140822.k0E8MSXF011116%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   
+   
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Jircii-svn] r63 - rero/src/rero/gui/windows</H1>
+    <B>crazycoder at BerliOS</B> 
+    <A HREF="mailto:jircii-svn%40lists.berlios.de?Subject=Re%3A%20%5BJircii-svn%5D%20r63%20-%20rero/src/rero/gui/windows&In-Reply-To=%3C200601140822.k0E8MSXF011116%40sheep.berlios.de%3E"
+       TITLE="[Jircii-svn] r63 - rero/src/rero/gui/windows">crazycoder at berlios.de
+       </A><BR>
+    <I>Sat Jan 14 09:22:28 CET 2006</I>
+    <P><UL>
+        
+        
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#45">[ date ]</a>
+              <a href="thread.html#45">[ thread ]</a>
+              <a href="subject.html#45">[ subject ]</a>
+              <a href="author.html#45">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: crazycoder
+Date: 2006-01-14 09:22:27 +0100 (Sat, 14 Jan 2006)
+New Revision: 63
+
+Modified:
+   rero/src/rero/gui/windows/GeneralListDialog.java
+Log:
+Add an extra gap to list rows height, now should work smoothly with most fonts
+
+Modified: rero/src/rero/gui/windows/GeneralListDialog.java
+===================================================================
+--- rero/src/rero/gui/windows/GeneralListDialog.java	2005-10-03 23:06:35 UTC (rev 62)
++++ rero/src/rero/gui/windows/GeneralListDialog.java	2006-01-14 08:22:27 UTC (rev 63)
+@@ -47,7 +47,7 @@
+       table.setDefaultRenderer((new Object()).getClass(), new MyRenderer());
+       table.setShowGrid(false);
+       table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+-      table.setRowHeight(TextSource.fontMetrics.getHeight());
++      table.setRowHeight(TextSource.fontMetrics.getHeight() + 2);
+ 
+       JScrollPane scroller = new JScrollPane(table, JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+       scroller.setOpaque(false);
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	
+	
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#45">[ date ]</a>
+              <a href="thread.html#45">[ thread ]</a>
+              <a href="subject.html#45">[ subject ]</a>
+              <a href="author.html#45">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/jircii-svn">More information about the Jircii-svn
+mailing list</a><br>
+</body></html>

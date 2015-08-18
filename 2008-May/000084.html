@@ -1,0 +1,127 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Jircii-svn] r110 - in rero: lib resources/toplevel	src/rero/client/functions src/rero/dcc
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/jircii-svn/2008-May/index.html" >
+   <LINK REL="made" HREF="mailto:jircii-svn%40lists.berlios.de?Subject=Re%3A%20%5BJircii-svn%5D%20r110%20-%20in%20rero%3A%20lib%20resources/toplevel%0A%09src/rero/client/functions%20src/rero/dcc&In-Reply-To=%3C200805092130.m49LU6XX011945%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   
+   <LINK REL="Next"  HREF="000085.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Jircii-svn] r110 - in rero: lib resources/toplevel	src/rero/client/functions src/rero/dcc</H1>
+    <B>rsmudge at BerliOS</B> 
+    <A HREF="mailto:jircii-svn%40lists.berlios.de?Subject=Re%3A%20%5BJircii-svn%5D%20r110%20-%20in%20rero%3A%20lib%20resources/toplevel%0A%09src/rero/client/functions%20src/rero/dcc&In-Reply-To=%3C200805092130.m49LU6XX011945%40sheep.berlios.de%3E"
+       TITLE="[Jircii-svn] r110 - in rero: lib resources/toplevel	src/rero/client/functions src/rero/dcc">rsmudge at mail.berlios.de
+       </A><BR>
+    <I>Fri May  9 23:30:06 CEST 2008</I>
+    <P><UL>
+        
+        <LI>Next message: <A HREF="000085.html">[Jircii-svn] r111 - in rero: resources/toplevel src/text/wrapped
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#84">[ date ]</a>
+              <a href="thread.html#84">[ thread ]</a>
+              <a href="subject.html#84">[ subject ]</a>
+              <a href="author.html#84">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: rsmudge
+Date: 2008-05-09 23:30:04 +0200 (Fri, 09 May 2008)
+New Revision: 110
+
+Modified:
+   rero/lib/sleep.jar
+   rero/resources/toplevel/whatsnew.txt
+   rero/src/rero/client/functions/UtilOperators.java
+   rero/src/rero/dcc/Receive.java
+Log:
+upgrade to Sleep 2.1-b25
+
+
+Modified: rero/lib/sleep.jar
+===================================================================
+(Binary files differ)
+
+Modified: rero/resources/toplevel/whatsnew.txt
+===================================================================
+--- rero/resources/toplevel/whatsnew.txt	2008-04-22 00:36:19 UTC (rev 109)
++++ rero/resources/toplevel/whatsnew.txt	2008-05-09 21:30:04 UTC (rev 110)
+@@ -8,7 +8,7 @@
+ - implemented /kill &lt;nick&gt; &lt;reason&gt; command
+ - updated jIRCii to Sleep 2.1-b23 API compatability (thanks Sleep 
+   maintainer for breaking Loadable API, oh wait, thats me).
+-- updated scripting engine to Sleep 2.1-b23.  Many changes that will aid
++- updated scripting engine to Sleep 2.1-b25.  Many changes that will aid
+   those of you who use jIRCii as a platform for developing apps that 
+   crunch massive amounts of data.
+ 
+
+Modified: rero/src/rero/client/functions/UtilOperators.java
+===================================================================
+--- rero/src/rero/client/functions/UtilOperators.java	2008-04-22 00:36:19 UTC (rev 109)
++++ rero/src/rero/client/functions/UtilOperators.java	2008-05-09 21:30:04 UTC (rev 110)
+@@ -85,12 +85,12 @@
+ 
+           if (l.size() == 2)
+           {
+-             parent    = BridgeUtilities.getFile(l);
++             parent    = BridgeUtilities.getFile(l, si);
+              className = BridgeUtilities.getString(l, &quot;&quot;);
+           }
+           else
+           {
+-             File a    = BridgeUtilities.getFile(l);
++             File a    = BridgeUtilities.getFile(l, si);
+              parent    = a.getParentFile();
+              className = a.getName();
+           }
+
+Modified: rero/src/rero/dcc/Receive.java
+===================================================================
+--- rero/src/rero/dcc/Receive.java	2008-04-22 00:36:19 UTC (rev 109)
++++ rero/src/rero/dcc/Receive.java	2008-05-09 21:30:04 UTC (rev 110)
+@@ -148,9 +148,9 @@
+        {
+           boolean appendToFile = startSize != 0;
+ 
+-          if (!dumpTo.exists())
++          if (!dumpTo.getParentFile().exists())
+           {
+-             dumpTo.mkdirs(); /* create the dcc receive directory if it does not exist */
++             dumpTo.getParentFile().mkdirs(); /* create the dcc receive directory if it does not exist */
+           }
+  
+           fileStream = new FileOutputStream(dumpTo, appendToFile);
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	
+	<LI>Next message: <A HREF="000085.html">[Jircii-svn] r111 - in rero: resources/toplevel src/text/wrapped
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#84">[ date ]</a>
+              <a href="thread.html#84">[ thread ]</a>
+              <a href="subject.html#84">[ subject ]</a>
+              <a href="author.html#84">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/jircii-svn">More information about the Jircii-svn
+mailing list</a><br>
+</body></html>

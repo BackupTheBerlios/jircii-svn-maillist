@@ -1,0 +1,496 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Jircii-svn] r77 - in rero: resources/toplevel src/rero/client/output src/rero/config
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/jircii-svn/2006-February/index.html" >
+   <LINK REL="made" HREF="mailto:jircii-svn%40lists.berlios.de?Subject=Re%3A%20%5BJircii-svn%5D%20r77%20-%20in%20rero%3A%20resources/toplevel%20src/rero/client/output%20src/rero/config&In-Reply-To=%3C200602231529.k1NFT1bM007055%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000058.html">
+   
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Jircii-svn] r77 - in rero: resources/toplevel src/rero/client/output src/rero/config</H1>
+    <B>crazycoder at BerliOS</B> 
+    <A HREF="mailto:jircii-svn%40lists.berlios.de?Subject=Re%3A%20%5BJircii-svn%5D%20r77%20-%20in%20rero%3A%20resources/toplevel%20src/rero/client/output%20src/rero/config&In-Reply-To=%3C200602231529.k1NFT1bM007055%40sheep.berlios.de%3E"
+       TITLE="[Jircii-svn] r77 - in rero: resources/toplevel src/rero/client/output src/rero/config">crazycoder at berlios.de
+       </A><BR>
+    <I>Thu Feb 23 16:29:01 CET 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000058.html">[Jircii-svn] r76 - in rero: resources/toplevel src/rero/gui/input
+</A></li>
+        
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#59">[ date ]</a>
+              <a href="thread.html#59">[ thread ]</a>
+              <a href="subject.html#59">[ subject ]</a>
+              <a href="author.html#59">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: crazycoder
+Date: 2006-02-23 16:28:59 +0100 (Thu, 23 Feb 2006)
+New Revision: 77
+
+Modified:
+   rero/resources/toplevel/whatsnew.txt
+   rero/src/rero/client/output/ChatCapabilities.java
+   rero/src/rero/config/ClientDefaults.java
+Log:
+Implemented automatic word wrapping of long messages
+
+Modified: rero/resources/toplevel/whatsnew.txt
+===================================================================
+--- rero/resources/toplevel/whatsnew.txt	2006-02-22 21:31:54 UTC (rev 76)
++++ rero/resources/toplevel/whatsnew.txt	2006-02-23 15:28:59 UTC (rev 77)
+@@ -27,7 +27,11 @@
+   It's a fix for <A HREF="http://jircii.hick.org/cgi-bin/bitch.cgi/view.html?8150450">http://jircii.hick.org/cgi-bin/bitch.cgi/view.html?8150450</A>
+   (Serge)
+ - Fixed pasting of multiple lines deleting current input field text (Serge)
++- Implemented automatic word wrapping of long messages if packet doesn't
++  fit 512 bytes RFC length. For details check this link:
++  <A HREF="http://www.resultspk.net/hackirc/irchks-chp-13-sect-3.html">http://www.resultspk.net/hackirc/irchks-chp-13-sect-3.html</A> (Serge)
+ 
++
+ Beta    39 release 07.30.05
+ ====
+ - The find feature is now case insensitive (oracel)
+
+Modified: rero/src/rero/client/output/ChatCapabilities.java
+===================================================================
+--- rero/src/rero/client/output/ChatCapabilities.java	2006-02-22 21:31:54 UTC (rev 76)
++++ rero/src/rero/client/output/ChatCapabilities.java	2006-02-23 15:28:59 UTC (rev 77)
+@@ -1,178 +1,252 @@
+ package rero.client.output;
+ 
+-import rero.ircfw.*;
+-import rero.ircfw.data.*;
++import rero.client.Feature;
++import rero.dcc.Chat;
++import rero.dcc.DataDCC;
++import rero.dcc.ProtocolDCC;
++import rero.ircfw.InternalDataList;
++import rero.net.SocketConnection;
++import rero.util.ClientUtils;
+ 
+-import rero.bridges.event.*;
+-import rero.bridges.set.*;
++import java.util.HashMap;
++import java.util.NoSuchElementException;
++import java.util.StringTokenizer;
+ 
+-import rero.client.*;
++public class ChatCapabilities extends Feature {
++  protected SocketConnection sock;
++  protected OutputCapabilities output;
++  protected DataDCC dccData;
+ 
+-import java.util.*;
++  public void init() {
++    sock = getCapabilities().getSocketConnection();
++    output = getCapabilities().getOutputCapabilities();
++    dccData = (DataDCC) getCapabilities().getDataStructure(&quot;dcc&quot;);
++  }
+ 
+-import rero.dcc.*;
+-import rero.net.*;
++  public void sendMessage(String nickname, String message) {
++    HashMap eventData = new HashMap();
+ 
+-import rero.util.*;
++    if (nickname.charAt(0) == '=') {
++      String dnickname = nickname.substring(1, nickname.length());
++      Chat connection = (Chat) dccData.getSpecificConnection(dnickname, ProtocolDCC.DCC_CHAT);
+ 
+-import rero.client.listeners.*;
++      if (connection == null) {
++        eventData.put(&quot;$target&quot;, dnickname);
++        eventData.put(&quot;$parms&quot;, message);
++        eventData.put(&quot;$data&quot;, dnickname + &quot; &quot; + message);
++        output.fireSetTarget(eventData, nickname, &quot;SEND_CHAT_ERROR&quot;);
++        return;
++      }
+ 
+-public class ChatCapabilities extends Feature
+-{
+-   protected SocketConnection    sock;
+-   protected OutputCapabilities  output;
+-   protected DataDCC             dccData;
++      connection.sendln(message);
++    } else {
++      int max = computeMaxMessageLength(nickname);
++      if (message.length() &gt; max) {
++        // split and send as multiple messages
++        String[] messages = wrapMessageToStringsArray(message, max);
++        for (int i = 0; i &lt; messages.length; i++) {
++          String msg = messages[i];
++          sock.println(&quot;PRIVMSG &quot; + nickname + &quot; :&quot; + msg);
++        }
++      } else {
++        sock.println(&quot;PRIVMSG &quot; + nickname + &quot; :&quot; + message);
++      }
++    }
+ 
+-   public void init()
+-   {
+-      sock    = getCapabilities().getSocketConnection();
+-      output  = getCapabilities().getOutputCapabilities();
+-      dccData = (DataDCC)getCapabilities().getDataStructure(&quot;dcc&quot;);
+-   }
++    if (nickname.charAt(0) == '=') {
++      eventData.put(&quot;$target&quot;, nickname.substring(1, nickname.length()));
++      eventData.put(&quot;$parms&quot;, message);
++      eventData.put(&quot;$data&quot;, nickname.substring(1, nickname.length()) + &quot; &quot; + message);
+ 
+-   public void sendMessage(String nickname, String message)
+-   {
+-      HashMap eventData = new HashMap();
++      output.fireSetTarget(eventData, nickname, &quot;SEND_CHAT&quot;);
++    } else if (ClientUtils.isChannel(nickname)) {
++      eventData.put(&quot;$target&quot;, nickname);
++      eventData.put(&quot;$channel&quot;, nickname);
++      eventData.put(&quot;$parms&quot;, message);
++      eventData.put(&quot;$data&quot;, nickname + &quot; &quot; + message);
+ 
+-      if (nickname.charAt(0) == '=')
+-      {
+-          String dnickname = nickname.substring(1, nickname.length());
+-          Chat connection = (Chat)dccData.getSpecificConnection(dnickname, ProtocolDCC.DCC_CHAT);
++      output.fireSetTarget(eventData, nickname, output.chooseSet(nickname, &quot;SEND_TEXT&quot;, &quot;SEND_TEXT_INACTIVE&quot;));
++    } else {
++      eventData.put(&quot;$target&quot;, nickname);
++      eventData.put(&quot;$parms&quot;, message);
++      eventData.put(&quot;$data&quot;, nickname + &quot; &quot; + message);
+ 
+-          if (connection == null)
+-          {
+-              eventData.put(&quot;$target&quot;, dnickname);
+-              eventData.put(&quot;$parms&quot;, message);
+-              eventData.put(&quot;$data&quot;, dnickname  + &quot; &quot; + message);
+-              output.fireSetTarget(eventData, nickname, &quot;SEND_CHAT_ERROR&quot;);
+-              return;
+-          }
++      output.fireSetQuery(eventData, nickname, nickname, &quot;SEND_MSG&quot;);
++    }
++  }
+ 
+-          connection.sendln(message);
+-      }
+-      else
+-      {
+-          sock.println(&quot;PRIVMSG &quot; + nickname + &quot; :&quot; + message);
+-      }
++  private int computeMaxMessageLength(String nickname) {
++    InternalDataList ci = ((InternalDataList) output.getCapabilities().getDataStructure(&quot;clientInformation&quot;));
++    String fullAddress = ci.getMyUser().getFullAddress();
++    /* maximum allowed message text */
++    /* :nickname!<A HREF="https://lists.berlios.de/mailman/listinfo/jircii-svn">username at host.com</A> PRIVMSG #channel :text\r\n */
++    int max = 512;
++    max -= 14;  /* :, &quot; PRIVMSG &quot;, &quot; &quot;, :, \r, \n */
++    max -= fullAddress.length();
++    max -= nickname.length();
++    return max;
++  }
+ 
+-      if (nickname.charAt(0) == '=')
+-      {
+-          eventData.put(&quot;$target&quot;, nickname.substring(1, nickname.length()));
+-          eventData.put(&quot;$parms&quot;, message);
+-          eventData.put(&quot;$data&quot;, nickname.substring(1, nickname.length()) + &quot; &quot; + message);
++  public void sendNotice(String target, String message) {
++    sock.println(&quot;NOTICE &quot; + target + &quot; :&quot; + message);
+ 
+-          output.fireSetTarget(eventData, nickname, &quot;SEND_CHAT&quot;);
+-      }
+-      else if (ClientUtils.isChannel(nickname))
+-      {
+-          eventData.put(&quot;$target&quot;, nickname);
+-          eventData.put(&quot;$channel&quot;, nickname);
+-          eventData.put(&quot;$parms&quot;, message);
+-          eventData.put(&quot;$data&quot;, nickname + &quot; &quot; + message);
++    HashMap eventData = new HashMap();
+ 
+-          output.fireSetTarget(eventData, nickname, output.chooseSet(nickname, &quot;SEND_TEXT&quot;, &quot;SEND_TEXT_INACTIVE&quot;));
+-      }
+-      else
+-      {
+-          eventData.put(&quot;$target&quot;, nickname);
+-          eventData.put(&quot;$parms&quot;, message);
+-          eventData.put(&quot;$data&quot;, nickname + &quot; &quot; + message);
++    eventData.put(&quot;$target&quot;, target);
++    eventData.put(&quot;$parms&quot;, message);
++    eventData.put(&quot;$data&quot;, target + &quot; &quot; + message);
+ 
+-          output.fireSetQuery(eventData, nickname, nickname, &quot;SEND_MSG&quot;);
+-      }
+-   }
++    output.fireSetConfused(eventData, target, &quot;notice&quot;, &quot;SEND_NOTICE&quot;);
++  }
+ 
+-   public void sendNotice(String target, String message)
+-   {
+-       sock.println(&quot;NOTICE &quot; + target + &quot; :&quot; + message);
++  public void sendAction(String target, String message) {
++    HashMap eventData = new HashMap();
+ 
+-       HashMap eventData = new HashMap();
++    if (target.charAt(0) == '=') {
++      eventData.put(&quot;$target&quot;, target.substring(1));
++      eventData.put(&quot;$parms&quot;, message);
++      eventData.put(&quot;$data&quot;, target.substring(1) + &quot; &quot; + message);
+ 
+-       eventData.put(&quot;$target&quot;, target);
+-       eventData.put(&quot;$parms&quot;, message);
+-       eventData.put(&quot;$data&quot;, target + &quot; &quot; + message);
++      output.fireSetTarget(eventData, target, output.chooseSet(target, &quot;SEND_ACTION&quot;, &quot;SEND_ACTION_INACTIVE&quot;));
++    } else if (ClientUtils.isChannel(target)) {
++      eventData.put(&quot;$target&quot;, target);
++      eventData.put(&quot;$channel&quot;, target);
++      eventData.put(&quot;$parms&quot;, message);
++      eventData.put(&quot;$data&quot;, target + &quot; &quot; + message);
+ 
+-       output.fireSetConfused(eventData, target, &quot;notice&quot;, &quot;SEND_NOTICE&quot;);
+-   }
+- 
+-   public void sendAction(String target, String message)
+-   {
+-      HashMap eventData = new HashMap();
++      output.fireSetTarget(eventData, target, output.chooseSet(target, &quot;SEND_ACTION&quot;, &quot;SEND_ACTION_INACTIVE&quot;));
++    } else {
++      eventData.put(&quot;$target&quot;, target);
++      eventData.put(&quot;$parms&quot;, message);
++      eventData.put(&quot;$data&quot;, target + &quot; &quot; + message);
+ 
+-      if (target.charAt(0) == '=')
+-      {
+-          eventData.put(&quot;$target&quot;, target.substring(1));
+-          eventData.put(&quot;$parms&quot;, message);
+-          eventData.put(&quot;$data&quot;, target.substring(1) + &quot; &quot; + message);
++      output.fireSetTarget(eventData, target, &quot;SEND_ACTION&quot;);
++    }
+ 
+-          output.fireSetTarget(eventData, target, output.chooseSet(target, &quot;SEND_ACTION&quot;, &quot;SEND_ACTION_INACTIVE&quot;));
+-      }
+-      else if (ClientUtils.isChannel(target))
+-      {
+-          eventData.put(&quot;$target&quot;, target);
+-          eventData.put(&quot;$channel&quot;, target);
+-          eventData.put(&quot;$parms&quot;, message);
+-          eventData.put(&quot;$data&quot;, target + &quot; &quot; + message);
++    if (target.charAt(0) == '=') {
++      Chat connection = (Chat) dccData.getSpecificConnection(target.substring(1), ProtocolDCC.DCC_CHAT);
+ 
+-          output.fireSetTarget(eventData, target, output.chooseSet(target, &quot;SEND_ACTION&quot;, &quot;SEND_ACTION_INACTIVE&quot;));
++      if (connection == null) {
++        output.fireSetTarget(eventData, target, &quot;SEND_CHAT_ERROR&quot;);
++        return;
+       }
+-      else
+-      {
+-          eventData.put(&quot;$target&quot;, target);
+-          eventData.put(&quot;$parms&quot;, message);
+-          eventData.put(&quot;$data&quot;, target + &quot; &quot; + message);
+ 
+-          output.fireSetTarget(eventData, target, &quot;SEND_ACTION&quot;);
+-      }
++      connection.sendln((char) 1 + &quot;ACTION &quot; + message + (char) 1);
++    } else {
++      sock.println(&quot;PRIVMSG &quot; + target + &quot; :&quot; + (char) 1 + &quot;ACTION &quot; + message + (char) 1);
++    }
++  }
+ 
+-      if (target.charAt(0) == '=')
+-      {
+-          Chat connection = (Chat)dccData.getSpecificConnection(target.substring(1), ProtocolDCC.DCC_CHAT);
++  public void sendRequest(String target, String type, String parms) {
++    HashMap eventData = new HashMap();
+ 
+-          if (connection == null)
+-          {
+-              output.fireSetTarget(eventData, target, &quot;SEND_CHAT_ERROR&quot;);
+-              return;
+-          }
++    eventData.put(&quot;$target&quot;, target);
++    eventData.put(&quot;$parms&quot;, parms);
++    eventData.put(&quot;$type&quot;, type);
++    eventData.put(&quot;$data&quot;, target + &quot; &quot; + type + &quot; &quot; + parms);
+ 
+-          connection.sendln((char)1 + &quot;ACTION &quot; + message + (char)1);
++    if (type.equals(&quot;PING&quot;) &amp;&amp; parms.equals(&quot;&quot;)) {
++      parms = System.currentTimeMillis() + &quot;&quot;;
++    }
++
++    output.fireSetConfused(eventData, target, &quot;reply&quot;, &quot;SEND_CTCP&quot;);
++
++    if (parms.length() &gt; 0) {
++      sock.println(&quot;PRIVMSG &quot; + target + &quot; :&quot; + (char) 1 + type.toUpperCase() + &quot; &quot; + parms + (char) 1);
++    } else {
++      sock.println(&quot;PRIVMSG &quot; + target + &quot; :&quot; + (char) 1 + type.toUpperCase() + (char) 1);
++    }
++  }
++
++  public void sendReply(String target, String type, String parms) {
++    sock.println(&quot;NOTICE &quot; + target + &quot; :&quot; + (char) 1 + type.toUpperCase() + &quot; &quot; + parms + (char) 1);
++  }
++
++
++  public static String[] wrapMessageToStringsArray(String message, int length) {
++    String s = wrapText(message, &quot;\n&quot;, length);
++    return s.split(&quot;\n&quot;);
++  }
++
++  /**
++   * Takes a block of text which might have long lines in it and wraps the long lines based on the supplied wrapColumn
++   * parameter. It was initially implemented for use by VelocityEmail. If there are tabs in inString, you are going to
++   * get results that are a bit strange, since tabs are a single character but are displayed as 4 or 8 spaces. Remove
++   * the tabs.
++   *
++   * @param inString   Text which is in need of word-wrapping.
++   * @param newline    The characters that define a newline.
++   * @param wrapColumn The column to wrap the words at.
++   * @return The text with all the long lines word-wrapped.
++   */
++  public static String wrapText(String inString, String newline,
++                                int wrapColumn) {
++    StringTokenizer lineTokenizer = new StringTokenizer(
++      inString, newline, true);
++    StringBuffer stringBuffer = new StringBuffer();
++
++    while (lineTokenizer.hasMoreTokens()) {
++      try {
++        String nextLine = lineTokenizer.nextToken();
++
++        if (nextLine.length() &gt; wrapColumn) {
++          // This line is long enough to be wrapped.
++          nextLine = wrapLine(nextLine, newline, wrapColumn);
++        }
++
++        stringBuffer.append(nextLine);
+       }
+-      else
+-      {
+-          sock.println(&quot;PRIVMSG &quot; + target + &quot; :&quot; + (char)1 + &quot;ACTION &quot; + message + (char)1);
++      catch (NoSuchElementException nsee) {
++        // thrown by nextToken(), but I don't know why it would
++        break;
+       }
+-   }
++    }
+ 
+-   public void sendRequest(String target, String type, String parms)
+-   {
+-       HashMap eventData = new HashMap();
++    return (stringBuffer.toString());
++  }
+ 
+-       eventData.put(&quot;$target&quot;, target);
+-       eventData.put(&quot;$parms&quot;, parms);
+-       eventData.put(&quot;$type&quot;, type);
+-       eventData.put(&quot;$data&quot;, target + &quot; &quot; + type + &quot; &quot; + parms); 
++  /**
++   * Wraps a single line of text. Called by wrapText(). I can't think of any good reason for exposing this to the
++   * public, since wrapText should always be used AFAIK.
++   *
++   * @param line       A line which is in need of word-wrapping.
++   * @param newline    The characters that define a newline.
++   * @param wrapColumn The column to wrap the words at.
++   * @return A line with newlines inserted.
++   */
++  protected static String wrapLine(String line, String newline,
++                                   int wrapColumn) {
++    StringBuffer wrappedLine = new StringBuffer();
+ 
+-       if (type.equals(&quot;PING&quot;) &amp;&amp; parms.equals(&quot;&quot;))
+-       {
+-          parms = System.currentTimeMillis() + &quot;&quot;;
+-       }
++    while (line.length() &gt; wrapColumn) {
++      int spaceToWrapAt = line.lastIndexOf(' ', wrapColumn);
+ 
+-       output.fireSetConfused(eventData, target, &quot;reply&quot;, &quot;SEND_CTCP&quot;);
++      if (spaceToWrapAt &gt;= 0) {
++        wrappedLine.append(line.substring(0, spaceToWrapAt));
++        wrappedLine.append(newline);
++        line = line.substring(spaceToWrapAt + 1);
++      } else {
++        // if no space found, force wrap at wrapColumn
++        spaceToWrapAt = wrapColumn;
++        wrappedLine.append(line.substring(0, spaceToWrapAt));
++        wrappedLine.append(newline);
++        line = line.substring(spaceToWrapAt);
++      }
++    }
++    // Whatever is left in line is short enough to just pass through,
++    // just like a small small kidney stone
++    wrappedLine.append(line);
+ 
+-       if (parms.length() &gt; 0)
+-       {
+-          sock.println(&quot;PRIVMSG &quot; + target + &quot; :&quot; + (char)1 + type.toUpperCase() + &quot; &quot; + parms + (char)1);
+-       }
+-       else
+-       {
+-          sock.println(&quot;PRIVMSG &quot; + target + &quot; :&quot; + (char)1 + type.toUpperCase() + (char)1);
+-       }
+-   }
++    return wrappedLine.toString();
++  }
+ 
+-   public void sendReply(String target, String type, String parms)
+-   {
+-       sock.println(&quot;NOTICE &quot; + target + &quot; :&quot; + (char)1 + type.toUpperCase() + &quot; &quot; + parms + (char)1);
+-   }
++  /*public static void main(String[] args) {
++    String[] strings = wrapMessageToStringsArray(&quot;alpha beta gamma someshit&quot;, 6);
++    for (int i = 0; i &lt; strings.length; i++) {
++      String string = strings[i];
++      System.out.println(&quot;string = &quot; + string);
++    }
++  }*/
+ }
+ 
+ 
+
+Modified: rero/src/rero/config/ClientDefaults.java
+===================================================================
+--- rero/src/rero/config/ClientDefaults.java	2006-02-22 21:31:54 UTC (rev 76)
++++ rero/src/rero/config/ClientDefaults.java	2006-02-23 15:28:59 UTC (rev 77)
+@@ -78,7 +78,7 @@
+ 
+    public static final boolean update_ial     = true;
+ 
+-   public static final String  version_string = &quot;02.18.06 (alpha)&quot;;
++   public static final String  version_string = &quot;02.23.06 (alpha)&quot;;
+ 
+    static
+    {
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000058.html">[Jircii-svn] r76 - in rero: resources/toplevel src/rero/gui/input
+</A></li>
+	
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#59">[ date ]</a>
+              <a href="thread.html#59">[ thread ]</a>
+              <a href="subject.html#59">[ subject ]</a>
+              <a href="author.html#59">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/jircii-svn">More information about the Jircii-svn
+mailing list</a><br>
+</body></html>

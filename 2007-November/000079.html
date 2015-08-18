@@ -1,0 +1,196 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Jircii-svn] r102 - in rero: resources/toplevel	src/rero/bridges/menu src/rero/gui src/rero/script
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/jircii-svn/2007-November/index.html" >
+   <LINK REL="made" HREF="mailto:jircii-svn%40lists.berlios.de?Subject=Re%3A%20%5BJircii-svn%5D%20r102%20-%20in%20rero%3A%20resources/toplevel%0A%09src/rero/bridges/menu%20src/rero/gui%20src/rero/script&In-Reply-To=%3C200711260400.lAQ40WD3012213%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000078.html">
+   <LINK REL="Next"  HREF="000080.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Jircii-svn] r102 - in rero: resources/toplevel	src/rero/bridges/menu src/rero/gui src/rero/script</H1>
+    <B>rsmudge at BerliOS</B> 
+    <A HREF="mailto:jircii-svn%40lists.berlios.de?Subject=Re%3A%20%5BJircii-svn%5D%20r102%20-%20in%20rero%3A%20resources/toplevel%0A%09src/rero/bridges/menu%20src/rero/gui%20src/rero/script&In-Reply-To=%3C200711260400.lAQ40WD3012213%40sheep.berlios.de%3E"
+       TITLE="[Jircii-svn] r102 - in rero: resources/toplevel	src/rero/bridges/menu src/rero/gui src/rero/script">rsmudge at mail.berlios.de
+       </A><BR>
+    <I>Mon Nov 26 05:00:32 CET 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000078.html">[Jircii-svn] r101 - rero/resources/toplevel
+</A></li>
+        <LI>Next message: <A HREF="000080.html">[Jircii-svn] r104 - in rero: . resources/toplevel
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#79">[ date ]</a>
+              <a href="thread.html#79">[ thread ]</a>
+              <a href="subject.html#79">[ subject ]</a>
+              <a href="author.html#79">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: rsmudge
+Date: 2007-11-26 05:00:30 +0100 (Mon, 26 Nov 2007)
+New Revision: 102
+
+Modified:
+   rero/resources/toplevel/whatsnew.txt
+   rero/src/rero/bridges/menu/MenuBridge.java
+   rero/src/rero/bridges/menu/ScriptedMenu.java
+   rero/src/rero/gui/SessionManager.java
+   rero/src/rero/script/ScriptCore.java
+Log:
+..
+
+
+Modified: rero/resources/toplevel/whatsnew.txt
+===================================================================
+--- rero/resources/toplevel/whatsnew.txt	2007-11-26 02:19:54 UTC (rev 101)
++++ rero/resources/toplevel/whatsnew.txt	2007-11-26 04:00:30 UTC (rev 102)
+@@ -9,7 +9,12 @@
+   current information and URLs
+ - added a WALLOPS and SEND_WALLOPS sets; updated the default.irc script to
+   include these.  also fixed /wallops; per request of drakx
++- improved the menubar refresh for server switches by a small factor; 
++  ideally I'd like to eliminate this issue but it will take some code
++  restructuring to do this.  this is mostly an issue on MacOS X where
++  menubar changes take effect immediately (unlike other platforms *ahem*)
+ 
++
+ Beta    41 last minute update 25 Mar 07 :)
+ ====
+ - Small last minute update to unbreak a potential issue with script
+
+Modified: rero/src/rero/bridges/menu/MenuBridge.java
+===================================================================
+--- rero/src/rero/bridges/menu/MenuBridge.java	2007-11-26 02:19:54 UTC (rev 101)
++++ rero/src/rero/bridges/menu/MenuBridge.java	2007-11-26 04:00:30 UTC (rev 102)
+@@ -188,8 +188,6 @@
+ 
+     public void installMenubar(JMenuBar bar)
+     {
+-       bar.removeAll();
+- 
+        Iterator i = menubarMenus.values().iterator();
+        while (i.hasNext())
+        {
+
+Modified: rero/src/rero/bridges/menu/ScriptedMenu.java
+===================================================================
+--- rero/src/rero/bridges/menu/ScriptedMenu.java	2007-11-26 02:19:54 UTC (rev 101)
++++ rero/src/rero/bridges/menu/ScriptedMenu.java	2007-11-26 04:00:30 UTC (rev 102)
+@@ -84,6 +84,6 @@
+ 
+    public void menuCanceled(MenuEvent e) 
+    { 
+-        removeAll();
++       removeAll();
+    }
+ }
+
+Modified: rero/src/rero/gui/SessionManager.java
+===================================================================
+--- rero/src/rero/gui/SessionManager.java	2007-11-26 02:19:54 UTC (rev 101)
++++ rero/src/rero/gui/SessionManager.java	2007-11-26 04:00:30 UTC (rev 102)
+@@ -33,6 +33,9 @@
+    protected PopupManager popups   = null;
+    protected KeyBindings  keyb     = null;
+ 
++   protected String       lastscript = &quot;&quot;;
++   protected long         lastref    = 0;
++
+    protected static GlobalCapabilities global; 
+ 
+    public static GlobalCapabilities getGlobalCapabilities()
+@@ -43,23 +46,20 @@
+    public void propertyChanged(String property, String parameter)
+    {
+       bridge = (MenuBridge)getActiveSession().getCapabilities().getDataStructure(&quot;menuBridge&quot;);
+-      
+-      SwingUtilities.invokeLater(new Runnable()
++      rero.util.ClientUtils.invokeLater(new Runnable()
+       {
+          public void run()
+          {
+             if (ClientState.getClientState().isOption(&quot;ui.showbar&quot;, ClientDefaults.ui_showbar))
+             {
+-               if (frame.getJMenuBar() == null)
+-                  frame.setJMenuBar(menu);
++               menu = new JMenuBar();
++               bridge.installMenubar(menu);
++               frame.setJMenuBar(menu);
+             }
+             else
+             {
+                frame.setJMenuBar(null);
+             }
+-
+-            bridge.installMenubar(menu);
+-            menu.repaint();
+             frame.validate();
+          }
+       });
+@@ -71,8 +71,9 @@
+ 
+       if (getActiveSession() != null)
+       {
+-         MenuBridge temp = (MenuBridge)getActiveSession().getCapabilities().getDataStructure(&quot;menuBridge&quot;);
+-         temp.installMenubar(menu);
++         propertyChanged(null, null);
++//         MenuBridge temp = (MenuBridge)getActiveSession().getCapabilities().getDataStructure(&quot;menuBridge&quot;);
++//         temp.installMenubar(menu);
+          GraphicalToolbar.stateChanged(); // CHEATING!!!!
+ 
+          getActiveSession().getCapabilities().dispatchEvent(switchEventHashMap);
+
+Modified: rero/src/rero/script/ScriptCore.java
+===================================================================
+--- rero/src/rero/script/ScriptCore.java	2007-11-26 02:19:54 UTC (rev 101)
++++ rero/src/rero/script/ScriptCore.java	2007-11-26 04:00:30 UTC (rev 102)
+@@ -144,13 +144,13 @@
+    public boolean scriptLoaded(ScriptInstance si)
+    {
+       si.setScriptVariables(variables);
+-      ClientState.getClientState().fireChange(&quot;loaded.scripts&quot;, null);
++      ClientState.getClientState().fireChange(&quot;loaded.scripts&quot;, si.getName());
+       return true;
+    }
+    
+    public boolean scriptUnloaded(ScriptInstance si)
+    {
+-      ClientState.getClientState().fireChange(&quot;loaded.scripts&quot;, null);
++      ClientState.getClientState().fireChange(&quot;loaded.scripts&quot;, si.getName());
+       return true;
+    }
+ }
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000078.html">[Jircii-svn] r101 - rero/resources/toplevel
+</A></li>
+	<LI>Next message: <A HREF="000080.html">[Jircii-svn] r104 - in rero: . resources/toplevel
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#79">[ date ]</a>
+              <a href="thread.html#79">[ thread ]</a>
+              <a href="subject.html#79">[ subject ]</a>
+              <a href="author.html#79">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/jircii-svn">More information about the Jircii-svn
+mailing list</a><br>
+</body></html>

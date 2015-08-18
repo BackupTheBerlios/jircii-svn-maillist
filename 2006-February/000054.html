@@ -1,0 +1,337 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Jircii-svn] r72 - in rero: resources/toplevel src/rero/gui/script src/text
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/jircii-svn/2006-February/index.html" >
+   <LINK REL="made" HREF="mailto:jircii-svn%40lists.berlios.de?Subject=Re%3A%20%5BJircii-svn%5D%20r72%20-%20in%20rero%3A%20resources/toplevel%20src/rero/gui/script%20src/text&In-Reply-To=%3C200602182008.k1IK80tr019269%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000053.html">
+   <LINK REL="Next"  HREF="000055.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Jircii-svn] r72 - in rero: resources/toplevel src/rero/gui/script src/text</H1>
+    <B>crazycoder at BerliOS</B> 
+    <A HREF="mailto:jircii-svn%40lists.berlios.de?Subject=Re%3A%20%5BJircii-svn%5D%20r72%20-%20in%20rero%3A%20resources/toplevel%20src/rero/gui/script%20src/text&In-Reply-To=%3C200602182008.k1IK80tr019269%40sheep.berlios.de%3E"
+       TITLE="[Jircii-svn] r72 - in rero: resources/toplevel src/rero/gui/script src/text">crazycoder at berlios.de
+       </A><BR>
+    <I>Sat Feb 18 21:08:00 CET 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000053.html">[Jircii-svn] r71 - in rero: resources/toplevel src/rero/config
+</A></li>
+        <LI>Next message: <A HREF="000055.html">[Jircii-svn] r73 - in rero: resources/toplevel src/rero/config src/rero/gui
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#54">[ date ]</a>
+              <a href="thread.html#54">[ thread ]</a>
+              <a href="subject.html#54">[ subject ]</a>
+              <a href="author.html#54">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: crazycoder
+Date: 2006-02-18 21:07:57 +0100 (Sat, 18 Feb 2006)
+New Revision: 72
+
+Added:
+   rero/src/rero/gui/script/WindowAreaClickListener.java
+Modified:
+   rero/resources/toplevel/whatsnew.txt
+   rero/src/rero/gui/script/UIScriptBridge.java
+   rero/src/rero/gui/script/WindowClickListener.java
+   rero/src/text/WrappedDisplay.java
+Log:
+Added cclick event and $clicks variable for all click events
+
+Modified: rero/resources/toplevel/whatsnew.txt
+===================================================================
+--- rero/resources/toplevel/whatsnew.txt	2006-02-18 03:40:41 UTC (rev 71)
++++ rero/resources/toplevel/whatsnew.txt	2006-02-18 20:07:57 UTC (rev 72)
+@@ -19,6 +19,9 @@
+   (Serge)
+ - Fix for <A HREF="http://jirc.hick.org/cgi-bin/bitch.cgi/view.html?4225366">http://jirc.hick.org/cgi-bin/bitch.cgi/view.html?4225366</A>
+   Double click is now the default to open links and channels (Serge)
++- cclick event, fired when user clicks on empty channel window area.
++  $item is set to window name, $clicks is set to number of clicks (Serge)
++- $clicks variable added for all click events (Serge)
+ 
+ Beta    39 release 07.30.05
+ ====
+
+Modified: rero/src/rero/gui/script/UIScriptBridge.java
+===================================================================
+--- rero/src/rero/gui/script/UIScriptBridge.java	2006-02-18 03:40:41 UTC (rev 71)
++++ rero/src/rero/gui/script/UIScriptBridge.java	2006-02-18 20:07:57 UTC (rev 72)
+@@ -1,91 +1,90 @@
+ package rero.gui.script;
+ 
+-import rero.gui.*;
+-import rero.gui.windows.*;
++import rero.bridges.event.EventBridge;
++import rero.gui.IRCSession;
++import rero.gui.windows.ChannelWindow;
++import rero.gui.windows.ClientWindowEvent;
++import rero.gui.windows.EmptyWindow;
++import rero.gui.windows.StatusWindow;
+ 
+-import rero.client.*;
+-import rero.bridges.event.*;
++public class UIScriptBridge {
++  protected IRCSession session;
+ 
+-import javax.swing.*;
++  protected WindowStateListener windowState;       // dispatches window state related events (on close,open,minimize etc.)
++  protected WindowDataListener windowData;        // dispatches the &quot;on window&quot; event for text being echo'd to a window
++  protected WindowClickListener windowClick;       // handles the &quot;on click&quot; event for text being clicked on in a window...
++  protected WindowClickListener windowDoubleClick; // handles the &quot;on dclick&quot; event for text being (double) clicked on in a listbox...
++  protected WindowClickListener windowSpecialClick; // handles the &quot;on sclick&quot; event for text being (double) clicked on in a special window
++  protected WindowInputListener windowInput;       // handles the &quot;on input&quot; event
+ 
+-import text.*;
+-import text.list.*;
++  protected WindowAreaClickListener areaClickListener;       // handles double clicks for empty channel areas
+ 
+-public class UIScriptBridge
+-{
+-   protected IRCSession          session;
++  protected SessionOperators sessionOps;
+ 
+-   protected WindowStateListener windowState;       // dispatches window state related events (on close,open,minimize etc.)
+-   protected WindowDataListener  windowData;        // dispatches the &quot;on window&quot; event for text being echo'd to a window 
+-   protected WindowClickListener windowClick;       // handles the &quot;on click&quot; event for text being clicked on in a window...
+-   protected WindowClickListener windowDoubleClick; // handles the &quot;on dclick&quot; event for text being (double) clicked on in a listbox...
+-   protected WindowClickListener windowSpecialClick; // handles the &quot;on sclick&quot; event for text being (double) clicked on in a special window
+-   protected WindowInputListener windowInput;       // handles the &quot;on input&quot; event
++  protected WindowOperators windowOps;         // functions related to windows specifically
++  protected WindowManagementOperators windowMgmt;        // functions related to windows specifically
+ 
+-   protected SessionOperators    sessionOps;
++  protected UIOperators interfaceOps;
+ 
+-   protected WindowOperators     windowOps;         // functions related to windows specifically
+-   protected WindowManagementOperators     windowMgmt;        // functions related to windows specifically
++  public UIScriptBridge(IRCSession _session) {
++    session = _session;
+ 
+-   protected UIOperators         interfaceOps;
++    EventBridge bridge = (EventBridge) session.getCapabilities().getDataStructure(&quot;eventBridge&quot;);
+ 
+-   public UIScriptBridge(IRCSession _session)
+-   {
+-       session = _session;
++    windowState = new WindowStateListener(session);
++    windowState.registerListener(bridge);
+ 
+-       EventBridge bridge = (EventBridge)session.getCapabilities().getDataStructure(&quot;eventBridge&quot;);
++    windowData = new WindowDataListener(session.getCapabilities().getUserInterface());
++    bridge.registerEvent(&quot;window&quot;, windowData);
+ 
+-       windowState = new WindowStateListener(session);
+-       windowState.registerListener(bridge);
++    windowClick = new WindowClickListener();
++    bridge.registerEvent(&quot;click&quot;, windowClick);
+ 
+-       windowData  = new WindowDataListener(session.getCapabilities().getUserInterface());
+-       bridge.registerEvent(&quot;window&quot;, windowData);       
++    windowDoubleClick = new WindowClickListener();
++    bridge.registerEvent(&quot;dclick&quot;, windowDoubleClick);
+ 
+-       windowClick = new WindowClickListener();
+-       bridge.registerEvent(&quot;click&quot;, windowClick);
++    areaClickListener = new WindowAreaClickListener();
++    bridge.registerEvent(&quot;cclick&quot;, areaClickListener);
+ 
+-       windowDoubleClick = new WindowClickListener();
+-       bridge.registerEvent(&quot;dclick&quot;, windowDoubleClick);
++    windowSpecialClick = new WindowClickListener();
++    bridge.registerEvent(&quot;sclick&quot;, windowSpecialClick);
+ 
+-       windowSpecialClick = new WindowClickListener();
+-       bridge.registerEvent(&quot;sclick&quot;, windowSpecialClick);
++    windowInput = new WindowInputListener();
++    bridge.registerEvent(&quot;input&quot;, windowInput);
+ 
+-       windowInput = new WindowInputListener();
+-       bridge.registerEvent(&quot;input&quot;, windowInput);
++    windowOps = new WindowOperators(session);
++    session.getCapabilities().getScriptCore().addBridge(windowOps);
+ 
+-       windowOps = new WindowOperators(session);
+-       session.getCapabilities().getScriptCore().addBridge(windowOps);
++    windowMgmt = new WindowManagementOperators(session);
++    session.getCapabilities().getScriptCore().addBridge(windowMgmt);
+ 
+-       windowMgmt = new WindowManagementOperators(session);
+-       session.getCapabilities().getScriptCore().addBridge(windowMgmt);
++    sessionOps = new SessionOperators(session);
++    session.getCapabilities().getScriptCore().addBridge(sessionOps);
+ 
+-       sessionOps = new SessionOperators(session);
+-       session.getCapabilities().getScriptCore().addBridge(sessionOps);
++    interfaceOps = new UIOperators(session);
++    session.getCapabilities().getScriptCore().addBridge(interfaceOps);
++  }
+ 
+-       interfaceOps = new UIOperators(session);
+-       session.getCapabilities().getScriptCore().addBridge(interfaceOps);
+-   }
++  /**
++   * called to notify the scripting bridge that a window has been created, this is for listeners and such to get
++   * registered
++   */
++  public void windowCreated(final StatusWindow window) {
++    window.getWindow().addWindowListener(windowState);
+ 
+-   /** called to notify the scripting bridge that a window has been created, this is for listeners and such to get registered */
+-   public void windowCreated(final StatusWindow window)
+-   {
+-       window.getWindow().addWindowListener(windowState);
++    if (window.isLegalWindow()) {
++      window.getDisplay().addClickListener(windowClick);
++      window.getDisplay().addClickListener(areaClickListener);
++      window.getInput().addInputListener(windowInput);
+ 
+-       if (window.isLegalWindow())
+-       {
+-          window.getDisplay().addClickListener(windowClick);
+-          window.getInput().addInputListener(windowInput);
++      if (window instanceof ChannelWindow) {
++        ((ChannelWindow) window).addClickListener(windowDoubleClick);
++      }
++    } else {
++      ((EmptyWindow) window).addClickListener(windowSpecialClick);
++    }
+ 
+-          if (window instanceof ChannelWindow)
+-          {
+-             ((ChannelWindow)window).addClickListener(windowDoubleClick);
+-          }
+-       }
+-       else
+-       {
+-          ((EmptyWindow)window).addClickListener(windowSpecialClick);
+-       }
+-   
+-       windowState.onOpen(new ClientWindowEvent(window.getWindow())); // fake out the scripting saying &quot;the window has opened&quot;
+-   }
++    windowState
++      .onOpen(new ClientWindowEvent(window.getWindow())); // fake out the scripting saying &quot;the window has opened&quot;
++  }
+ }
+
+Added: rero/src/rero/gui/script/WindowAreaClickListener.java
+===================================================================
+--- rero/src/rero/gui/script/WindowAreaClickListener.java	2006-02-18 03:40:41 UTC (rev 71)
++++ rero/src/rero/gui/script/WindowAreaClickListener.java	2006-02-18 20:07:57 UTC (rev 72)
+@@ -0,0 +1,31 @@
++package rero.gui.script;
++
++import rero.bridges.event.ScriptedEventListener;
++import rero.ircfw.interfaces.ChatListener;
++import text.event.ClickEvent;
++import text.event.ClickListener;
++
++import java.util.HashMap;
++import java.awt.event.MouseEvent;
++
++/**
++ * Event listener class that handles double clicks on empty channel area
++ */
++public class WindowAreaClickListener extends ScriptedEventListener implements ClickListener {
++  public void wordClicked(ClickEvent ev) {
++    MouseEvent event = ev.getEvent();
++
++    HashMap eventData = new HashMap();
++    eventData.put(&quot;$item&quot;, ev.getContext());
++    eventData.put(&quot;$mouse&quot;, event.paramString());
++    eventData.put(&quot;$clicks&quot;, new Integer(event.getClickCount()).toString());
++
++    if (dispatchEvent(eventData) == ChatListener.EVENT_HALT) {
++      ev.consume();
++    }
++  }
++
++  public void setupListener() {
++    // already setup by default *shrug*
++  }
++}
+
+Modified: rero/src/rero/gui/script/WindowClickListener.java
+===================================================================
+--- rero/src/rero/gui/script/WindowClickListener.java	2006-02-18 03:40:41 UTC (rev 71)
++++ rero/src/rero/gui/script/WindowClickListener.java	2006-02-18 20:07:57 UTC (rev 72)
+@@ -21,6 +21,7 @@
+       eventData.put(&quot;$parms&quot;, ev.getContext());
+       eventData.put(&quot;$data&quot;,  ev.getClickedText() + &quot; &quot; + ev.getContext());
+       eventData.put(&quot;$mouse&quot;, ev.getEvent().paramString());
++      eventData.put(&quot;$clicks&quot;, new Integer(ev.getEvent().getClickCount()).toString());
+ 
+       if (dispatchEvent(eventData) == rero.ircfw.interfaces.ChatListener.EVENT_HALT)
+       {
+
+Modified: rero/src/text/WrappedDisplay.java
+===================================================================
+--- rero/src/text/WrappedDisplay.java	2006-02-18 03:40:41 UTC (rev 71)
++++ rero/src/text/WrappedDisplay.java	2006-02-18 20:07:57 UTC (rev 72)
+@@ -11,6 +11,9 @@
+ import java.awt.datatransfer.*;
+ 
+ import rero.config.*;
++import rero.gui.script.WindowAreaClickListener;
++import rero.gui.windows.ChannelWindow;
++import rero.gui.SessionManager;
+ 
+ import text.event.*;
+ 
+@@ -191,6 +194,9 @@
+                }
+             }).start();
+          }
++      } else {
++        String wname = SessionManager.getGlobalCapabilities().getActiveSession().getActiveWindow().getName();
++        fireClickEvent(null, wname, ev);
+       }
+    }   
+ 
+@@ -236,7 +242,9 @@
+       while (i.hasNext() &amp;&amp; !event.isConsumed())
+       {
+          ClickListener l = (ClickListener)i.next();
+-         l.wordClicked(event);
++        // pass events with null text only to area click listener
++        if(text == null &amp;&amp; !(l instanceof WindowAreaClickListener)) continue;
++        l.wordClicked(event);
+       }
+ 
+       return event;
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000053.html">[Jircii-svn] r71 - in rero: resources/toplevel src/rero/config
+</A></li>
+	<LI>Next message: <A HREF="000055.html">[Jircii-svn] r73 - in rero: resources/toplevel src/rero/config src/rero/gui
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#54">[ date ]</a>
+              <a href="thread.html#54">[ thread ]</a>
+              <a href="subject.html#54">[ subject ]</a>
+              <a href="author.html#54">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/jircii-svn">More information about the Jircii-svn
+mailing list</a><br>
+</body></html>

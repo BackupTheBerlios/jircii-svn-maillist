@@ -1,0 +1,100 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Jircii-svn] r46 - rero/resources/resource
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/jircii-svn/2005-July/index.html" >
+   <LINK REL="made" HREF="mailto:jircii-svn%40lists.berlios.de?Subject=Re%3A%20%5BJircii-svn%5D%20r46%20-%20rero/resources/resource&In-Reply-To=%3C200507212205.j6LM5jjG031039%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000025.html">
+   <LINK REL="Next"  HREF="000027.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Jircii-svn] r46 - rero/resources/resource</H1>
+    <B>Andreas Ravnestad at BerliOS</B> 
+    <A HREF="mailto:jircii-svn%40lists.berlios.de?Subject=Re%3A%20%5BJircii-svn%5D%20r46%20-%20rero/resources/resource&In-Reply-To=%3C200507212205.j6LM5jjG031039%40sheep.berlios.de%3E"
+       TITLE="[Jircii-svn] r46 - rero/resources/resource">oracel at berlios.de
+       </A><BR>
+    <I>Fri Jul 22 00:05:45 CEST 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000025.html">[Jircii-svn] r45 - rero/resources/toplevel
+</A></li>
+        <LI>Next message: <A HREF="000027.html">[Jircii-svn] r47 - rero/resources/toplevel
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#26">[ date ]</a>
+              <a href="thread.html#26">[ thread ]</a>
+              <a href="subject.html#26">[ subject ]</a>
+              <a href="author.html#26">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: oracel
+Date: 2005-07-22 00:05:44 +0200 (Fri, 22 Jul 2005)
+New Revision: 46
+
+Modified:
+   rero/resources/resource/default.irc
+Log:
+Changed the SEND_MSG set in the default script so it uses standard &lt;diamond brackets&gt; instead of *asterix*.
+
+Modified: rero/resources/resource/default.irc
+===================================================================
+--- rero/resources/resource/default.irc	2005-07-19 00:37:19 UTC (rev 45)
++++ rero/resources/resource/default.irc	2005-07-21 22:05:44 UTC (rev 46)
+@@ -342,12 +342,23 @@
+ }
+ set SEND_MSG 
+ {
++
++   # Check if it's SDI before using * as nick bracets
++   if (getProperty(&quot;ui.sdi&quot;) eq &quot;true&quot;) {
++      $lb = &quot;*&quot;; $rb = &quot;*&quot;;
++   }
++   else {
++      $lb = &quot;&lt;&quot;; $rb = &quot;&gt;&quot;;
++   }
++   
+    if (-iswindow $target)
+    {
+-       return &quot;\C34*\B $+ $me $+ \B*\C17 $parms&quot;;
++       return &quot;\C34 $+ $lb $+ \B $+ $me $+ \B $+ $rb $+ \C17 $parms &quot;;
+    }
+    else
+    {
++   
++       # Use * as brackets here since it looks best
+        return &quot;\C34 $+ \R-&gt;\R *\B $+ $target $+ \B*\C17 $parms&quot;;
+    }
+ }
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000025.html">[Jircii-svn] r45 - rero/resources/toplevel
+</A></li>
+	<LI>Next message: <A HREF="000027.html">[Jircii-svn] r47 - rero/resources/toplevel
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#26">[ date ]</a>
+              <a href="thread.html#26">[ thread ]</a>
+              <a href="subject.html#26">[ subject ]</a>
+              <a href="author.html#26">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/jircii-svn">More information about the Jircii-svn
+mailing list</a><br>
+</body></html>

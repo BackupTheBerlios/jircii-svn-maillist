@@ -1,0 +1,195 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Jircii-svn] r73 - in rero: resources/toplevel src/rero/config src/rero/gui
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/jircii-svn/2006-February/index.html" >
+   <LINK REL="made" HREF="mailto:jircii-svn%40lists.berlios.de?Subject=Re%3A%20%5BJircii-svn%5D%20r73%20-%20in%20rero%3A%20resources/toplevel%20src/rero/config%20src/rero/gui&In-Reply-To=%3C200602191203.k1JC31QE015598%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000054.html">
+   <LINK REL="Next"  HREF="000056.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Jircii-svn] r73 - in rero: resources/toplevel src/rero/config src/rero/gui</H1>
+    <B>crazycoder at BerliOS</B> 
+    <A HREF="mailto:jircii-svn%40lists.berlios.de?Subject=Re%3A%20%5BJircii-svn%5D%20r73%20-%20in%20rero%3A%20resources/toplevel%20src/rero/config%20src/rero/gui&In-Reply-To=%3C200602191203.k1JC31QE015598%40sheep.berlios.de%3E"
+       TITLE="[Jircii-svn] r73 - in rero: resources/toplevel src/rero/config src/rero/gui">crazycoder at berlios.de
+       </A><BR>
+    <I>Sun Feb 19 13:03:01 CET 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000054.html">[Jircii-svn] r72 - in rero: resources/toplevel src/rero/gui/script src/text
+</A></li>
+        <LI>Next message: <A HREF="000056.html">[Jircii-svn] r74 - in rero/resources: help resource toplevel
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#55">[ date ]</a>
+              <a href="thread.html#55">[ thread ]</a>
+              <a href="subject.html#55">[ subject ]</a>
+              <a href="author.html#55">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: crazycoder
+Date: 2006-02-19 13:02:57 +0100 (Sun, 19 Feb 2006)
+New Revision: 73
+
+Modified:
+   rero/resources/toplevel/whatsnew.txt
+   rero/src/rero/config/ClientDefaults.java
+   rero/src/rero/gui/ClickableURLHandler.java
+Log:
+Added cclick event and $clicks variable for all click events
+
+Modified: rero/resources/toplevel/whatsnew.txt
+===================================================================
+--- rero/resources/toplevel/whatsnew.txt	2006-02-18 20:07:57 UTC (rev 72)
++++ rero/resources/toplevel/whatsnew.txt	2006-02-19 12:02:57 UTC (rev 73)
+@@ -18,7 +18,8 @@
+   List of valid charsets: <A HREF="http://www.iana.org/assignments/character-sets">http://www.iana.org/assignments/character-sets</A>
+   (Serge)
+ - Fix for <A HREF="http://jirc.hick.org/cgi-bin/bitch.cgi/view.html?4225366">http://jirc.hick.org/cgi-bin/bitch.cgi/view.html?4225366</A>
+-  Double click is now the default to open links and channels (Serge)
++  Double click is now the default to open links and channels.
++  dclick.links config option controls this behavior (Serge)
+ - cclick event, fired when user clicks on empty channel window area.
+   $item is set to window name, $clicks is set to number of clicks (Serge)
+ - $clicks variable added for all click events (Serge)
+
+Modified: rero/src/rero/config/ClientDefaults.java
+===================================================================
+--- rero/src/rero/config/ClientDefaults.java	2006-02-18 20:07:57 UTC (rev 72)
++++ rero/src/rero/config/ClientDefaults.java	2006-02-19 12:02:57 UTC (rev 73)
+@@ -31,6 +31,7 @@
+    public static final boolean option_showmotd  = true;
+    public static final boolean option_reconnect = true;
+    public static final boolean option_timestamp = false;
++   public static final boolean dclick_links     = true; // open links with double click
+ 
+    public static       boolean ui_sdi        = true;
+    public static final boolean ui_native     = true; 
+
+Modified: rero/src/rero/gui/ClickableURLHandler.java
+===================================================================
+--- rero/src/rero/gui/ClickableURLHandler.java	2006-02-18 20:07:57 UTC (rev 72)
++++ rero/src/rero/gui/ClickableURLHandler.java	2006-02-19 12:02:57 UTC (rev 73)
+@@ -1,6 +1,8 @@
+ package rero.gui;
+ 
+ import rero.client.Feature;
++import rero.config.ClientDefaults;
++import rero.config.ClientState;
+ import rero.util.ClientUtils;
+ import text.event.ClickEvent;
+ import text.event.ClickListener;
+@@ -8,46 +10,45 @@
+ import java.util.regex.Matcher;
+ import java.util.regex.Pattern;
+ 
+-public class ClickableURLHandler extends Feature implements ClickListener
+-{
+-    private static final Pattern CHAN_PATTERN = Pattern.compile(&quot;[@+%]*(#.*)&quot;);
++public class ClickableURLHandler extends Feature implements ClickListener {
++  private static final Pattern CHAN_PATTERN = Pattern.compile(&quot;[@+%]*(#.*)&quot;);
+ 
+-    public void wordClicked(ClickEvent ev)
+-    {
+-        int clickCount = ev.getEvent().getClickCount();
+-        if (clickCount == 2) {
+-            String item = ev.getClickedText().toLowerCase();
++  public void wordClicked(ClickEvent ev) {
++    int clickCount = ev.getEvent().getClickCount();
++    boolean dclick = ClientState.getClientState().isOption(&quot;dclick.links&quot;, ClientDefaults.dclick_links);
++    int need_clicks = dclick ? 2 : 1;
+ 
+-            if (item.matches(&quot;^\\(*(http|https|ftp)://.*&quot;)) {
+-                ClientUtils.openURL(extractURL(ev.getClickedText()));
+-                ev.consume();
+-                ev.acknowledge();
+-            } else if (item.matches(&quot;^www\\..*&quot;)) {
+-                String location = extractURL(ev.getClickedText());
+-                ClientUtils.openURL(&quot;<A HREF="http://">http://</A>&quot; + location);
+-                ev.consume();
+-                ev.acknowledge();
+-            } else {
+-                Matcher m = CHAN_PATTERN.matcher(ev.getClickedText());
+-                if (m.matches()) {
+-                    String chan = m.group(1).trim();
+-                    getCapabilities().sendln(&quot;JOIN &quot; + chan);
+-                    ev.consume();
+-                    ev.acknowledge();
+-                }
+-            }
++    if (clickCount == need_clicks) {
++      String item = ev.getClickedText().toLowerCase();
++
++      if (item.matches(&quot;^\\(*(http|https|ftp)://.*&quot;)) {
++        ClientUtils.openURL(extractURL(ev.getClickedText()));
++        ev.consume();
++        ev.acknowledge();
++      } else if (item.matches(&quot;^www\\..*&quot;)) {
++        String location = extractURL(ev.getClickedText());
++        ClientUtils.openURL(&quot;<A HREF="http://">http://</A>&quot; + location);
++        ev.consume();
++        ev.acknowledge();
++      } else {
++        Matcher m = CHAN_PATTERN.matcher(ev.getClickedText());
++        if (m.matches()) {
++          String chan = m.group(1).trim();
++          getCapabilities().sendln(&quot;JOIN &quot; + chan);
++          ev.consume();
++          ev.acknowledge();
+         }
++      }
+     }
++  }
+ 
+-    private static String extractURL(String url)
+-    {
+-        if (url.charAt(0) == '(') {
+-            url = url.substring(1, url.length() - 1);
+-        }
+-        return url;
++  private static String extractURL(String url) {
++    if (url.charAt(0) == '(') {
++      url = url.substring(1, url.length() - 1);
+     }
++    return url;
++  }
+ 
+-    public void init()
+-    {
+-    }
++  public void init() {
++  }
+ }
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000054.html">[Jircii-svn] r72 - in rero: resources/toplevel src/rero/gui/script src/text
+</A></li>
+	<LI>Next message: <A HREF="000056.html">[Jircii-svn] r74 - in rero/resources: help resource toplevel
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#55">[ date ]</a>
+              <a href="thread.html#55">[ thread ]</a>
+              <a href="subject.html#55">[ subject ]</a>
+              <a href="author.html#55">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/jircii-svn">More information about the Jircii-svn
+mailing list</a><br>
+</body></html>

@@ -1,0 +1,385 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Jircii-svn] r55 - in rero: resources/toplevel src/rero/client/functions src/rero/config src/rero/gui src/rero/gui/mdi src/rero/gui/sdi src/rero/gui/windows
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/jircii-svn/2005-July/index.html" >
+   <LINK REL="made" HREF="mailto:jircii-svn%40lists.berlios.de?Subject=Re%3A%20%5BJircii-svn%5D%20r55%20-%20in%20rero%3A%20resources/toplevel%20src/rero/client/functions%20src/rero/config%20src/rero/gui%20src/rero/gui/mdi%20src/rero/gui/sdi%20src/rero/gui/windows&In-Reply-To=%3C200507301829.j6UITCRl017675%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000034.html">
+   <LINK REL="Next"  HREF="000036.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Jircii-svn] r55 - in rero: resources/toplevel src/rero/client/functions src/rero/config src/rero/gui src/rero/gui/mdi src/rero/gui/sdi src/rero/gui/windows</H1>
+    <B>Raphael Mudge at BerliOS</B> 
+    <A HREF="mailto:jircii-svn%40lists.berlios.de?Subject=Re%3A%20%5BJircii-svn%5D%20r55%20-%20in%20rero%3A%20resources/toplevel%20src/rero/client/functions%20src/rero/config%20src/rero/gui%20src/rero/gui/mdi%20src/rero/gui/sdi%20src/rero/gui/windows&In-Reply-To=%3C200507301829.j6UITCRl017675%40sheep.berlios.de%3E"
+       TITLE="[Jircii-svn] r55 - in rero: resources/toplevel src/rero/client/functions src/rero/config src/rero/gui src/rero/gui/mdi src/rero/gui/sdi src/rero/gui/windows">rsmudge at berlios.de
+       </A><BR>
+    <I>Sat Jul 30 20:29:12 CEST 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000034.html">[Jircii-svn] r54 - rero/src/rero/client/functions
+</A></li>
+        <LI>Next message: <A HREF="000036.html">[Jircii-svn] r56 - rero/src/rero/gui/mdi
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#35">[ date ]</a>
+              <a href="thread.html#35">[ thread ]</a>
+              <a href="subject.html#35">[ subject ]</a>
+              <a href="author.html#35">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: rsmudge
+Date: 2005-07-30 20:29:11 +0200 (Sat, 30 Jul 2005)
+New Revision: 55
+
+Modified:
+   rero/resources/toplevel/whatsnew.txt
+   rero/src/rero/client/functions/UtilOperators.java
+   rero/src/rero/config/ClientDefaults.java
+   rero/src/rero/gui/KeyBindings.java
+   rero/src/rero/gui/mdi/ClientDesktop.java
+   rero/src/rero/gui/sdi/ClientPanel.java
+   rero/src/rero/gui/windows/WindowManager.java
+Log:
+Final stuff for b39
+
+
+Modified: rero/resources/toplevel/whatsnew.txt
+===================================================================
+--- rero/resources/toplevel/whatsnew.txt	2005-07-30 16:57:45 UTC (rev 54)
++++ rero/resources/toplevel/whatsnew.txt	2005-07-30 18:29:11 UTC (rev 55)
+@@ -1,4 +1,4 @@
+-Beta 39 
++Beta    39 release 07.30.05
+ ====
+ - The find feature is now case insensitive (oracel)
+ - Fixed bug in command history, the history was not reset when pasting
+@@ -17,8 +17,11 @@
+   : is present.
+ - &amp;use (in jIRCii) now cache's the shared script instance causing any
+   loaded modules to be instantiated only once for all jIRCii sessions
++- fixed several bugs in the MDI window management routines
++- Added a workaround to keep Ctrl+Tab from freezing jIRCii on Windows.
++  Ctrl+Tab can still be binded by scripts though.
+ 
+-Beta 38 
++Beta    38 released 07.18.05
+ ====
+ - jIRCii command history behavior has been completely overhauled to feel
+   more like mIRC and other clients (oracel)
+@@ -41,7 +44,7 @@
+ - added an option to strip out all formatting codes from IRC messages
+ - fixed /load ~/file not resolving ~
+ 
+-Beta 37 release 07.13.05
++Beta    37 release 07.13.05
+ ====
+ - fixed resource loading to ensure files in .jIRC have priority over 
+   internal resources
+
+Modified: rero/src/rero/client/functions/UtilOperators.java
+===================================================================
+--- rero/src/rero/client/functions/UtilOperators.java	2005-07-30 16:57:45 UTC (rev 54)
++++ rero/src/rero/client/functions/UtilOperators.java	2005-07-30 18:29:11 UTC (rev 55)
+@@ -81,8 +81,6 @@
+     {
+        public Scalar evaluate(String n, ScriptInstance si, Stack l)
+        {
+-          System.out.println(&quot;The new use has been called&quot;);
+-
+           File   parent;
+           String className;
+ 
+
+Modified: rero/src/rero/config/ClientDefaults.java
+===================================================================
+--- rero/src/rero/config/ClientDefaults.java	2005-07-30 16:57:45 UTC (rev 54)
++++ rero/src/rero/config/ClientDefaults.java	2005-07-30 18:29:11 UTC (rev 55)
+@@ -77,7 +77,7 @@
+ 
+    public static final boolean update_ial     = true;
+ 
+-   public static final String  version_string = &quot;07.18.05&quot;;
++   public static final String  version_string = &quot;07.30.05&quot;;
+ 
+    static
+    {
+
+Modified: rero/src/rero/gui/KeyBindings.java
+===================================================================
+--- rero/src/rero/gui/KeyBindings.java	2005-07-30 16:57:45 UTC (rev 54)
++++ rero/src/rero/gui/KeyBindings.java	2005-07-30 18:29:11 UTC (rev 55)
+@@ -65,6 +65,12 @@
+           return true;
+        }
+ 
++       if (ev.isControlDown() &amp;&amp; ev.getKeyCode() == 9) 
++       {
++          ev.consume();
++          return true;
++       }       
++
+        return false;
+    }
+ 
+
+Modified: rero/src/rero/gui/mdi/ClientDesktop.java
+===================================================================
+--- rero/src/rero/gui/mdi/ClientDesktop.java	2005-07-30 16:57:45 UTC (rev 54)
++++ rero/src/rero/gui/mdi/ClientDesktop.java	2005-07-30 18:29:11 UTC (rev 55)
+@@ -18,7 +18,7 @@
+ import rero.gui.toolkit.OrientedToolBar;
+ 
+ /** responsible for mantaining the state of the desktop GUI and switchbar */
+-public class ClientDesktop extends WindowManager implements ClientWindowListener, ChangeListener, ClientStateListener
++public class ClientDesktop extends WindowManager implements ClientWindowListener, ClientStateListener
+ {
+     protected JDesktopPane desktop;
+ 
+@@ -57,11 +57,8 @@
+        windowMap.put(window.getWindow(), window);
+        windowMap.put(window.getButton(), window);
+ 
+-       if (selected)
+-       {
+-          window.getWindow().addWindowListener(this);
+-          window.getButton().addChangeListener(this);
+-       }
++       window.getWindow().addWindowListener(this);
++       window.getButton().addActionListener(this);
+ 
+        // add to the switchbar
+        addToSwitchbar(window);
+@@ -72,8 +69,6 @@
+        if (!selected)
+        {
+           temp.setVisible(false);
+-          window.getWindow().addWindowListener(this);
+-          window.getButton().addChangeListener(this);
+        }
+        else
+        {
+@@ -90,39 +85,20 @@
+               {
+                  try
+                  {
+-//                    Thread.sleep(2 * 1000); // sleep for 2 seconds - originally used when we had problems requesting focus
+                     refreshFocus(desktop.getSelectedFrame()); 
+                     desktop.getSelectedFrame().setSelected(true);
+                  }
+                  catch (java.beans.PropertyVetoException ex) { }
+-//                 catch (InterruptedException ex2) { }
+-
+                  desktop.repaint();
+               }
+           }
+        });
+     }
+ 
+-    public void stateChanged(ChangeEvent e)
+-    {
+-       JToggleButton source = (JToggleButton)e.getSource();
+-       if (source.isSelected())
+-       {
+-          doActivate(getWindowFor(e.getSource()));
+-       }
+-       else
+-       {
+-          doDeactivate(getWindowFor(e.getSource()));
+-       }
+-    }
+-
+     public void onActive(ClientWindowEvent ev) 
+     { 
+        StatusWindow temp = getWindowFor(ev.getSource());
+        doActivate(temp);
+-
+-//       if (temp.isLegalWindow())
+-//          temp.getInput().requestFocus();
+     }
+ 
+     public void onInactive(ClientWindowEvent ev) 
+@@ -133,15 +109,13 @@
+     public void onMinimize(ClientWindowEvent ev) 
+     { 
+        doDeactivate(getWindowFor(ev.getSource()));
++       newActive(windows.indexOf(getWindowFor(ev.getSource())) - 1);
+     }
+ 
+     public void onOpen(ClientWindowEvent ev) 
+     { 
+        StatusWindow temp = getWindowFor(ev.getSource());
+        doActivate(temp);
+-
+-//       if (temp.isLegalWindow())
+-//          temp.getInput().requestFocus();
+     }
+ 
+     public void onClose(ClientWindowEvent ev) 
+
+Modified: rero/src/rero/gui/sdi/ClientPanel.java
+===================================================================
+--- rero/src/rero/gui/sdi/ClientPanel.java	2005-07-30 16:57:45 UTC (rev 54)
++++ rero/src/rero/gui/sdi/ClientPanel.java	2005-07-30 18:29:11 UTC (rev 55)
+@@ -156,21 +156,6 @@
+        refreshFocus(); 
+     }
+ 
+-    public void actionPerformed(ActionEvent e)
+-    {
+-       JToggleButton source = (JToggleButton)e.getSource();
+-
+-       if (source.isSelected())
+-       {
+-          doActivate(getWindowFor(e.getSource()));
+-       }
+-       else
+-       {
+-          doDeactivate(getWindowFor(e.getSource()));
+-          newActive(windows.indexOf(getWindowFor(e.getSource())) - 1);
+-       }
+-    }
+-
+     public void killWindow(ClientWindow cwindow)
+     {
+        StatusWindow window = getWindowFor(cwindow);
+@@ -210,32 +195,11 @@
+        }       
+     }
+ 
+-    public void newActive(int index)
+-    {
+-       StatusWindow temp;
+-
+-       if (index &gt;= windows.size() || index &lt; 0)
+-       {
+-          temp = (StatusWindow)windows.getFirst();
+-       }
+-       else
+-       {
+-          temp = (StatusWindow)windows.get(index);
+-       }
+-
+-       doActivate(temp);
+-    }
+-
+     public StatusWindow getActiveWindow()
+     {
+        return active;
+     }
+ 
+-    protected StatusWindow getWindowFor(Object o)
+-    {
+-       return (StatusWindow)windowMap.get(o);
+-    }
+-
+     protected void doActivate(StatusWindow window)
+     {
+        if (active != null &amp;&amp; active != window.getWindow())
+
+Modified: rero/src/rero/gui/windows/WindowManager.java
+===================================================================
+--- rero/src/rero/gui/windows/WindowManager.java	2005-07-30 16:57:45 UTC (rev 54)
++++ rero/src/rero/gui/windows/WindowManager.java	2005-07-30 18:29:11 UTC (rev 55)
+@@ -3,8 +3,10 @@
+ import javax.swing.*;
+ import java.util.*;
+ import rero.config.*;
++import java.awt.*;
++import java.awt.event.*;
+ 
+-public abstract class WindowManager extends JPanel implements ClientStateListener
++public abstract class WindowManager extends JPanel implements ClientStateListener, ActionListener
+ {
+     protected SwitchBarOptions switchOptions; // we have to keep a reference to it or it will go bye bye
+     protected JToolBar         switchbar;
+@@ -13,6 +15,11 @@
+ 
+     protected boolean          isRelative; // is the bg being drawn relative to the main window, makes a difference in repainting..
+ 
++    public StatusWindow getWindowFor(Object o)
++    {
++       return (StatusWindow)windowMap.get(o);
++    }
++
+     public void addToSwitchbar(StatusWindow window)
+     {
+        if (ClientState.getClientState().isOption(&quot;switchbar.sort&quot;, ClientDefaults.switchbar_sort))
+@@ -39,6 +46,38 @@
+        switchbar.revalidate();
+     }
+ 
++    public void actionPerformed(ActionEvent e)
++    {
++       JToggleButton source = (JToggleButton)e.getSource();
++
++       if (source.isSelected())
++       {
++          doActivate(getWindowFor(e.getSource()));
++       }
++       else
++       {
++          doDeactivate(getWindowFor(e.getSource()));
++          newActive(windows.indexOf(getWindowFor(e.getSource())) - 1);
++       }
++    }
++
++    public void newActive(int index)
++    {
++       StatusWindow temp;
++
++       if (index &gt;= windows.size() || index &lt; 0)
++       {
++          temp = (StatusWindow)windows.getFirst();
++       }
++       else
++       {
++          temp = (StatusWindow)windows.get(index);
++       }
++
++       doActivate(temp);
++    }
++
++
+     public void propertyChanged(String key, String value)
+     {
+        isRelative = ClientState.getClientState().isOption(&quot;window.relative&quot;, false);
+@@ -76,4 +115,6 @@
+     public abstract void init();
+     public abstract void addWindow(StatusWindow window, boolean selected);
+     public abstract StatusWindow getActiveWindow();
++    protected abstract void doActivate(StatusWindow window);
++    protected abstract void doDeactivate(StatusWindow window);
+ }  
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000034.html">[Jircii-svn] r54 - rero/src/rero/client/functions
+</A></li>
+	<LI>Next message: <A HREF="000036.html">[Jircii-svn] r56 - rero/src/rero/gui/mdi
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#35">[ date ]</a>
+              <a href="thread.html#35">[ thread ]</a>
+              <a href="subject.html#35">[ subject ]</a>
+              <a href="author.html#35">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/jircii-svn">More information about the Jircii-svn
+mailing list</a><br>
+</body></html>

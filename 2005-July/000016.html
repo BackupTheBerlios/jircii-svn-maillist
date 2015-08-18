@@ -1,0 +1,446 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Jircii-svn] r36 - in rero: lib resources/help resources/toplevel resources/toplevel/docs src/rero/client/dcc src/rero/client/functions src/rero/config src/rero/dialogs src/rero/gui/windows src/rero/ircfw src/rero/net src/rero/util src/text src/text/list
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/jircii-svn/2005-July/index.html" >
+   <LINK REL="made" HREF="mailto:jircii-svn%40lists.berlios.de?Subject=Re%3A%20%5BJircii-svn%5D%20r36%20-%20in%20rero%3A%20lib%20resources/help%20resources/toplevel%20resources/toplevel/docs%20src/rero/client/dcc%20src/rero/client/functions%20src/rero/config%20src/rero/dialogs%20src/rero/gui/windows%20src/rero/ircfw%20src/rero/net%20src/rero/util%20src/text%20src/text/list&In-Reply-To=%3C200507181534.j6IFYqZ3013276%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000015.html">
+   <LINK REL="Next"  HREF="000017.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Jircii-svn] r36 - in rero: lib resources/help resources/toplevel resources/toplevel/docs src/rero/client/dcc src/rero/client/functions src/rero/config src/rero/dialogs src/rero/gui/windows src/rero/ircfw src/rero/net src/rero/util src/text src/text/list</H1>
+    <B>Raphael Mudge at BerliOS</B> 
+    <A HREF="mailto:jircii-svn%40lists.berlios.de?Subject=Re%3A%20%5BJircii-svn%5D%20r36%20-%20in%20rero%3A%20lib%20resources/help%20resources/toplevel%20resources/toplevel/docs%20src/rero/client/dcc%20src/rero/client/functions%20src/rero/config%20src/rero/dialogs%20src/rero/gui/windows%20src/rero/ircfw%20src/rero/net%20src/rero/util%20src/text%20src/text/list&In-Reply-To=%3C200507181534.j6IFYqZ3013276%40sheep.berlios.de%3E"
+       TITLE="[Jircii-svn] r36 - in rero: lib resources/help resources/toplevel resources/toplevel/docs src/rero/client/dcc src/rero/client/functions src/rero/config src/rero/dialogs src/rero/gui/windows src/rero/ircfw src/rero/net src/rero/util src/text src/text/list">rsmudge at berlios.de
+       </A><BR>
+    <I>Mon Jul 18 17:34:52 CEST 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000015.html">[Jircii-svn] r35 - rero/lib
+</A></li>
+        <LI>Next message: <A HREF="000017.html">[Jircii-svn] r37 - in rero: resources/help resources/toplevel resources/toplevel/docs src/rero/client/script src/rero/config
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#16">[ date ]</a>
+              <a href="thread.html#16">[ thread ]</a>
+              <a href="subject.html#16">[ subject ]</a>
+              <a href="author.html#16">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: rsmudge
+Date: 2005-07-18 17:34:42 +0200 (Mon, 18 Jul 2005)
+New Revision: 36
+
+Added:
+   rero/src/rero/dialogs/ClientOptions.java
+Modified:
+   rero/lib/sleep.jar
+   rero/resources/help/About
+   rero/resources/help/Contributors
+   rero/resources/help/KB_Shortcuts
+   rero/resources/help/aliases
+   rero/resources/toplevel/docs/sleeplang.pdf
+   rero/resources/toplevel/whatsnew.txt
+   rero/src/rero/client/dcc/FeatureDCC.java
+   rero/src/rero/client/functions/UtilOperators.java
+   rero/src/rero/config/ClientDefaults.java
+   rero/src/rero/dialogs/IRCOptions.java
+   rero/src/rero/dialogs/OptionWindow.java
+   rero/src/rero/gui/windows/ChannelListData.java
+   rero/src/rero/ircfw/InternalDataList.java
+   rero/src/rero/net/SocketConnection.java
+   rero/src/rero/util/ClientUtils.java
+   rero/src/text/LabelDisplay.java
+   rero/src/text/list/ListDisplayComponent.java
+Log:
+My changelist for b38...
+- fixed repainting issues with the channel listbox and statusbar under XP
+  (Serge/Raffi)
+- fixed bug with auto resume option, if a file is complete, auto resume
+  will no longer pop up a dialog asking you to rename the saved file.
+  (the idea behind the auto options is to be hands off...); a message is
+  fired to indicate this case as well.
+- moved the Update IAL on Join and Auto Reconnect options to a new dialog
+  panel called Client Options
+- added an option to strip out all formatting codes from IRC messages
+
+
+
+
+Modified: rero/lib/sleep.jar
+===================================================================
+(Binary files differ)
+
+Modified: rero/resources/help/About
+===================================================================
+--- rero/resources/help/About	2005-07-17 16:29:24 UTC (rev 35)
++++ rero/resources/help/About	2005-07-18 15:34:42 UTC (rev 36)
+@@ -11,7 +11,7 @@
+ &lt;br&gt;
+ &lt;br&gt;&lt;b&gt;Contact Information&lt;/b&gt;&lt;/font&gt;
+ &lt;br&gt;
+-&lt;br&gt;My name is Raffi, I wrote jIRCii.  If you'd like to get in touch with me feel free to email me.
++&lt;br&gt;My name is Raffi, I wrote jIRCii (with some help see Contributors section).  If you'd like to get in touch with me feel free to email me.
+ &lt;br&gt;
+ &lt;br&gt;email: &lt;a href=&quot;mailto:<A HREF="https://lists.berlios.de/mailman/listinfo/jircii-svn">raffi at hick.org</A>&quot;&gt;<A HREF="https://lists.berlios.de/mailman/listinfo/jircii-svn">raffi at hick.org</A>&lt;/a&gt;
+ &lt;br&gt;www: &lt;a href=&quot;<A HREF="http://www.hick.org/~raffi/">http://www.hick.org/~raffi/</A>&quot;&gt;<A HREF="http://www.hick.org/~raffi/&lt;/a">http://www.hick.org/~raffi/&lt;/a</A>&gt;
+
+Modified: rero/resources/help/Contributors
+===================================================================
+--- rero/resources/help/Contributors	2005-07-17 16:29:24 UTC (rev 35)
++++ rero/resources/help/Contributors	2005-07-18 15:34:42 UTC (rev 36)
+@@ -2,7 +2,12 @@
+ &lt;br&gt;
+ &lt;br&gt;jIRCii has been a work in progress for a long time now.  I originally started it as a project to learn java while in high school.  I tinkered with it as a hobby throughout college.  I didn't make that final push to create a release quality product until now though.  Anyways with such a long history as a project there are to many people to thank so I'm going to keep this list short.
+ &lt;br&gt;
+-&lt;br&gt;&lt;b&gt;Patch Contributors&lt;/b&gt;&lt;/font&gt;
++&lt;br&gt;&lt;p&gt;Development Team&lt;/p&gt;
++&lt;br&gt;Serge Baranov
++&lt;br&gt;Raphael Mudge
++&lt;br&gt;Andreas Ravnestad
++&lt;br&gt;
++&lt;br&gt;&lt;b&gt;Patch Contributors&lt;/b&gt;
+ &lt;br&gt;Mouton - found and fixed a Ctrl+K parsing bug
+ &lt;br&gt;Elly   - built initial UnrealIRCD support, bug fixes
+ &lt;br&gt;
+
+Modified: rero/resources/help/KB_Shortcuts
+===================================================================
+--- rero/resources/help/KB_Shortcuts	2005-07-17 16:29:24 UTC (rev 35)
++++ rero/resources/help/KB_Shortcuts	2005-07-18 15:34:42 UTC (rev 36)
+@@ -47,7 +47,7 @@
+ &lt;br&gt;
+ &lt;br&gt;It is possible to quickly create a /window for a query using Ctrl+W
+ &lt;br&gt;
+-&lt;br&gt;To close the current /window use Ctrl+D
++&lt;br&gt;To close the current /window use Ctrl+D.  Windows can also be closed by holding down shift and clicking on the switchbar button for the window you want to close.
+ &lt;br&gt;
+ &lt;br&gt;&lt;b&gt;Navigate Channel/Query Windows&lt;/b&gt;&lt;/font&gt;
+ &lt;br&gt;
+
+Modified: rero/resources/help/aliases
+===================================================================
+--- rero/resources/help/aliases	2005-07-17 16:29:24 UTC (rev 35)
++++ rero/resources/help/aliases	2005-07-18 15:34:42 UTC (rev 36)
+@@ -10,7 +10,6 @@
+ cping::/cping tanto::sends a ctcp ping request to the specified nick/channel.::+target - nick/channel to send ping to
+ creply::/creply Tobias VERSION x-chat: paid Windows version::sends a ctcp reply to the target::target - who to send reply to::type - type of ctcp reply to send::+parms - parameters to send
+ cycle::/cycle::leaves and joins the current/specified channel::+#channel - channel to cycle
+-d::/d blue-elf JakieChan::figures out the mode for the specified users (op,voice,halfop) and removes the mode.  You can specify up to 4 nicknames (uses nick completion).::nick - user to take mode from::+nick... - other users to take mode from.
+ dcc::/dcc send JakieChan ~/jerksrc.tar&lt;br&gt;/dcc chat tanto&lt;br&gt;/dcc accept blue-elf&lt;br&gt;/dcc close JakieChan::DCC stands for Direct Client Connection.  It is a way of sending and receiving files from other users on IRC.  It also provides facilities for chatting with another user outside of the IRC environment.::+stats - show dcc statistics in a window::send|chat|close|accept - type of dcc command to send.::nick - user to send dcc request to.::+file - filename to send
+ deop::/deop tijiez::takes away half operator privileges for user on active channel. You can specify up to 4 nicknames (uses nick completion).::nick - user to deop::+nick... - other users to deop.
+ describe::/describe #jIRC slaps tanto.::sends an action to the specified channel::#channel - channel to send action to.::text - action to perform.
+
+Modified: rero/resources/toplevel/docs/sleeplang.pdf
+===================================================================
+(Binary files differ)
+
+Modified: rero/resources/toplevel/whatsnew.txt
+===================================================================
+--- rero/resources/toplevel/whatsnew.txt	2005-07-17 16:29:24 UTC (rev 35)
++++ rero/resources/toplevel/whatsnew.txt	2005-07-18 15:34:42 UTC (rev 36)
+@@ -1,3 +1,24 @@
++Beta 38 
++====
++- jIRCii command history behavior has been completely overhauled to feel
++  more like mIRC and other clients (- Oracel -)
++- a bug has been fixed where jIRCii list dialogs (/list etc.) did not
++  have the appropriate row height set (- Serge -)
++- windows can now be closed by shift+clicking the switchbar button (- Serge -)
++- added better URL matching for clicked links (- Serge -)
++- added a check to getModeFor() to prevent a null pointer exception
++- fixed a potential deadlock issue from the listbox painting code
++- upgraded scripting library to Sleep 2.0-stable
++- fixed repainting issues with the channel listbox and statusbar under XP
++  (Serge/Raffi)
++- fixed bug with auto resume option, if a file is complete, auto resume
++  will no longer pop up a dialog asking you to rename the saved file.
++  (the idea behind the auto options is to be hands off...); a message is
++  fired to indicate this case as well.
++- moved the Update IAL on Join and Auto Reconnect options to a new dialog
++  panel called Client Options
++- added an option to strip out all formatting codes from IRC messages
++
+ Beta 37 release 07.13.05
+ ====
+ - fixed resource loading to ensure files in .jIRC have priority over 
+
+Modified: rero/src/rero/client/dcc/FeatureDCC.java
+===================================================================
+--- rero/src/rero/client/dcc/FeatureDCC.java	2005-07-17 16:29:24 UTC (rev 35)
++++ rero/src/rero/client/dcc/FeatureDCC.java	2005-07-18 15:34:42 UTC (rev 36)
+@@ -330,12 +330,19 @@
+ 
+                   getCapabilities().sendln(outputz);
+                   getCapabilities().getOutputCapabilities().fireSetStatus(description, &quot;SEND_RESUME_REQUEST&quot;);
+-                  break;
+                }
++               else
++               {
++                  protocol.fireError(&quot;file already completed, no need to resume&quot;);
++               }
++               break;
++             case DCCUtilities.RENAME_OPTION_SELECTED:
++               boolean option = SendRequest.showDialog(getCapabilities().getGlobalCapabilities().getFrame(), connect);
+ 
+-             case DCCUtilities.RENAME_OPTION_SELECTED:
+-               SendRequest.showDialog(getCapabilities().getGlobalCapabilities().getFrame(), connect);
+-               handleReceive(protocol, connect, description, temp);
++               if (option)
++               {
++                  handleReceive(protocol, connect, description, temp);
++               }
+                break;
+ 
+              case DCCUtilities.OVERWRITE_OPTION_SELECTED:
+
+Modified: rero/src/rero/client/functions/UtilOperators.java
+===================================================================
+--- rero/src/rero/client/functions/UtilOperators.java	2005-07-17 16:29:24 UTC (rev 35)
++++ rero/src/rero/client/functions/UtilOperators.java	2005-07-18 15:34:42 UTC (rev 36)
+@@ -144,7 +144,7 @@
+    {
+       public Scalar evaluate(String f, ScriptInstance si, Stack locals)
+       {
+-         return SleepUtils.getScalar(AttributedString.CreateAttributedString(locals.pop().toString()).getText());
++         return SleepUtils.getScalar(ClientUtils.strip(BridgeUtilities.getString(locals, &quot;&quot;)));
+       }
+    }
+ 
+
+Modified: rero/src/rero/config/ClientDefaults.java
+===================================================================
+--- rero/src/rero/config/ClientDefaults.java	2005-07-17 16:29:24 UTC (rev 35)
++++ rero/src/rero/config/ClientDefaults.java	2005-07-18 15:34:42 UTC (rev 36)
+@@ -60,6 +60,8 @@
+    public static final boolean switchbar_sort     = false; // sort switchbar buttons alphabetically...
+    public static final boolean switchbar_hilight  = true; // determine if switchbar hilighting is on/off
+ 
++   public static final boolean client_stripcodes  = false; // strip colors from server?
++
+    public static final boolean log_enabled   = false;
+    public static final String  log_saveto    = new File(System.getProperty(&quot;user.home&quot;), &quot;irc_logs&quot;).getAbsolutePath();
+    public static final boolean log_strip     = true;
+
+Added: rero/src/rero/dialogs/ClientOptions.java
+===================================================================
+--- rero/src/rero/dialogs/ClientOptions.java	2005-07-17 16:29:24 UTC (rev 35)
++++ rero/src/rero/dialogs/ClientOptions.java	2005-07-18 15:34:42 UTC (rev 36)
+@@ -0,0 +1,35 @@
++package rero.dialogs;
++
++import java.awt.*;
++import java.awt.event.*;
++
++import javax.swing.*;
++import javax.swing.event.*;
++
++import java.util.*;
++import rero.config.*;
++import rero.dck.*;
++
++public class ClientOptions extends DMain
++{
++   public String getTitle()
++   {
++      return &quot;Client Options&quot;;
++   }
++
++   public String getDescription()
++   {
++      return &quot;Client Options&quot;;
++   }
++
++   public void setupDialog()
++   {
++      addBlankSpace();
++
++      addCheckboxInput(&quot;update.ial&quot; , ClientDefaults.option_showmotd,  &quot;Update IAL on channel join&quot;, 'I');
++      addCheckboxInput(&quot;option.reconnect&quot; , ClientDefaults.option_reconnect,  &quot;Auto-reconnect when disconnected&quot;, 'r');
++   }
++}
++
++
++
+
+Modified: rero/src/rero/dialogs/IRCOptions.java
+===================================================================
+--- rero/src/rero/dialogs/IRCOptions.java	2005-07-17 16:29:24 UTC (rev 35)
++++ rero/src/rero/dialogs/IRCOptions.java	2005-07-18 15:34:42 UTC (rev 36)
+@@ -41,10 +41,9 @@
+ 
+       addBlankSpace();
+ 
+-      addCheckboxInput(&quot;update.ial&quot; , ClientDefaults.option_showmotd,  &quot;Update IAL on channel join&quot;, 'I');
+       addCheckboxInput(&quot;option.showmotd&quot; , ClientDefaults.option_showmotd,  &quot;Show MOTD&quot;, 'M');
+-      addCheckboxInput(&quot;option.reconnect&quot; , ClientDefaults.option_reconnect,  &quot;Auto-reconnect when disconnected&quot;, 'r');
+       addCheckboxInput(&quot;option.timestamp&quot;, ClientDefaults.option_timestamp, &quot;Timestamp Events.&quot;, 'a');
++      addCheckboxInput(&quot;client.stripcodes&quot; , ClientDefaults.client_stripcodes,  &quot;Strip formatting codes from IRC messages&quot;, 'f');
+    }
+ }
+ 
+
+Modified: rero/src/rero/dialogs/OptionWindow.java
+===================================================================
+--- rero/src/rero/dialogs/OptionWindow.java	2005-07-17 16:29:24 UTC (rev 35)
++++ rero/src/rero/dialogs/OptionWindow.java	2005-07-18 15:34:42 UTC (rev 36)
+@@ -97,6 +97,7 @@
+ 
+        category = new DefaultMutableTreeNode(&quot;Client Options&quot;); items.add(category);
+           option = new DefaultMutableTreeNode(addDialog(new IRCOptions()));   category.add(option);
++          option = new DefaultMutableTreeNode(addDialog(new ClientOptions()));   category.add(option);
+           option = new DefaultMutableTreeNode(addDialog(new DCCOptions()));   category.add(option);
+           option = new DefaultMutableTreeNode(addDialog(new LoggingDialog()));   category.add(option);
+           option = new DefaultMutableTreeNode(addDialog(new AutoWindowDialog()));   category.add(option);
+
+Modified: rero/src/rero/gui/windows/ChannelListData.java
+===================================================================
+--- rero/src/rero/gui/windows/ChannelListData.java	2005-07-17 16:29:24 UTC (rev 35)
++++ rero/src/rero/gui/windows/ChannelListData.java	2005-07-18 15:34:42 UTC (rev 36)
+@@ -100,7 +100,7 @@
+       }
+       else
+       {
+-         return null;
++         return getChannel().getAllUsers(); // prevent a null pointer exception when capabilities haven't been installed yet
+       }
+    }
+ 
+
+Modified: rero/src/rero/ircfw/InternalDataList.java
+===================================================================
+--- rero/src/rero/ircfw/InternalDataList.java	2005-07-17 16:29:24 UTC (rev 35)
++++ rero/src/rero/ircfw/InternalDataList.java	2005-07-18 15:34:42 UTC (rev 36)
+@@ -278,7 +278,7 @@
+ 
+     public boolean isOn(User user, Channel channel)
+     {
+-        return (user.getChannels().contains(channel));
++        return user != null &amp;&amp; user.getChannels().contains(channel);
+     }
+ 
+     public void AddUser(String nickname, Channel channel)
+
+Modified: rero/src/rero/net/SocketConnection.java
+===================================================================
+--- rero/src/rero/net/SocketConnection.java	2005-07-17 16:29:24 UTC (rev 35)
++++ rero/src/rero/net/SocketConnection.java	2005-07-18 15:34:42 UTC (rev 36)
+@@ -246,8 +246,24 @@
+       event.data   = connectionInformation;
+ 
+       ClientState.getClientState().addClientStateListener(&quot;client.encoding&quot;, this);
++
++      if (listener2 == null)
++      {
++         listener2 = new ClientStateListener() {
++             public void propertyChanged(String key, String value)
++             {
++                stripcodes = ClientState.getClientState().isOption(&quot;client.stripcodes&quot;, ClientDefaults.client_stripcodes);
++             }
++         };
++
++         listener2.propertyChanged(null, null);
++         ClientState.getClientState().addClientStateListener(&quot;client.stripcodes&quot;, listener2);
++      }
+    }
+ 
++   private static boolean stripcodes;
++   private static ClientStateListener listener2 = null;
++
+    LinkedList connectDisconnectListeners = new LinkedList();
+    LinkedList messageReadListeners       = new LinkedList();
+ 
+@@ -290,6 +306,11 @@
+ 
+    public void fireReadEvent(String message)
+    {
++      if (stripcodes)
++      {
++         message = ClientUtils.strip(message);
++      }
++
+       event.message = message;
+       event.valid   = true;
+ 
+
+Modified: rero/src/rero/util/ClientUtils.java
+===================================================================
+--- rero/src/rero/util/ClientUtils.java	2005-07-17 16:29:24 UTC (rev 35)
++++ rero/src/rero/util/ClientUtils.java	2005-07-18 15:34:42 UTC (rev 36)
+@@ -44,6 +44,11 @@
+         return null;
+     }
+ 
++    public static String strip(String text)
++    {
++        return AttributedString.CreateAttributedString(text).getText();
++    }
++
+     public static String ShowVersion()
+     {
+         String tagline = ClientUtils.tagline();
+
+Modified: rero/src/text/LabelDisplay.java
+===================================================================
+--- rero/src/text/LabelDisplay.java	2005-07-17 16:29:24 UTC (rev 35)
++++ rero/src/text/LabelDisplay.java	2005-07-18 15:34:42 UTC (rev 36)
+@@ -59,8 +59,8 @@
+    {
+       TextSource.initGraphics(g);
+ 
+-      int checkY = (g.getClipBounds()).y;             // reverse these if
+-      int checkH = checkY+(g.getClipBounds()).height; // painting fucks up
++      int checkY = (g.getClipBounds()).y - 10;             // reverse these if
++      int checkH = checkY+(g.getClipBounds()).height + 20; // painting fucks up
+ 
+       int width = super.getWidth();
+       int height = super.getHeight();
+
+Modified: rero/src/text/list/ListDisplayComponent.java
+===================================================================
+--- rero/src/text/list/ListDisplayComponent.java	2005-07-17 16:29:24 UTC (rev 35)
++++ rero/src/text/list/ListDisplayComponent.java	2005-07-18 15:34:42 UTC (rev 36)
+@@ -57,8 +57,8 @@
+ 
+       data.setExtent(getHeight() / (TextSource.fontMetrics.getHeight() + 2));
+ 
+-      int checkY = (g.getClipBounds()).y;             // reverse these if
+-      int checkH = checkY+(g.getClipBounds()).height; // painting fucks up
++      int checkY = (g.getClipBounds()).y - 10;             // reverse these if
++      int checkH = checkY+(g.getClipBounds()).height + 20; // painting fucks up
+ 
+       int width = super.getWidth();
+       int height = super.getHeight();
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000015.html">[Jircii-svn] r35 - rero/lib
+</A></li>
+	<LI>Next message: <A HREF="000017.html">[Jircii-svn] r37 - in rero: resources/help resources/toplevel resources/toplevel/docs src/rero/client/script src/rero/config
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#16">[ date ]</a>
+              <a href="thread.html#16">[ thread ]</a>
+              <a href="subject.html#16">[ subject ]</a>
+              <a href="author.html#16">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/jircii-svn">More information about the Jircii-svn
+mailing list</a><br>
+</body></html>
